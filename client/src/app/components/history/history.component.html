@@ -62,7 +62,7 @@ max-width:100%;">
                                     <span >
                                         <h6 class="step-lebel">HISTORY</h6>
                                     </span>
-                                    <span *ngIf="session.famHist.condition||session.allegies.allegy">
+                                    <span *ngIf="session.histories.length||session.allegies.allegy">
                                         <i  class="icon ion-ios-checkmark-empty paid-icon"></i>
                                    </span>
                                 </div>
@@ -158,17 +158,83 @@ max-width:100%;">
                                 </div>
                             </form>
                             <form *ngIf="count===1"  style="top:3%;height:100%;width:60%;position:relative;margin:auto;" class=" staffsform">
-                                <div class="form-group vitals-section" style="width:100%; margin-right: 5px; display:inline-block">
-                                    <label style="font-size:8px" for="famhistory" class="labelss">
-                                        FAMILY HISTORY
-                                    </label>
-                                    <input [(ngModel)]="session.famHist.condition"  name="famhistory" class=" form-control patientdata dystolic inputs dataInfo"/>
-                                    <div style="min-height:400px;" *ngIf='checkItems("history")' class="options prisOption edit">
-                                    </div>
-                                </div>
                                 <div style="width:100%; display:inline-block" class="form-group vitals-section">
                                     <label style="font-size:8px" for="allegy" class="labelss">ALLEGIES<span style='font-size:11px; color:red;'>*</span> </label>
                                     <input  [(ngModel)]="session.allegies.allegy" name="allegy" class="form-control patientdata dystolic inputs dataInfo" />
+                                </div>
+                                <div class="form-group vitals-section" style="width:100%; margin-right: 5px; display:inline-block">
+                                    <label style="font-size:8px" for="famhistory" class="labelss">
+                                        HISTORY
+                                    </label>
+                                    <input 
+                                        (focus) = "showSuggestions('history')"
+                                        (keyup) = searchHistory()
+                                        autocomplete="off"
+                                        [(ngModel)]="session.history.condition"  
+                                        name="history" 
+                                        class=" form-control patientdata dystolic inputs dataInfo"/>
+                                        <div *ngIf="matches.length" style="position: absolute;z-index:200;height: 300px;border: none;"  class="options prisOption edit">
+                                            <ul data-simplebar class="itemsList" style=" border-radius:4px; height: 300px;background-color: white;border:1px solid whitesmoke">
+                                                <li *ngFor="let match of matches">
+                                                    <p (click)=selectHistory(match) class="dept firstheader drugItem" style="font-size:11px;padding-left: 10px; padding-right: 10px;font-weight: normal;">{{match}}<span class="lastdept timetaken "></span>
+                                                    </p>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                </div>
+                                <div class="form-group vitals-section" style="width:47%; margin-right: 5px; display:inline-block">
+                                    <label style="font-size:8px" for="history" class="labelss">
+                                        DURATION
+                                    </label>
+                                    <input type = 'number' 
+                                            [(ngModel)]="session.history.duration"  
+                                            name="hist-duration" 
+                                            placeholder = 'In Days'
+                                            class=" form-control patientdata dystolic inputs dataInfo"/>
+                                </div>
+                                <div  class="form-group vitals-section formGroup" style=" width:44%;">
+                                    <label style="font-size:8px" for="piriod" class="labelss complain">BEARER</label>
+                                    <select [(ngModel)]="session.history.bearer"  (focus) = clearMsg() style='border-top-right-radius: 0px;border-bottom-right-radius: 0px;border-right: 0px;    width: 99%;' 
+                                    name='bearer'  autocomplete="off" class="patientdata dystolic inputs dataInfo">
+                                        <option >Self</option>
+                                        <option >Family</option>
+                                    </select>
+                                    <div id='moreBtn'>
+                                        <i *ngIf = 'session.history'  title = "Add History" style="left: 13%;top: -21%;
+                                        font-size: 23px;
+                                        position: relative;
+                                        cursor: pointer;"  
+                                        class="icon ion-ios-plus-empty arrow "
+                                        (click) = 'addHistory()'
+                                        ></i>
+                                    </div>
+                                </div>
+                                <div *ngIf='session.histories.length' class="form-group vitals-section setGroup">
+                                    <table cellspacing="0" class="data-table drugs-table" style="width:100%;left:0%;" summary="List of all items in store. ">
+                                        <thead class='productHead'>
+                                            <tr class="patient-th">
+                                                <th style='padding:4px;font-size:10px;color: #6c757d;font-weight:bold' class="headlbl patient-th">HISTORY</th>
+                                                <th style='padding: 4px;font-size:10px;text-align: right;color: #6c757d;font-weight:bold' class="headlbl patient-th">DURATION</th>
+                                                <th style='padding: 4px;font-size:10px' class="headlbl patient-th"></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr style="border-bottom: 1px solid #f8f9fa;"  *ngFor='let history of session.histories; let i = index; let odd = odd' class="ro patient-row">
+                                                <td style="padding:0px;padding-left:4px;" class="data">
+                                                    {{history.condition}}
+                                                </td>
+                                                <td *ngIf = 'history.duration' style="padding:0px;text-align: right;padding-left:4px;" class="data">
+                                                    {{history.duration  +'d | '+ history.bearer[0]}}
+                                                </td>
+                                                <td *ngIf = '!history.duration' style="padding:0px;text-align: right;padding-left:4px;" class="data">
+                                                    {{ '--- ' + history.bearer}}
+                                                </td>
+                                                <td style='padding:0px; padding-left:3px;text-align: center;color:darkgray' class="data">
+                                                    <i (click)=removeHistory(history.condition,i) class="icon ion-ios-trash-outline tableicon" title="Discard" style="font-size:15px; cursor: pointer;"></i>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
                                 </div>
                             </form>
                             <form *ngIf="count===3"  style="top: 3%; height: 100%;width:60%;margin:auto;position: relative;" class=" ">
@@ -182,7 +248,8 @@ max-width:100%;">
                                 </div>
                                 <div *ngIf="session.reqItem.category==='Test'"  class="form-group vitals-section formGroup" style=" width:47%;margin-right: 5px;">
                                     <label style="font-size:8px" for="dos" class="labelss complain">TEST</label>
-                                    <input (focus) = "showSuggestions('tests')" autocomplete="off" [(ngModel)]="session.test.name" (keyup) = searchTest() name="test" class="form-control patientdata inputs dataInfo" placeholder="Alpha-feto protein PB">
+                                    <input (focus) = "showSuggestions('tests')" autocomplete="off" 
+                                    [(ngModel)]="session.test.name" (keyup) = searchTest() name="test" class="form-control patientdata inputs dataInfo" placeholder="Alpha-feto protein PB">
                                     <div  *ngIf="matches.length" style="position: absolute;z-index:200;height: 300px;border: none;"  class="options prisOption edit">
                                         <ul data-simplebar class="itemsList" style=" border-radius:4px; height: 300px;background-color: white;border:1px solid whitesmoke">
                                             <li *ngFor="let match of matches">
@@ -201,7 +268,9 @@ max-width:100%;">
                                         <i *ngIf="session.test.name && session.test.dept" title = "Add Request" style="left: 13%;top: -21%;
                                         font-size: 23px;
                                         position: relative;
-                                        cursor: pointer;" (click)="addRequest()" class="icon ion-ios-plus-empty arrow "></i>
+                                        cursor: pointer;" 
+                                        (click)="addRequest()" 
+                                        class="icon ion-ios-plus-empty arrow "></i>
                                     </div>
                                 </div>
                                 <div *ngIf="session.reqItem.category==='Scanning'"  class="form-group vitals-section formGroup" style=" width:47%;margin-right: 5px;">
@@ -248,10 +317,14 @@ max-width:100%;">
                                         <option *ngFor="let dept of getDepts()">{{dept.name}}</option>
                                     </select>
                                     <div id='moreBtn'>
-                                        <i *ngIf="session.surgery.name && session.surgery.dept" title = "Add Request" style="left: 13%;top: -21%;
-                                        font-size: 23px;
-                                        position: relative;
-                                        cursor: pointer;" (click)="addRequest()" class="icon ion-ios-plus-empty arrow "></i>
+                                        <i *ngIf="session.surgery.name && session.surgery.dept" 
+                                        title = "Add Request" 
+                                        style="left: 13%;top: -21%;
+                                            font-size: 23px;
+                                            position: relative;
+                                            cursor: pointer;" 
+                                        (click)="addRequest()" 
+                                        class="icon ion-ios-plus-empty arrow "></i>
                                     </div>
                                 </div>
                                 <div *ngIf='session.tests.length||session.scans.length||session.surgeries.length' class="form-group vitals-section setGroup">
@@ -301,17 +374,26 @@ max-width:100%;">
                                             <i style="left: 13%;top: -21%;
                                             font-size: 23px;
                                             position: relative;
-                                            cursor: pointer;" (click)="addVital()" class="icon ion-ios-plus-empty arrow "></i>
+                                            cursor: pointer;" 
+                                            (click)="addVital()" 
+                                            class="icon ion-ios-plus-empty arrow "></i>
                                         </div>
                                 </div>
                                 <div *ngIf="vital === 'Tempreture'" style="width: 93%;"  class="form-group vitals-section formGroup">
                                         <label style="font-size:8px" for="piriod" class="labelss complain">TEMPRETURE</label>
-                                        <input style="border-right: none;" (keyup)="clearVital('Tempreture')"  [(ngModel)]="session.vitals.tempreture.value" type="number" [min]='1' name="temp" class="form-control patientdata inputs dataInfo" placeholder="Degree Fahrenheit">
+                                        <input style="border-right: none;" 
+                                            (keyup)="clearVital('Tempreture')"  
+                                            [(ngModel)]="session.vitals.tempreture.value" 
+                                            type="number" [min]='1' 
+                                            name="temp" class="form-control patientdata inputs dataInfo" 
+                                            placeholder="Degree Fahrenheit">
                                         <div id='moreBtn'>
                                             <i style="left: 13%;top: -21%;
                                             font-size: 23px;
                                             position: relative;
-                                            cursor: pointer;" (click)="addVital()" class="icon ion-ios-plus-empty arrow "></i>
+                                            cursor: pointer;" 
+                                            (click)="addVital()" 
+                                            class="icon ion-ios-plus-empty arrow "></i>
                                         </div>
                                 </div>
                                 <div *ngIf="vital === 'Pulse Rate'" style="width: 93%;"  class="form-group vitals-section formGroup">
@@ -321,17 +403,30 @@ max-width:100%;">
                                             <i style="left: 13%;top: -21%;
                                             font-size: 23px;
                                             position: relative;
-                                            cursor: pointer;" (click)="addVital()" class="icon ion-ios-plus-empty arrow "></i>
+                                            cursor: pointer;" 
+                                            (click)="addVital()" 
+                                            class="icon ion-ios-plus-empty arrow ">
+                                        </i>
                                         </div>
                                 </div>
                                 <div *ngIf="vital === 'Respiratory Rate'" style="width: 93%;"  class="form-group vitals-section formGroup">
                                         <label style="font-size:8px" for="piriod" class="labelss complain">RESPIRATORY RATE</label>
-                                        <input style="border-top-right-radius: none;border-bottom-right-radius: none;" (keyup)="clearVital('Respiratory Rate')"  [(ngModel)]="session.vitals.resp.value" type="number" [min]='1' name="resp" class="form-control patientdata inputs dataInfo" placeholder="bpm">
+                                        <input  type="number" [min]='1' 
+                                                style="border-top-right-radius: none;
+                                                border-bottom-right-radius: none;" 
+                                                (keyup)="clearVital('Respiratory Rate')"  
+                                                [(ngModel)]="session.vitals.resp.value" 
+                                                name="resp" 
+                                                class="form-control patientdata inputs dataInfo" 
+                                                placeholder="bpm">
                                         <div id='moreBtn'>
                                             <i style="left: 13%;top: -21%;
-                                            font-size: 23px;
-                                            position: relative;
-                                            cursor: pointer;" (click)= addVital() class="icon ion-ios-plus-empty arrow "></i>
+                                                    font-size: 23px;
+                                                    position: relative;
+                                                    cursor: pointer;" 
+                                                (click)= addVital() 
+                                                class="icon ion-ios-plus-empty arrow ">
+                                            </i>
                                         </div>
                                 </div>
                                 <div *ngIf='vitals.length' class="form-group vitals-section setGroup">
@@ -613,12 +708,17 @@ max-width:100%;">
                         </div>
                     </div>
                 </div>
-                <div class="card card-secondary historycard leftcard deathinfo">
+                <div style = 'height:275px' class="card card-secondary historycard leftcard deathinfo">
                     <div class="card-header grapheader">
                         <h1 class="dept headtitle">DEATH INFORMATION</h1>
                     </div>
                     <div class="card-body rightcardbody">
-                        <h1 style='color:lightgrey; width:100%; text-align:center;top:43%;position:absolute;' class="dept headtitle">NO RECORD</h1>
+                        <h1 style='color:lightgrey; 
+                        width:100%; 
+                        text-align:center;
+                        top:43%;
+                        position:absolute;' 
+                        class="dept headtitle">NO RECORD</h1>
                         <div class="carditem"></div>
                     </div>
                 </div>
@@ -944,20 +1044,31 @@ max-width:100%;">
         <div *ngIf='patient._id' class="col col-xs-3 col-sm-3 col-md-3 col-lg-3 col-xl-3">
             <div class="card-colums rightcolumn">
 
-                <div class="card card-secondary historycard rightcard allegies">
+                <div style='height:370px'  class="card card-secondary historycard rightcard allegies">
                     <div class="card-header grapheader">
-                        <h1 class="dept headtitle">FAMILY HISTORY</h1>
+                        <h1 class="dept headtitle">HISTORY</h1>
                     </div>
-                    <div class="card-body rightcardbody">
-                        <h1 *ngIf='!patient.record.famHist.length' style='color:lightgrey; width:100%; text-align:center;top:43%;position:absolute;' class="dept headtitle">NO RECORD</h1>
-                        <div class="carditem">
-                            <ul class="itemlist">
-                                <li *ngFor = 'let history of patient.record.famHist'>
-                                    {{history.condition}}
-                                </li>
-                            </ul>
+                    <div style ="padding-left:17px;" class="card-body rightcardbody">
+                        <h1 *ngIf='!patient.record.histories.length' 
+                        style='color:lightgrey; width:100%; text-align:center;top:43%;position:absolute;' 
+                        class="dept headtitle">NO RECORD</h1>
+                        <div  *ngFor="let hist of patient.record.histories; let i = index"  class="carditem priscriptioncontainer order">
+                          <div style='left:-7.2%' class="timeline condition drugtimeline">
+                              <p class="timelinedate"> {{hist[0]?.meta.dateAdded|date:'dd'}}</p>
+                              <p  class="timelinedate month"> {{hist[0]?.meta.dateAdded|date:'MMM'|uppercase}}</p>
+                          </div>
+                          <div *ngFor ="let h of hist; let j= index" class="priscription drug">
+                              <p class="dept">{{h.condition}}<span class="predata"></span>
+                                  <span style='
+                                  color:lightgrey;
+                                  font-size:smaller;
+                                  left:102px;width:27%;
+                                  position:absolute;text-align:right;'>{{h.duration}}d</span>
+                              </p>
+                              <h6 class="dept previnfo" style="color:lightgrey">{{h.bearer}}</h6>
+                           </div>
                         </div>
-                    </div>
+                      </div>
                 </div>
                 <div class="card card-secondary historycard rightcard medication">
                         <div class="card-header grapheader">
@@ -977,12 +1088,14 @@ max-width:100%;">
                           </div>
                         </div>
                     </div>
-                    <div style='max-height:300px' class="card card-secondary historycard rightcard medication">
+                    <div style='height:182px;max-height:182px;min-height:182px' class="card card-secondary historycard rightcard medication">
                             <div class="card-header grapheader">
                                 <h1 class="dept headtitle">CONDITIONS</h1>
                             </div>
                             <div style ="padding-left:17px;" class="card-body rightcardbody">
-                                    <h1 *ngIf='!patient.record.conditions.length' style='color:lightgrey; width:100%; text-align:center;top:43%;position:absolute;' class="dept headtitle">NO RECORD</h1>
+                                    <h1 *ngIf='!patient.record.conditions.length' 
+                                    style='color:lightgrey; width:100%; text-align:center;top:43%;position:absolute;' 
+                                    class="dept headtitle">NO RECORD</h1>
                               <div  *ngFor="let cond of patient.record.conditions; let i = index"  class="carditem priscriptioncontainer order">
                                 <div style='left:-7.2%' class="timeline condition drugtimeline">
                                     <p class="timelinedate"> {{cond[0]?.meta.dateAdded|date:'dd'}}</p>

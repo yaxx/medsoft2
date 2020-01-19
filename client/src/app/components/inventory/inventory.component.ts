@@ -191,14 +191,14 @@ export class InventoryComponent implements OnInit {
     }
   }
   addMoreCard() {
-    if (this.products.some(product => product.item.description === this.product.item.description) ||
-    this.temProducts.some(product => product.item.description === this.product.item.description)) {
-    this.errLine = 'Card already exist';
-    } else {
+    // if (this.products.some(product => product.item.description === this.product.item.description) ||
+    // this.temProducts.some(product => product.item.description === this.product.item.description)) {
+    // this.errLine = 'Card already exist';
+    // } else {
       const p = cloneDeep({...this.product, type: this.tableView});
       this.temProducts.unshift(p);
       this.product.item.description = null;
-    }
+    // }
   }
   addMore() {
     if (this.products.some(product => product.item.name === this.product.item.name) || 

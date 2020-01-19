@@ -66,7 +66,7 @@ export class PharmacyComponent implements OnInit {
     private socket: SocketService ) { }
 
   ngOnInit() {
-    this.getPatients('Pharmacy');
+    this.getPatients();
     this.getProducts();
     this.socket.io.on('record update', (update) => {
       const i = this.patients.findIndex(p => p._id === update.patient._id);
@@ -120,7 +120,7 @@ export class PharmacyComponent implements OnInit {
   }
   refresh() {
     this.message = null;
-    this.getPatients('Pharmacy');
+    this.getPatients();
     this.getProducts();
   }
   // filterPatients(patients: Person[]) : Person[] {
@@ -173,7 +173,7 @@ export class PharmacyComponent implements OnInit {
   //   // });
   //   return (this.router.url.includes('completed')) ? completes : pendings;
   // }
-  getPatients(type: string) {
+  getPatients(type?:string) {
     this.loading = (this.page === 0) ? true : false;
     this.dataService.getPatients(type, this.page).subscribe((patients: Person[]) => {
       this.patients =  patients

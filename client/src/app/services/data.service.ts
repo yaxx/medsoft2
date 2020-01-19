@@ -47,7 +47,7 @@ export class DataService {
      return this.http.get(
       `${this.uri}/connections/${id}`, {withCredentials: true} );
   }
-  getPatients(type, page) {
+  getPatients(type?:string, page?:number) {
     return this.http.get(
       `${this.uri}/patients/${type}/${page}`, {withCredentials: true}
       );
@@ -112,9 +112,9 @@ export class DataService {
       `${this.uri}/new-record`, record, {withCredentials: true});
   }
 
-  updateRecord(patient, newItems = []) {
+  updateRecord(patient, items = []) {
     return this.http.post(
-      `${this.uri}/update-record`, {patient, items: newItems} , {withCredentials: true});
+      `${this.uri}/update-record`, {patient, items} , {withCredentials: true});
  }
   card(patient, card, invoice) {
     return this.http.post(

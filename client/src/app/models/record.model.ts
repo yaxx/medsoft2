@@ -38,9 +38,11 @@ export class Complain {
     public duration: number = null
      ) {}
   }
-export class FamHist {
+export class History {
   constructor(
     public condition: string = null,
+    public duration: number = null,
+    public bearer: string = 'Self',
     public meta: Meta = new Meta()
      ) {}
   }
@@ -231,7 +233,7 @@ export class Appointment {
 }
 export class Session {
   constructor(
-    public famHist: FamHist = new FamHist(),
+    public history: History = new History(),
     public note: Note = new Note(),
     public appointment: Appointment = new Appointment(),
     public complain: Complain = new Complain(),
@@ -249,6 +251,7 @@ export class Session {
     public newItems: any = [],
     public conditions: Condition[] = [],
     public complains: Complain[] = [],
+    public histories: History[] = [],
     public items: Item[] = [],
     public medications: Medication[] = [],
     public tests: Test[] = [],
@@ -265,7 +268,7 @@ export class Session {
   export class Record {
     constructor(
       public complains: any[] = [],
-      public famHist: FamHist[] = [],
+      public histories: any[] = [],
       public notes: Note[] = [],
       public vitals: Vital = new Vital(),
       public conditions: any[] = [],

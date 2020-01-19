@@ -13,8 +13,13 @@ import 'simplebar/dist/simplebar.css';
 import {CookieService } from 'ngx-cookie-service';
 import {ActivatedRoute, Router} from '@angular/router';
 import { Item, StockInfo, Product, Card, Invoice, Meta} from '../../models/inventory.model';
-import { Record, Medication, Height, Weight, Bg, Condition,
-  Note, Visit, Session, Test, Surgery, Scan, Complain, Bp, Resp, Pulse, Temp, Vitals, Vaccin } from '../../models/record.model';
+
+import {
+    Record, Medication, Height, Weight, Bg, Condition,
+    Note, Visit, Session, Test, Surgery, Scan, History, Complain,
+    Bp, Resp, Pulse, Temp, Vitals, Vaccin 
+  } from '../../models/record.model';
+
 import {Chart} from 'chart.js';
 import {saveAs} from 'file-saver';
 import {host} from '../../util/url';
@@ -48,6 +53,7 @@ export class HistoryComponent implements OnInit {
   scannings = Scannings;
   surgeries = Surgeries;
   conditions = Conditions;
+  histories = [];
   complains = [];
   medications = [];
   vital = 'Blood Presure';
@@ -76,7 +82,13 @@ export class HistoryComponent implements OnInit {
     this.getClient();
     this.socket.io.on('record update', (update) => {
       if (update.patient._id === this.patient._id) {
-        this.patient = {...update.patient, record: {...update.patient.record, notes: this.patient.record.notes }};
+        this.patient = {
+          ...update.patient, 
+          record: {
+          ...update.patient.record, 
+          notes: this.patient.record.notes 
+        }
+      };
       }
     });
     let day = null;
@@ -91,6 +103,9 @@ export class HistoryComponent implements OnInit {
             break;
           case 'condition':
             this.conditions.push(capture.name);
+            break;
+          case 'history':
+            this.histories.push(capture.name);
             break;
           case 'test':
             this.tests.push(capture.name);
@@ -478,6 +493,10 @@ removeComplain(complain: string, i: number) {
   this.session.complains.splice(i, 1);
   this.captures.splice(this.captures.findIndex(c => c.name ===  complain), 1);
 }
+removeHistory(complain: string, i: number) {
+  this.session.histories.splice(i, 1);
+  this.captures.splice(this.captures.findIndex(c => c.name ===  complain), 1);
+}
 removeCondition(condition: string, i: number) {
   this.session.conditions.splice(i, 1);
   this.captures.splice(this.captures.findIndex(c => c.name ===  condition), 1);
@@ -496,6 +515,16 @@ searchTest() {
   } else {
       this.matches = this.tests.filter((name) => {
       const patern =  new RegExp('\^' + this.session.test.name , 'i');
+      return patern.test(name);
+    });
+  }
+}
+searchHistory() {
+  if (!this.session.history.condition) {
+    this.matches = [];
+  } else {
+      this.matches = this.histories.filter((name) => {
+      const patern =  new RegExp('\^' + this.session.history.condition , 'i');
       return patern.test(name);
     });
   }
@@ -558,6 +587,10 @@ selectTest(match) {
   this.session.test.name = match;
   this.matches = [];
 }
+selectHistory(match) {
+  this.session.history.condition = match;
+  this.matches = [];
+}
 selectSurgery(match) {
   this.session.surgery.name = match;
   this.matches = [];
@@ -579,7 +612,7 @@ isEmptySession() {
   !this.session.complains.length &&
   !this.session.conditions.length &&
   !this.session.allegies.allegy &&
-  !this.session.famHist.condition &&
+  !this.session.histories.length &&
   !this.session.note.note &&
   !this.session.medications.length &&
   !this.vitals.length;
@@ -756,6 +789,22 @@ composeComplains() {
     }
   }
 }
+composeHistory() {
+  if (this.session.histories.length) {
+  if (this.patient.record.histories.length) {
+    if (new Date(this.patient.record.histories[0][0].meta.dateAdded)
+    .toLocaleDateString() === new Date().toLocaleDateString()) {
+      for (const c of this.session.complains) {
+        this.patient.record.histories[0].unshift(c);
+      }
+     } else {
+        this.patient.record.histories.unshift(this.session.histories);
+     }
+    } else {
+       this.patient.record.histories = [this.session.histories];
+    }
+  }
+}
 composeConditions() {
   if (this.session.conditions.length) {
   if (this.patient.record.conditions.length) {
@@ -828,6 +877,10 @@ showSuggestions(field) {
       break;
     case 'complains':
       this.matches = this.complains.slice(0, 50);
+      this.errLine = null;
+      break;
+    case 'history':
+      this.matches = this.histories.slice(0, 50);
       this.errLine = null;
       break;
     case 'conditions':
@@ -923,6 +976,18 @@ addComplain() {
     this.errLine = 'Complain already added';
   }
  }
+addHistory() {
+  if (!this.session.histories.some(h => h.condition === this.session.history.condition)) {
+     this.session.histories.unshift({
+     ...this.session.history,
+     meta: new Meta(this.cookies.get('i'), this.cookies.get('h'))
+   });
+     this.addCapture('history');
+     this.session.history = new History();
+  } else {
+    this.errLine = 'History already added';
+  }
+ }
  addCondition() {
   if (!this.session.conditions.some(c => c.condition === this.session.condition.condition)) {
      this.session.conditions.unshift({
@@ -940,6 +1005,11 @@ addCapture(capture: string) {
     case 'complain':
       if (!this.complains.find(complain => complain === this.session.complain.complain) ) {
         this.captures.unshift({category: capture, name: this.session.complain.complain});
+      }
+      break;
+    case 'history':
+      if (!this.histories.find(h => h.condition === this.session.history.condition) ) {
+        this.captures.unshift({category: capture, name: this.session.history.condition});
       }
       break;
     case 'surgery':
@@ -1027,12 +1097,7 @@ removeRequest(i: number, invoice: Invoice) {
 }
 
 checkScalars() {
-  if (this.session.famHist.condition) {
-    this.patient.record.famHist.unshift({
-      ...this.session.famHist,
-      meta: new Meta(this.cookies.get('i'), this.cookies.get('h'))
-  });
-  } else {}
+ 
   if (this.session.note.note) {
     this.patient.record.notes.unshift({
       ...this.session.note,
@@ -1044,12 +1109,7 @@ checkScalars() {
       meta: new Meta(this.cookies.get('i'), this.cookies.get('h'))
     });
   } else {}
-  if (this.session.famHist.condition) {
-    this.patient.record.famHist.unshift({
-      ...this.session.famHist,
-      meta: new Meta(this.cookies.get('i'), this.cookies.get('h'))
-    });
-  } else {}
+ 
 }
 sendRecord() {
   this.errLine = null;
@@ -1077,6 +1137,7 @@ updateRecord() {
   this.composeScans();
   this.composeSurgeries();
   this.composeComplains();
+  this.composeHistory();
   this.composeConditions();
   this.composeMedications();
   this.composeInvoices();

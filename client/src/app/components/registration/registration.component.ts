@@ -190,7 +190,7 @@ export class RegistrationComponent implements OnInit {
   isValidContact() {
       return (this.person.info.contact.emergency.mobile);
   }
-  
+
   getPatients(type) {
     this.loading = (this.page === 0) ? true : false;
     this.dataService.getPatients(type, this.page).subscribe((patients: Person[]) => {
@@ -214,9 +214,9 @@ export class RegistrationComponent implements OnInit {
     });
   }
   loadMore() {
-    if(this.page > 0) {
-      this.getPatients('out');
-  }
+  //   if(this.page > 0) {
+  //     this.getPatients('out');
+  // }
   }
   showMenu(i: number) {
     this.hideMenu();
@@ -391,13 +391,13 @@ isConsult() {
   }
    // validWithoutCard() {
   //   return (this.patient.info.personal.firstName) &&
-  //    (this.patient.info.personal.lastName) && 
+  //    (this.patient.info.personal.lastName) &&
   //    (this.patient.info.personal.dob)
   // }
   // validWithCard() {
   //   return (this.patient.info.personal.firstName) &&
-  //    (this.patient.info.personal.lastName) && 
-  //    (this.patient.info.personal.dob) && 
+  //    (this.patient.info.personal.lastName) &&
+  //    (this.patient.info.personal.dob) &&
   //    (this.card.cardNum);
   // }
   viewDetails(i) {

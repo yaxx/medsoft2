@@ -68,13 +68,13 @@ cred = {
             break;
           case 'Nurse':
             route = `/${person.info.official.department.toLowerCase()}/ward`;
-          break;
+            break;
           case 'Lab Scientist':
             route = '/lab';
-          break;
+            break;
           default:
             route = `/${person.info.official.department.toLowerCase()}`;
-          break;
+            break;
         }
         this.router.navigate([route]);
       } else {

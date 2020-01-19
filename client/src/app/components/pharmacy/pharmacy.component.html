@@ -63,7 +63,7 @@
                                                 {{med.name}}
                                                 <span class="predata"></span>
                                             </td>
-                                            <td style='font-size:11px' class="data">{{getDosage(med.desc)}}</td>
+                                            <td style='font-size:11px' class="data">{{med.kind}}</td>
                                             <td  style='font-size:11px;text-align: right' class="data"><span><input [(ngModel)]="med.quantity" type="number" name="dos" [min]='1' [max] = 'getMaxQty(med)' class="patientdata inputs dataInfo qty-btn"></span>
                                             </td>
                                             <td style='font-size:11px;text-align: right;padding-right: 15px' class="data">
@@ -107,7 +107,7 @@
 <nav class="navbar fixed-top navbar-light navbar-expand-md navigation-clean-search" style="padding:0px; margin-bottom:1px solid whitesmoke;">
     <div class="container">
         <a class="navbar-brand" href="#">
-            <em>hipr</em>
+            <em>sprintr</em>
         </a>
         <button class="navbar-toggler" data-toggle="collapse" data-target="#navcol-1">
           <span class="sr-only">Toggle navigation</span>

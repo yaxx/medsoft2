@@ -149,9 +149,9 @@
                             </div>
                             <div class="form-group vitals-section address" style=" width:48.3%; ">
                                 <label style='font-size:8px' for="sn" class="labelss complain">SERIAL NUMBER</label>
-                                <input [maxLength] ='6' (focus)=clearFeedback() [(ngModel)]="product.item.description" style="font-size:11px;width: 91%;"  name="sn" class="form-control patientdata inputs dataInfo" placeholder="">
+                                <input [maxLength] ='4' (focus)=clearFeedback() [(ngModel)]="product.item.description" style="font-size:11px;width: 91%;"  name="sn" class="form-control patientdata inputs dataInfo" placeholder="">
                                 <div style="background: white;top:-1px;height: 28px; cursor:pointer" id='moreBtn' >
-                                    <i *ngIf=isValidCard() title="Add Card"  style="left:13%; top:-28%;" (click) = addMoreCard() class = "icon ion-ios-plus-empty arrow"></i>
+                                    <i  title="Add Card"  style="left:13%; top:-28%;" (click) = addMoreCard() class = "icon ion-ios-plus-empty arrow"></i>
                                 </div>
                             </div>
                         </form>

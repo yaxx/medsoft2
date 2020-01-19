@@ -11,7 +11,7 @@
     "lint": "ng lint",
     "e2e": "ng e2e",
     "dist": "electron-builder",
-    "electron-build": "ng build --prod && mv dist ../server"
+    "build-prod": "ng build --prod && mv dist ../server"
   },
   "nsis": {
     "runAfterFinish": false,
@@ -60,7 +60,7 @@
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "~0.803.21",
-    "@angular/cli": "~8.3.21",
+    "@angular/cli": "^8.3.23",
     "@angular/compiler-cli": "~8.2.14",
     "@angular/language-service": "~8.2.14",
     "@types/jasmine": "~3.3.8",
@@ -80,7 +80,7 @@
     "karma-jasmine-html-reporter": "^1.4.0",
     "protractor": "~5.4.0",
     "ts-node": "~7.0.0",
-    "tslint": "~5.15.0",
-    "typescript": "~3.5.3"
+    "tslint": "^5.15.0",
+    "typescript": "^3.5.3"
   }
 }
