@@ -53,6 +53,7 @@ export class ConsultationComponent implements OnInit {
   reg = true;
   sortBy = 'added';
   logout = false;
+  updating = false;
   sortMenu = false;
   message = null;
   cardCount = null;
@@ -167,16 +168,21 @@ showLogOut() {
 hideLogOut() {
   this.logout = false;
 }
-  next() {
-    this.count = this.count + 1;
-  }
-  prev() {
-    this.count = this.count - 1;
-  }
+next() {
+  this.count = this.count + 1;
+}
+prev() {
+  this.count = this.count - 1;
+}
+getLgas() {
+  return this.lgas[this.states.indexOf(this.patient.info.contact.me.state)];
+}
   routeHas(path) {
     return this.router.url.includes(path);
   }
-
+  clearError() {
+    this.errorMsg = null;
+  }
   toggleWebcam(): void {
     this.showWebcam = !this.showWebcam;
   }
@@ -197,18 +203,39 @@ hideLogOut() {
     this.toggleWebcam();
   }
   viewDetails(i) {
-    this.reg = false;
     this.curIndex = i;
     this.count = 0;
-    this.psn.person = cloneDeep(this.patients[i]);
+    this.patient = cloneDeep(this.patients[i]);
   }
   updateInfo() {
-    const info = this.psn.updateInfo();
-    if (info) {
-      this.patients[this.curIndex].info = info;
-    }
- }
-
+    this.dataService.updateInfo(this.patient.info, this.patient._id).subscribe((info: Info) => {
+      this.successMsg = 'Update Sucessfull';
+      this.patient.info = info;
+      this.patients[this.curIndex].info =  info;
+      this.processing = false;
+      this.socket.io.emit('record update', {action: '', patient: this.patient});
+      setTimeout(() => {
+        this.successMsg = null;
+      }, 3000);
+    }, (e) => {
+     this.processing = false;
+     this.errorMsg = 'Update failed';
+   });
+  }
+  withoutCard() {
+    return (this.patient.info.personal.firstName) &&
+    (this.patient.info.personal.lastName) &&
+    (this.patient.info.personal.dob);
+  }
+  isValidInfo() {
+    return this.withoutCard();
+  }
+  isValidContact() {
+      return (this.patient.info.contact.emergency.mobile);
+  }
+  isInvalidForm() {
+    return !(this.isValidInfo());
+  }
  getClient() {
     this.dataService.getClient().subscribe((res: any) => {
       this.client = res.client;
@@ -388,9 +415,9 @@ getPatients(type) {
     });
   }
   loadMore() {
-    if(this.page > 0) {
-        this.getPatients('queued');
-    }
+    // if(this.page > 0) {
+    //     this.getPatients('queued');
+    // }
   }
    getBMI() {
      return  (this.session.vitals.weight.value / Math.pow(this.session.vitals.height.value, 2)).toFixed(2);

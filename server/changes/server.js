@@ -20,7 +20,7 @@ app.use('/graphql', graphQlHttp({
   graphiql: true
 }))
 
-// app.use(cors({origin:"http://localhost:4200", credentials: true}))
+//  app.use(cors({origin:"http://localhost:4200", credentials: true}))
 
 app.use(cors({origin:"*", credentials: true}))
 app.use(express.static(path.join(__dirname,'dist','client')))
@@ -61,8 +61,8 @@ io.sockets.on('connection', (socket) => {
   })
 })
 app.get('/', (req, res) => {
-    // res.render('index')
-  res.sendFile(path.join(__dirname,'dist','client','index.html'));
+  //  res.render('index')
+    res.sendFile(path.join(__dirname,'dist','client','index.html'));
 })
 // app.get('*',function (req, res) {
 //  res.redirect('/');
@@ -96,7 +96,7 @@ app.post('/api/download', api.downloadFile)
 app.post('/api/update-history', api.updateHistory)
 app.post('/api/delete-staff', api.deleteStaff)
 app.post('/api/update-record', api.updateRecord)
-app.post('/api/update-record', api.updateRecord)
+app.post('/api/update-info', api.updateInfo)
 app.post('/api/add-card', api.addCard)
 app.post('/api/updateclient', api.updateClient)
 app.post('/api/login', api.login)

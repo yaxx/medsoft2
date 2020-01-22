@@ -7,6 +7,7 @@ import {DataService} from '../../services/data.service';
 import {SocketService} from '../../services/socket.service';
 import {Person, Info} from '../../models/person.model';
 import {Visit , Appointment} from '../../models/record.model';
+import {states, lgas } from '../../data/states';
 import {CookieService } from 'ngx-cookie-service';
 import * as cloneDeep from 'lodash/cloneDeep';
 import {host} from '../../util/url';
@@ -27,6 +28,11 @@ export class AppointmentsComponent implements OnInit {
    logout = false;
    curIndex = 0;
    page = 0;
+   successMsg =  null;
+   errorMsg =  null;
+   lgas = lgas;
+   states = states;
+   count = 0;
    sortBy = 'added';
    cardCount = null;
    sortMenu = false;
@@ -35,12 +41,13 @@ export class AppointmentsComponent implements OnInit {
    processing = false;
    nowSorting = 'Date Added';
    view = 'info';
+   updating  = false;
    message = null;
    feedback = null;
    searchTerm = '';
    regMode =  'all';
-   dpurl = 'http://localhost:5000/api/dp/';
-   //dpurl = 'http://192.168.1.101:5000/api/dp/';
+  //  dpurl = 'http://localhost:5000/api/dp/';
+   dpurl = 'http://192.168.1.100:5000/api/dp/';
    appointment: Appointment = new Appointment();
    uploader: FileUploader = new FileUploader({url: uri});
    constructor(
@@ -138,9 +145,9 @@ export class AppointmentsComponent implements OnInit {
     });
   }
    loadMore() {
-    if(this.page > 0) {
-      this.getPatients('Appointment');
-  }
+  //   if(this.page > 0) {
+  //     this.getPatients('Appointment');
+  // }
   }
    fileSelected(event) {
      if (event.target.files && event.target.files[0]) {
@@ -210,10 +217,53 @@ export class AppointmentsComponent implements OnInit {
     } else {
       this.patients = this.clonedPatients;
     }
-
-
    }
-
+   withoutCard() {
+    return (this.patient.info.personal.firstName) &&
+    (this.patient.info.personal.lastName) &&
+    (this.patient.info.personal.dob);
+  }
+  isValidInfo() {
+    return this.withoutCard();
+  }
+  isValidContact() {
+      return (this.patient.info.contact.emergency.mobile);
+  }
+  isInvalidForm() {
+    return !(this.isValidInfo());
+  } 
+  next() {
+    this.count = this.count + 1;
+  }
+  prev() {
+    this.count = this.count - 1;
+  }
+  getLgas() {
+    return this.lgas[this.states.indexOf(this.patient.info.contact.me.state)];
+  }
+   viewDetails(i) {
+    this.curIndex = i;
+    this.count = 0;
+    this.patient = cloneDeep(this.patients[i]);
+  }
+  clearError() {
+    this.errorMsg = null;
+  }
+  updateInfo() {
+    this.dataService.updateInfo(this.patient.info, this.patient._id).subscribe((info: Info) => {
+      this.successMsg = 'Update Sucessfull';
+      this.patient.info = info;
+      this.patients[this.curIndex].info =  info;
+      this.processing = false;
+      this.socket.io.emit('record update', {action: '', patient: this.patient});
+      setTimeout(() => {
+        this.successMsg = null;
+      }, 3000);
+    }, (e) => {
+     this.processing = false;
+     this.errorMsg = 'Update failed';
+   });
+  }
 
    sortPatients(sortOption: string) {
      this.sortMenu = false;

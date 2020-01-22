@@ -179,7 +179,7 @@ getPatients: async (req, res) => {
     switch(official.role) {
       case 'Doctor':
         patients = patients.filter(patient => patient.record.visits[0][0].status === req.params.type && patient.record.visits[0][0].dept === official.department);
-        res.send(patients) 
+         res.send(patients) 
       break;
       case 'Nurse':
         patients = patients.filter(patient => patient.record.visits[0][0].status === req.params.type && patient.record.visits[0][0].dept === official.department);
@@ -195,20 +195,22 @@ getPatients: async (req, res) => {
       break;
       case 'Cashier':
         patients = patients.filter(patient => patient.record.invoices.length > 0);
-        res.send(patients) 
+         res.send(patients) 
       break;
       case 'Admin':
         patients = (req.params.type) ? patients.filter(patient => patient.record.visits[0][0].status === req.params.type) : patients.filter(patient => patient.record.medications.length) ;
-        res.send(patients) 
+         res.send(patients) 
       break;
       default:
       if(req.params.type === 'out') {
+        console.log('default')
         patients = patients.filter(patient => patient.record.visits[0][0].status === 'out' || !patient.record.visits[0][0].status);
       } else {
          patients = patients.filter(patient => patient.record.visits[0][0].status === req.params.type);
       }
         res.send(patients) 
       break
+      // res.send(patients) 
     }
     
     // if (patients.length >= (Number(req.params.page) * 9) + 9 ) {
@@ -456,7 +458,9 @@ updateBed: (req, res)=>{
 },
 updateInfo: async (req, res) => {
   try {
-    const person = await Person.findByIdAndUpdate(req.body.id,{info: req.body.info}, {new: true})
+    const person = await Person.findByIdAndUpdate(req.body.id,{
+      info: req.body.info
+    }, {new: true})
     res.send(person.info);
   }
   catch(e) {

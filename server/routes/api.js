@@ -195,11 +195,11 @@ getPatients: async (req, res) => {
       break;
       case 'Cashier':
         patients = patients.filter(patient => patient.record.invoices.length > 0);
-        // res.send(patients) 
+         res.send(patients) 
       break;
       case 'Admin':
         patients = (req.params.type) ? patients.filter(patient => patient.record.visits[0][0].status === req.params.type) : patients.filter(patient => patient.record.medications.length) ;
-        // res.send(patients) 
+         res.send(patients) 
       break;
       default:
       if(req.params.type === 'out') {
@@ -458,7 +458,9 @@ updateBed: (req, res)=>{
 },
 updateInfo: async (req, res) => {
   try {
-    const person = await Person.findByIdAndUpdate(req.body.id,{info: req.body.info}, {new: true})
+    const person = await Person.findByIdAndUpdate(req.body.id,{
+      info: req.body.info
+    }, {new: true})
     res.send(person.info);
   }
   catch(e) {

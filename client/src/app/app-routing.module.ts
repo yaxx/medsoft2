@@ -59,6 +59,10 @@ const routes: Routes = [
         component: NotificationsComponent
       },
       {
+        path: 'inventory',
+        component: InventoryComponent
+      },
+      {
         path: '',
         component: PharmacyComponent
       }
@@ -211,7 +215,7 @@ const routes: Routes = [
         }
       ]
   },
-  
+
   {
     path: ':dept/ward',
     component: MainComponent,

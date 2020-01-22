@@ -4,11 +4,12 @@ import {DataService} from '../../services/data.service';
 import {SocketService} from '../../services/socket.service';
 import {CookieService } from 'ngx-cookie-service';
 import {ActivatedRoute, Router} from '@angular/router';
+import {Person, Info} from '../../models/person.model';
 import {Client, Department} from '../../models/client.model';
-import {Item, StockInfo, Product} from '../../models/inventory.model';
+import {states, lgas } from '../../data/states';
+import {Product, Item, Meta, Invoice, Card, StockInfo} from '../../models/inventory.model';
 import { Record,  Session} from '../../models/record.model';
 import * as cloneDeep from 'lodash/cloneDeep';
-import { Person} from '../../models/person.model';
 import {PersonUtil} from '../../util/person.util';
 import {host} from '../../util/url';
 const uri = `${host}/api/upload`;
@@ -25,26 +26,34 @@ export class PatientComponent implements OnInit {
   temPatients: Person[] = new Array<Person>();
   file: File = null;
   client: Client = new Client();
+  products = [];
   session: Session = new Session();
   input = '';
   reg = true;
   logout = false;
   view = 'bed';
+  invoices: Invoice[][] = new Array<Invoice[]>();
   id = null;
   medicView = false;
   cardTypes = [];
   sortBy = 'added';
   successMsg = null;
   errorMsg = null;
+  lgas = lgas;
+  states = states;
   sortMenu = false;
   nowSorting = 'Date Added';
   message = null;
   feedback = null;
   searchTerm = '';
   selections = [];
+  bills: Invoice[] = [];
+  invoice: Invoice = new Invoice()
   selected = null;
+  billing = false
   bedNum = null;
   processing = false;
+  updating = false;
   loading = false;
   curIndex = 0;
   count = 0;
@@ -102,15 +111,11 @@ export class PatientComponent implements OnInit {
   getClient() {
     this.dataService.getClient().subscribe((res: any) => {
       this.client = res.client;
+      this.products = res.inventory;
       this.cardTypes = res.client.inventory.filter(p => p.type === 'Cards');
   });
   }
-  viewDetails(i) {
-    this.reg = false;
-    this.curIndex = i;
-    this.count = 0;
-    this.psn.person = cloneDeep(this.patients[i]);
-  }
+
   searchPatient(name: string) {
     if (name !== '') {
      this.patients = this.patients.filter((patient) => {
@@ -120,7 +125,7 @@ export class PatientComponent implements OnInit {
     } else {
       this.patients = this.clonedPatients;
     }
- 
+
    }
    sortPatients(sortOption: string) {
     this.sortMenu = false;
@@ -133,10 +138,7 @@ export class PatientComponent implements OnInit {
         this.patients.sort((m: Person, n: Person) => n.info.personal.gender.localeCompare(m.info.personal.gender));
         this.nowSorting = 'Gender';
         break;
-      case 'status':
-        // this.patients.sort((m, n) => m.record.visits[m.record.visits.length-1].status.localeCompare(m.record.visits[n.record.visits.length-1].status.localeCompare));
-        // this.nowSorting = 'Status';
-        // break;
+
         case 'age':
         this.patients.sort((m, n) => new Date(m.info.personal.dob).getFullYear() - new Date(n.info.personal.dob).getFullYear());
         this.nowSorting = 'Age';
@@ -149,15 +151,90 @@ export class PatientComponent implements OnInit {
         break;
     }
   }
-  updateInfo() {
-    const info = this.psn.updateInfo();
-    if (info) {
-      this.patients[this.curIndex].info = info;
+  getLgas() {
+    return this.lgas[this.states.indexOf(this.patient.info.contact.me.state)];
+  }
+  addInvoice() {
+    this.bills.unshift({
+      ...this.invoice,
+      meta: new Meta(this.cookies.get('i'), this.cookies.get('h'))
+    });
+    this.invoice = new Invoice()
+  }
+  removeBill(i){
+    this.bills.splice(i, 1)
+  }
+  composeInvoices() {
+    // const invoices = cloneDeep([...this.session.invoices, ...this.session.medInvoices]);
+    if (this.bills.length) {
+    if (this.patient.record.invoices.length) {
+      if (new Date(this.patient.record.invoices[0][0].meta.dateAdded)
+      .toLocaleDateString() === new Date()
+      .toLocaleDateString()) {
+        for (const b of this.bills) {
+          this.patient.record.invoices[0].unshift(b);
+        }
+       } else {
+          this.patient.record.invoices.unshift(this.bills);
+       }
+      } else {
+        this.patient.record.invoices = [this.bills];
+      }
     }
- }
+  }
+  addBills() {
+    this.processing = true
+    this.composeInvoices();
+    this.dataService.updateRecord(this.patient).subscribe((p: Person) => {
+      this.socket.io.emit('record update', {action: 'invoice update', patient: p});
+      this.successMsg = 'Bills added succesfully';
+      this.patients[this.curIndex].record = p.record;
+      this.bills = [];
+      this.processing = false;
+      setTimeout(() => {
+        this.successMsg = null;
+      }, 3000);
+    }, () => {
+      this.processing = false;
+      this.errorMsg = 'Unable to Update Medications';
+    });
+  }
+   viewDetails(i) {
+    this.curIndex = i;
+    this.count = 0;
+    this.patient = cloneDeep(this.patients[i]);
+  }
+  updateInfo() {
+    this.dataService.updateInfo(this.patient.info, this.patient._id).subscribe((info: Info) => {
+      this.successMsg = 'Update Sucessfull';
+      this.patient.info = info;
+      this.patients[this.curIndex].info =  info;
+      this.processing = false;
+      this.socket.io.emit('record update', {action: '', patient: this.patient});
+      setTimeout(() => {
+        this.successMsg = null;
+      }, 3000);
+    }, (e) => {
+     this.processing = false;
+     this.errorMsg = 'Update failed';
+   });
+  }
+  withoutCard() {
+    return (this.patient.info.personal.firstName) &&
+    (this.patient.info.personal.lastName) &&
+    (this.patient.info.personal.dob);
+  }
+  isValidInfo() {
+    return this.withoutCard();
+  }
+  isValidContact() {
+      return (this.patient.info.contact.emergency.mobile);
+  }
+  isInvalidForm() {
+    return !(this.isValidInfo());
+  }
  selectPatient(i: number) {
-  this.curIndex = i;
-  this.patient = cloneDeep(this.patients[i]);
+  this.viewOrders(i);
  }
  switchToEdit() {
   this.patient.record.medications.forEach(inner => {
@@ -168,6 +245,9 @@ export class PatientComponent implements OnInit {
     });
   });
   this.switchViews('editing');
+}
+switchBilling() {
+  this.billing = !this.billing;
 }
 medSelected() {
   return this.patient.record.medications.some(med => med.some(m => m.meta.selected));
@@ -226,12 +306,38 @@ selectMedication(i: number, j: number) {
     this.errorMsg = 'Unable to Update Medications';
   });
 }
-  getItems() {
-    // this.dataService.getItems().subscribe((items: Item[]) => {
-    //   this.items = items;
-    // });
+updatePrices(invoices: Invoice[], i: number) {
+  if (invoices.length) {
+    invoices.forEach(invoice => {
+      const p = (invoice.name === 'Card') ?
+      this.products.find(prod => prod.item.name === invoice.desc) :
+      this.products.find(prod => prod.item.name === invoice.name);
+      if (p && !invoice.paid) {
+        invoice.price = p.stockInfo.price;
+      }
+    });
+    this.invoices[i] = invoices;
+  } else {
+    // this.invoices.splice(i, 1);
   }
-  getDp(avatar: String) {
+}
+
+viewOrders(i: number) {
+  this.curIndex = i;
+  this.patients[i].card.indicate = false;
+  this.switchViews('orders');
+  this.invoices = cloneDeep(this.patients[i].record.invoices);
+  // this.invoices.forEach((invoices , j) => {
+  //   const items = [];
+  //   invoices.forEach((invoice) => {
+  //     if (invoice.processed) {
+  //       items.push(invoice);
+  //     }
+  //     });
+  //   this.updatePrices(items, j);
+  // });
+}
+  getDp(avatar: string) {
     return `${host}/api/dp/${avatar}`;
   }
   linked() {
@@ -279,10 +385,13 @@ selectMedication(i: number, j: number) {
       this.message = '...Network Error';
     });
   }
-  loadMore() {
-    if(this.page > 0) {
-      this.getPatients('Admit');
+  clearError() {
+    this.errorMsg = null;
   }
+  loadMore() {
+  //   if(this.page > 0) {
+  //     this.getPatients('Admit');
+  // }
   }
   dispose(i: number, disposition: string, label) {
     this.patients[i].record.visits[0][0].status = disposition;

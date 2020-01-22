@@ -1,6 +1,6 @@
 body {
     /* background-color: rgb(243, 248, 247); */
-      
+
     background-color: #f8f9fa;;
 }
 
@@ -441,7 +441,7 @@ html {
     border-radius: 4px;
     border-left: none;
 }
-    
+
 
 
 #moreBtn i {
@@ -716,9 +716,10 @@ html {
     /* bottom: 10px; */
     /* height: 100px; */
     border-radius: 4px;
-    border: 1px solid whitesmoke;
+    /* border: 1px solid whitesmoke; */
     background-color: white;
     z-index: 1;
+    box-shadow: 0 1px 5px rgba(27,31,35,.15);
 }
 
 .mycheckbox {
@@ -804,6 +805,7 @@ html {
     -moz-border-radius: 25px;
     -ms-border-radius: 25px;
     -o-border-radius: 25px;
+    /* box-shadow: 0 1px 5px rgba(27,31,35,.15); */
 }
 
 .patien-name {
@@ -839,7 +841,7 @@ html {
     margin-bottom: 0px;
     padding: 0px;
     color: lightgreen;
-   
+
     margin: auto;
     bottom: 20px
 }
@@ -1142,15 +1144,15 @@ html {
     }
 }
 .record-placeholder {
-    color:lightgrey; 
-    width:100%; 
+    color:lightgrey;
+    width:100%;
     text-align:center;
     top:43%;
     position:absolute;
 }
 .shift-btn {
-    position: absolute; 
-    display:flex; 
+    position: absolute;
+    display:flex;
     justify-content: center;
     align-items: center;
     padding-left: 0px;
@@ -1161,13 +1163,13 @@ html {
     border: none;
 }
 .close-comment {
-    position: absolute; 
-    left:92%; 
-    top:5%; 
+    position: absolute;
+    left:92%;
+    top:5%;
     height: 20px;
     width:20px;
     border-radius: 50%;
-    font-size: 20px; 
+    font-size: 20px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -1182,11 +1184,11 @@ html {
     border-radius:50%;
     bottom:5px;
   }
-  
-  
+
+
   .off {
     left: -100%;
-   } 
+   }
   .on {
     left: 0%;
     animation-name: card-in;

@@ -180,15 +180,15 @@ export class RegistrationComponent implements OnInit {
     });
   }
   withoutCard() {
-    return (this.person.info.personal.firstName) &&
-    (this.person.info.personal.lastName) &&
-    (this.person.info.personal.dob);
+    return (this.patient.info.personal.firstName) &&
+    (this.patient.info.personal.lastName) &&
+    (this.patient.info.personal.dob);
 }
   isValidInfo() {
     return this.withoutCard();
   }
   isValidContact() {
-      return (this.person.info.contact.emergency.mobile);
+      return (this.patient.info.contact.emergency.mobile);
   }
 
   getPatients(type) {
@@ -274,7 +274,7 @@ export class RegistrationComponent implements OnInit {
     this.errorMsg = null;
   }
   addDefaults() {
-    this.person.record.visits = [[new Visit()]];
+    this.patient.record.visits = [[new Visit()]];
   }
   addRecord() {
     if (!this.errorMsg) {
@@ -309,7 +309,7 @@ export class RegistrationComponent implements OnInit {
     this.patient = this.patients[i];
   }
   getLgas() {
-    return this.lgas[this.states.indexOf(this.person.info.contact.me.state)];
+    return this.lgas[this.states.indexOf(this.patient.info.contact.me.state)];
 }
   switchViews() {
     if (this.view === 'details') {
@@ -401,11 +401,11 @@ isConsult() {
   //    (this.card.cardNum);
   // }
   viewDetails(i) {
-    this.psn.reg = false;
+    this.reg = false;
     this.curIndex = i;
     this.count = 0;
-    this.psn.card = cloneDeep(this.patients[i].record.cards[0] || new Card());
-    this.person = cloneDeep(this.patients[i]);
+    this.card = cloneDeep(this.patients[i].record.cards[0] || new Card());
+    this.patient = cloneDeep(this.patients[i]);
   }
   clearPatient() {
     this.count = 0;
@@ -480,21 +480,7 @@ chargeForCard() {
       meta: new Meta(this.cookies.get('i'), this.cookies.get('h'))
   }]);
 }
-analyseCard() {
-  // if (this.card.pin) {
-  //   const card = this.products.find(p => p.item.description === this.card.pin);
-  //   if (card && card.item.name === this.card.category && card.item.description === this.card.pin && !card.stockInfo.status) {
-  //     this.patient.record.cards.unshift(this.card);
-  //     this.chargeForConsultation();
-  //   } else {
-  //     this.errorMsg = 'Invalid Card Number';
-  //   }
-  // } else {
-  //   this.chargeForCard();
-  //   this.patient.record.cards.unshift(this.card);
-  // }
 
-}
 createInvoice() {
   this.invoice = {...new Invoice(),
     price: this.products.find(p => p.item.name === this.card.category).stockInfo.price,
@@ -540,10 +526,19 @@ clearPin() {
 }
 
 updateInfo() {
- const info = this.psn.updateInfo();
- if(info) {
-   this.patients[this.curIndex].info = info;
- }
+  this.dataService.updateInfo(this.patient.info, this.patient._id).subscribe((info: Info) => {
+    this.successMsg = 'Update Sucessfull';
+    this.patient.info = info;
+    this.patients[this.curIndex].info =  info;
+    this.processing = false;
+    this.socket.io.emit('record update', {action: '', patient: this.patient});
+    setTimeout(() => {
+      this.successMsg = null;
+    }, 3000);
+  }, (e) => {
+   this.processing = false;
+   this.errorMsg = 'Update failed';
+ });
 }
 createRecord() {
     if (this.reg) {

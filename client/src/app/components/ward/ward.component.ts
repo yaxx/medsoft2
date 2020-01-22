@@ -282,12 +282,13 @@ export class WardComponent implements OnInit {
     });
   }
   loadMore() {
-    if (this.page > 0) {
-      this.getPatients('Admit');
-  }
+  //   if (this.page > 0) {
+  //     this.getPatients('Admit');
+  // }
   }
   getRooms(i) {
-    return this.client.departments.find(dept => dept.name === this.patients[i].record.visits[0][0].dept).rooms;
+    return this.client.departments
+    .find(dept => dept.name === this.patients[i].record.visits[0][0].dept).rooms;
   }
   getBeds() {
 

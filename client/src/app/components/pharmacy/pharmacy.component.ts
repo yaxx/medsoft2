@@ -419,6 +419,9 @@ routeHas(path) {
 getStyle(i: Invoice) {
   return {color: i.processed ? 'black' : 'lightgrey'};
 }
+getCostedStyle(i: Invoice) {
+  return {borderColor: i.processed ? 'lightgreen' : ''};
+}
 updateMedications() {
   this.processing = true;
   this.dataService.updateMedication(this.invoices).subscribe((m) => {

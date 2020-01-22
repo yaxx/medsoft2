@@ -40,6 +40,9 @@ seg2 = null;
   isVisible() {
     return !this.router.url.includes('pharmacy') || !this.router.url.includes('billing'); 
   }
+  isPharmacy() {
+    return this.router.url.includes('pharmacy'); 
+  }
   isBillable() {
     return this.router.url.split('/')[1] === 'pharmacy' ||
     this.router.url.split('/')[1] === 'billing' ||

@@ -9,7 +9,7 @@
                         <div style='padding-left: 30px;border-top-right-radius:32px;border-top-left-radius:32px;border-bottom: 0px;height:40px;margin-bottom: 15px;' class="card-header profileheader small-header">
                             <div style="left:23px;top:13px" class="timeline lastdoc priscriber headerdp small-dp">
                                 <img [src]=getDp(patients[curIndex].info.personal.avatar)/>
-                               
+
                             </div>
                             <p style="top:5px"  href="#" class="patien-name small-name">
                             {{patients[curIndex]?.info.personal.firstName + ' ' + patients[curIndex].info.personal.lastName}}<span class="small-headericon"></span>
@@ -24,13 +24,13 @@
                                     <p class="timelinedate month"> {{medic[0]?.meta.dateAdded|date:'MMM'|uppercase}}</p>
                                 </div>
                                 <div *ngFor="let m of medic; let j = index" class="priscription drug">
-                                    <h6 class="dept">{{m.name}}&nbsp;<span class="predata"></span>
+                                    <h6 class="dept">{{m.name}}&nbsp;<span class="predata">|&nbsp;{{m.meta.dateAdded|date:'hh:mma'|lowercase}}</span>
                                         <span *ngIf="m.paid" class="predata priceval">
                                         <i class="icon ion-ios-checkmark-empty paid-icon"></i></span>
                                         <span *ngIf="!m.paid" class="predata priceval">
-                                        <i (click)="selectItem(i,j)" style=' color:lightgrey;'  *ngIf="m.meta.selected" class="icon ion-ios-checkmark-empty paid-icon" title="Deselect "></i>
+                                        <i (click)="selectItem(i,j)" style=' color:lightgrey;' *ngIf="m.meta.selected" class="icon ion-ios-checkmark-empty paid-icon" title="Deselect "></i>
                                         <div  style='border-color:rgb(216, 216, 216)' *ngIf ="!m.price" class="mycheckbox"></div>
-                                        <div class="mycheckbox" *ngIf="(!m.meta.selected) && (m.price)"  (click)="selectItem(i,j)" ></div>
+                                        <div [ngStyle]=getCostedStyle(m) class="mycheckbox" *ngIf="(!m.meta.selected) && (m.price)"  (click)="selectItem(i,j)" ></div>
                                         </span>
                                     </h6>
                                     <h6 class="dept previnfo">Dosage&nbsp;<span class="predata">{{m.kind}}</span>
@@ -43,7 +43,7 @@
                                 <!-- <label class='totalLbl' *ngIf='somePaid(i)'>{{getTransTotal(medic)}} </label> -->
                             </div>
                         </div>
-                       
+
                     </div>
                     <div *ngIf='cardView.editing' class="card-body orderbody" style="width:55%;margin:auto;">
                             <div style="top:1px; margin-bottom:25px; min-height: 80px;max-height: 120;" class="form-group vitals-section setGroup">
@@ -83,14 +83,14 @@
                     <div *ngIf='cardView.editing||cardView.reversing' style="left:7%; top:45%;position: absolute;
                         width: 7%;" class="btn-group disposition">
                         <button (click)="switchViews('orders')" style="width:32px;height: 32px;border-radius: 50%;left:35%"   class="btn btn-outline-primary  dispo shift-button" >
-                            <i  style='position:absolute;right:36%;top:2px; font-size:large; cursor:pointer; display: inline-block;' title="Back" class="icon ion-android-arrow-back "> 
+                            <i  style='position:absolute;right:36%;top:2px; font-size:large; cursor:pointer; display: inline-block;' title="Back" class="icon ion-android-arrow-back ">
                             </i>
                         </button>
                     </div>
                     <div *ngIf='cardView.orders' style="left:80%; top:45%;position: absolute;
                     width: 7%;" class="btn-group disposition">
                         <button (click)=switchToEdit() style="width:32px;height: 32px;border-radius: 50%;left:35%"   class="btn btn-outline-primary  dispo shift-button  " >
-                            <i   style='position:absolute;right:36%;top:2px; font-size:large; cursor:pointer; display: inline-block;' title="Go to payment" class="icon ion-android-arrow-forward "> 
+                            <i   style='position:absolute;right:36%;top:2px; font-size:large; cursor:pointer; display: inline-block;' title="Go to payment" class="icon ion-android-arrow-forward ">
                             </i>
                         </button>
                     </div>
@@ -117,7 +117,7 @@
             <ul class="nav navbar-nav"></ul>
             <form class="top-searchform" target="_self">
                 <div class="form-group">
-                    <input [(ngModel)]=searchTerm #search (keyup)='searchPatient(searchTerm)' autocomplete="off" style="border-radius:.999em;   width:80%;display:inline-block;
+                    <input [(ngModel)]=searchTerm #search (keyup)="searchPatient(searchTerm)" autocomplete="off" style="border-radius:.999em;   width:80%;display:inline-block;
                 position: absolute;text-align: left;vertical-align: middle;top:11%; box-shadow:none;
                outline:none; background-color: rgba(233, 236, 239, 0.7);
                 " class="form-control" type="search" name="search" id="search-field" placeholder="Search patient">
@@ -137,9 +137,9 @@
             </form>
         </div>
     </div>
-  
+
     <div (mouseleave) = hideLogOut() class="timeline lastdoc priscriber headerdp small-dp user-dp" style="left:90%;position:absolute;height:87px;width:90px;top:5px; margin-bottom:0px;background:inherit">
-        <div  class="timeline lastdoc priscriber headerdp small-dp user-dp" style="position:absolute;height:30px;width:30px;top:5px; margin-bottom:0px;"> 
+        <div  class="timeline lastdoc priscriber headerdp small-dp user-dp" style="position:absolute;height:30px;width:30px;top:5px; margin-bottom:0px;">
             <img (click) = showLogOut() style='height:100%; width:100%; object-fit:cover; cursor: pointer;' [src]=getMyDp()/>
             <span *ngIf="logout">
                 <div style='position: absolute;width: 100px;top: 33px;height: 34px; padding-left: 0px;left: -95%;' class="menu">

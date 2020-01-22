@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ElementRef, AfterViewInit, ViewChild} from '@angular/core';
 import { Person} from '../../models/person.model';
 import {Tests, Scannings} from '../../data/request';
 import { Surgeries} from '../../data/surgeries';
@@ -17,7 +17,7 @@ import { Item, StockInfo, Product, Card, Invoice, Meta} from '../../models/inven
 import {
     Record, Medication, Height, Weight, Bg, Condition,
     Note, Visit, Session, Test, Surgery, Scan, History, Complain,
-    Bp, Resp, Pulse, Temp, Vitals, Vaccin 
+    Bp, Resp, Pulse, Temp, Vitals, Vaccin
   } from '../../models/record.model';
 
 import {Chart} from 'chart.js';
@@ -53,6 +53,10 @@ export class HistoryComponent implements OnInit {
   scannings = Scannings;
   surgeries = Surgeries;
   conditions = Conditions;
+  ctx = null;
+  showing = 'BP';
+  unit = 'mmHg'
+  sortMenu = false;
   histories = [];
   complains = [];
   medications = [];
@@ -67,34 +71,98 @@ export class HistoryComponent implements OnInit {
   message = null;
   edit = false;
   bpChart = [];
-  chartData = [];
+  chartData = [60, 20, 45, 65, 80, 30, 50];
   notes: Note[] = [];
-  chartLabels = new Array<String>(10);
+  chartLabels = new Array<string>(10);
+  // @ViewChild('bpChart',{static: false}) e: ElementRef;
+  // this.ctx = this.e.nativeElement.getContext('2d');
   constructor(
-    private dataService: DataService,
-    private router: Router,
-    private cookies: CookieService,
-    private socket: SocketService,
-    private route: ActivatedRoute
+     private e: ElementRef,
+     private dataService: DataService,
+     private router: Router,
+     private cookies: CookieService,
+     private socket: SocketService,
+     private route: ActivatedRoute
     ) { }
 
   ngOnInit() {
+    // this.ctx = this.e.nativeElement.querySelector('bpChart').getContext('2d');
+    // this.bpChart = new Chart('bpChart', {
+    //   type: 'bar',
+    //     options: {
+    //         maintainAspectRatio: false,
+    //         layout: {
+    //             padding: {
+    //                 left: 5,
+    //                 right: 20,
+    //                 top: 0,
+    //                 bottom: 0
+    //             }
+    //         },
+    //       legend: {
+    //         display: false,
+    //       },
+    //       scales: {
+    //         xAxes: [{
+    //           gridLines: {
+    //             display: false,
+    //             color: 'white'
+    //           },
+    //           ticks: {
+    //             fontSize: 10,
+    //             fontColor: 'lightgrey'
+    //           }
+    //         }],
+    //         yAxes: [{
+    //           gridLines: {
+    //             drawBorder: false,
+    //             color: 'whitesmoke'
+    //           },
+    //           ticks: {
+    //             beginAtZero: false,
+    //             fontSize: 10,
+    //             fontColor: 'lightgrey',
+    //             maxTicksLimit: 20,
+    //             padding: 10,
+    //             suggestedMin: 60,
+    //             suggestedMax: 140
+    //           }
+    //         }]
+    //       },
+    //       tooltips: {
+    //         backgroundColor: '#bbf7f0'
+    //       }
+    //     },
+    //     data: {
+    //       labels: ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'],
+    //     datasets: [{
+    //       data: [60, 20, 45, 65, 80, 30, 50],
+    //       tension: 0.0,
+    //       borderColor: '#96f4f4',
+    //       backgroundColor: '#96f4f4',
+    //       pointBackgroundColor: ['white', 'white', 'whitesmoke', 'white', 'white', 'white', 'rgb(255,190,70)'],
+    //       pointRadius: 4,
+    //       borderWidth: 1
+    //     }]
+    //   }
+    // });
+
     this.getClient();
     this.socket.io.on('record update', (update) => {
       if (update.patient._id === this.patient._id) {
         this.patient = {
-          ...update.patient, 
+          ...update.patient,
           record: {
-          ...update.patient.record, 
-          notes: this.patient.record.notes 
+          ...update.patient.record,
+          notes: this.patient.record.notes
         }
       };
       }
     });
-    let day = null;
+    const day = null;
     const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
     this.loading = true;
-    this.dataService.getHistory(this.route.snapshot.params['id']).subscribe((res: any) => {
+    this.dataService.getHistory(this.route.snapshot.params.id).subscribe((res: any) => {
       this.loading = false;
       res.captures.forEach(capture => {
         switch (capture.category) {
@@ -137,67 +205,12 @@ export class HistoryComponent implements OnInit {
     //     this.chartData.push(bp.systolic);
     //     this.chartLabels[i] = new Date(bp.meta.dateAdded).getDate().toString() + months[new Date(bp.meta.dateAdded).getMonth()];
     //   });
-    this.bpChart = new Chart('bpChart', {
-      type: 'bar',
-        options: {
-            maintainAspectRatio: false,
-            layout: {
-                padding: {
-                    left: 5,
-                    right: 20,
-                    top: 0,
-                    bottom: 0
-                }
-            },
-          legend: {
-            display: false,
-          },
-          scales: {
-            xAxes: [{
-              gridLines: {
-                display: false,
-                color: 'white'
-              },
-              ticks: {
-                fontSize: 10,
-                fontColor: 'lightgrey'
-              }
-            }],
-            yAxes: [{
-              gridLines: {
-                drawBorder: false,
-                color: 'whitesmoke'
-              },
-              ticks: {
-                beginAtZero: false,
-                fontSize: 10,
-                fontColor: 'lightgrey',
-                maxTicksLimit: 20,
-                padding: 10,
-                suggestedMin: 60,
-                suggestedMax: 140
-              }
-            }]
-          },
-          tooltips: {
-            backgroundColor: '#bbf7f0'
-          }
-        },
-        data: {
-          labels: this.chartLabels,
-        datasets: [{
-          data: this.chartData,
-          tension: 0.0,
-          borderColor: '#96f4f4',
-          backgroundColor: '#96f4f4',
-          pointBackgroundColor: ['white', 'white', 'whitesmoke', 'white', 'white', 'white', 'rgb(255,190,70)'],
-          pointRadius: 4,
-          borderWidth: 1
-        }]
-      }
-    });
+
   }
-  getDp(avatar: String) {
+
+
+
+  getDp(avatar: string) {
     return `${host}/api/dp/${avatar}`;
   }
 
@@ -208,7 +221,7 @@ export class HistoryComponent implements OnInit {
     this.images = (item === 'test') ? this.patient.record.tests[i][j]
     .report.attachments : this.patient.record.scans[i][j].report.attachments;
   }
-  getImage(fileName: String) {
+  getImage(fileName: string) {
     return `${host}/api/dp/${fileName}`;
   }
   getLabs() {
@@ -218,13 +231,18 @@ export class HistoryComponent implements OnInit {
     return this.client.departments.filter(dept => dept.category === 'Ward' || dept.category === 'Surgical');
   }
   compareNotes(i: number, note: Note) {
- 
+
     // return this.notes[i].note.length === note.note.length;
   }
   downloadImage(file: string) {
     this.dataService.download(file).subscribe(
       res =>  saveAs(res, file)
     );
+  }
+  switchVitals(label: string, unit) {
+    this.unit = unit;
+    this.showing  = label;
+    this.toggleSortMenu();
   }
   readMore(e: Event, i: number) {
   e.preventDefault();
@@ -286,7 +304,7 @@ export class HistoryComponent implements OnInit {
           };
         } else {
           this.vitals.unshift({
-            name: 'Pulse Rate', 
+            name: 'Pulse Rate',
             val: this.session.vitals.pulse.value + 'bpm'
           });
         }
@@ -297,7 +315,37 @@ export class HistoryComponent implements OnInit {
 
   }
   resolver() {
-    //this is a commen
+    // this is a commen
+  }
+  getFlags(vital, name) {
+    switch (name) {
+      case 'bp':
+        return {color: vital.systolic >= 140 || vital.diastolic >= 90 ? 'red' : ''};
+        break;
+      case 'temp':
+        return {color: vital.value >= 38 ? 'red' : ''};
+        break;
+      case 'p':
+        return {color: vital.value < 60 || vital.value > 100 ? 'red' : ''};
+        break;
+      case 'r':
+        return {color: vital.value < 12 || vital.value > 25 ? 'red' : ''};
+        break;
+      case 'w':
+        return {color: vital.value > 50 ? 'red' : ''};
+        break;
+      default:
+        break;
+    }
+
+  }
+  showTimeLine() {
+    return (this.unit === 'Meters' && this.patient.record.vitals.height.length) ||
+    (this.unit === 'mmHg' && this.patient.record.vitals.bp.length) ||
+    (this.unit === 'Kilograms' && this.patient.record.vitals.weight.length) ||
+    (this.unit === 'Celcius' && this.patient.record.vitals.tempreture.length) ||
+    (this.unit === 'bpm' && this.patient.record.vitals.pulse.length) ||
+    (this.unit === 'bpm' && this.patient.record.vitals.resp.length);
   }
   removeVital(i, sign) {
     this.vitals.splice(i, 1);
@@ -326,17 +374,17 @@ export class HistoryComponent implements OnInit {
         }
         break;
       case 'Tempreture':
-          if(!this.session.vitals.tempreture.value) {
+          if (!this.session.vitals.tempreture.value) {
             this.vitals = this.vitals.filter(t => t.name !== name);
           }
           break;
       case 'Pulse Rate':
-          if(!this.session.vitals.pulse.value) {
+          if (!this.session.vitals.pulse.value) {
             this.vitals = this.vitals.filter(p => p.name !== name);
           }
           break;
       case 'Respiratory Rate':
-          if(!this.session.vitals.resp.value) {
+          if (!this.session.vitals.resp.value) {
             this.vitals = this.vitals.filter(r => r.name !== name);
           }
           break;
@@ -348,11 +396,11 @@ export class HistoryComponent implements OnInit {
     this.clientMode =  view ;
   }
   addImmunizations() {
-    let s: Vaccin[] = [];
+    const s: Vaccin[] = [];
     this.vaccins.forEach(vaccins => {
      vaccins.forEach(vcn => {
-       if(vcn.selected) {
-        s.push({ 
+       if (vcn.selected) {
+        s.push({
           name: vcn.name,
            meta: new Meta(this.cookies.get('i'), this.cookies.get('h'))
           });
@@ -364,6 +412,9 @@ export class HistoryComponent implements OnInit {
        this.patient.record.immunization.vaccins.unshift(s);
     }
     this.switchClient('view');
+  }
+  toggleSortMenu() {
+    this.sortMenu = !this.sortMenu;
   }
   showEdit() {
     this.edit = true;
@@ -387,13 +438,13 @@ export class HistoryComponent implements OnInit {
     }
     if (this.session.vitals.weight.value) {
           this.patient.record.vitals.weight.unshift({
-            ...this.session.vitals.weight, 
+            ...this.session.vitals.weight,
             meta: new Meta(this.cookies.get('i'), this.cookies.get('h'))
           });
         }
     if (this.session.vitals.bloodGl.value) {
           this.patient.record.vitals.bloodGl[0] = {
-            ...this.session.vitals.bloodGl, 
+            ...this.session.vitals.bloodGl,
             meta: new Meta(this.cookies.get('i'), this.cookies.get('h'))
           };
       }
@@ -661,7 +712,7 @@ nextImage() {
 prevImage() {
   this.currentImage = this.currentImage - 1;
 }
-toggleComment(i,j, action) {
+toggleComment(i, j, action) {
   this.patient.record.tests[i][j].report.meta.selected = (action === 'open') ? true : false;
 }
 toggleScanComment(i, j, action) {
@@ -1036,7 +1087,7 @@ addCapture(capture: string) {
       if (!this.medications.find(name => name === this.session.medication.name)) {
         this.captures.unshift({category: capture, name: this.session.medication.name});
       }
-      break
+      break;
     default:
       break;
   }
@@ -1082,7 +1133,7 @@ goTo(count: number) {
   this.clearSuggestions();
 }
 removeData(invoice: Invoice) {
-if(invoice.desc === 'Test') {
+if (invoice.desc === 'Test') {
   const i  = this.session.tests.findIndex(tst => tst.name === invoice.name);
   this.session.tests.splice(i, 1);
 } else if (invoice.desc === 'Surgery') {
@@ -1097,7 +1148,7 @@ removeRequest(i: number, invoice: Invoice) {
 }
 
 checkScalars() {
- 
+
   if (this.session.note.note) {
     this.patient.record.notes.unshift({
       ...this.session.note,
@@ -1109,7 +1160,7 @@ checkScalars() {
       meta: new Meta(this.cookies.get('i'), this.cookies.get('h'))
     });
   } else {}
- 
+
 }
 sendRecord() {
   this.errLine = null;

@@ -9,7 +9,7 @@ import {Priscription, Medication} from '../../models/record.model';
 import * as cloneDeep from 'lodash/cloneDeep';
 // import { ThermalPrintModule } from 'ng-thermal-print';
 import { PrintDriver } from 'ng-thermal-print/lib/drivers/PrintDriver';
-import { PrintService, UsbDriver,WebPrintDriver } from 'ng-thermal-print';
+import { PrintService, UsbDriver, WebPrintDriver } from 'ng-thermal-print';
 import { timeout } from 'q';
 import { fromEvent } from 'rxjs';
 import {host} from '../../util/url';
@@ -376,7 +376,7 @@ comfirmPayment() {
   }
 
 }
- 
+
   getReversables(i: number, j: number) {
     // this.curIndex = i;
     // this.edited.push(this.patient.record.medications[i][j]);
@@ -419,7 +419,7 @@ comfirmPayment() {
   invoiceSelcted() {
     return this.invoices.some(invoices => invoices.some(i => i.meta.selected));
   }
- 
+
   resetOrders() {
     setTimeout(() => {
       this.successMsg = null;
@@ -444,7 +444,7 @@ comfirmPayment() {
   }
 
 
- 
+
 
   somePaid(i) {
     // return this.medications[i].some(m => m.invoice.paid);
