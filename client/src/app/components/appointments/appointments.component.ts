@@ -39,7 +39,7 @@ export class AppointmentsComponent implements OnInit {
    loading = false;
    myDepartment = null;
    processing = false;
-   nowSorting = 'Date Added';
+   nowSorting = 'Date';
    view = 'info';
    updating  = false;
    message = null;
@@ -56,7 +56,7 @@ export class AppointmentsComponent implements OnInit {
      private route: ActivatedRoute,
      private router: Router,
      private socket: SocketService
- 
+
      ) { }
 
    ngOnInit() {
@@ -194,7 +194,7 @@ export class AppointmentsComponent implements OnInit {
    selectPatient(i: number) {
      this.info = this.patients[i].info;
    }
-   
+
    submitRecord() {
      this.loading = true;
      this.patient.info = this.info;
@@ -231,7 +231,7 @@ export class AppointmentsComponent implements OnInit {
   }
   isInvalidForm() {
     return !(this.isValidInfo());
-  } 
+  }
   next() {
     this.count = this.count + 1;
   }
@@ -276,17 +276,13 @@ export class AppointmentsComponent implements OnInit {
          this.patients.sort((m: Person, n: Person) => n.info.personal.gender.localeCompare(m.info.personal.gender));
          this.nowSorting = 'Gender';
          break;
-       case 'status':
-         // this.patients.sort((m, n) => m.record.visits[m.record.visits.length-1].status.localeCompare(m.record.visits[n.record.visits.length-1].status.localeCompare));
-         // this.nowSorting = 'Status';
-         // break;
          case 'age':
          this.patients.sort((m, n) => new Date(m.info.personal.dob).getFullYear() - new Date(n.info.personal.dob).getFullYear());
          this.nowSorting = 'Age';
          break;
        case 'date':
          this.patients.sort((m, n) => new Date(n.createdAt).getTime() - new Date(m.createdAt).getTime());
-         this.nowSorting = 'Date Added';
+         this.nowSorting = 'Date';
          break;
          default:
          break;

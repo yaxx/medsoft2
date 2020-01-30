@@ -82,7 +82,7 @@ top:12%;
 
 .off {
   left: -100%;
- } 
+ }
 .on {
   left: 0%;
   animation-name: card-in;
@@ -96,4 +96,35 @@ top:12%;
     100% {
         left: 0%;
     }
+}
+.disposition button:nth-child(1) {
+    border-radius: 5px;
+    border-top-right-radius: 0px;
+    border-bottom-right-radius: 0px;
+}
+.disposition button:nth-child(2) {
+    border-radius: 5px;
+    border-top-left-radius: 0px;
+    border-bottom-left-radius: 0px;
+}
+
+.age {
+  position: relative;
+  bottom:0.1%;
+  font-size: 12px;
+  color:lightgrey;
+  font-weight: normal;
+  /* left: 70%; */
+}
+.searched-name {
+  font-weight:600;
+  width:140px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: 2px;
+  margin-left: 4px;
+  top: -33px;
+  font-size: 13px;
+  left: 10px;
 }

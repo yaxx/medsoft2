@@ -211,6 +211,10 @@ const routes: Routes = [
           component: NotificationsComponent
         },
         {
+          path: 'billing',
+          component: CashierComponent
+        },
+        {
           path: '', component: RegistrationComponent
         }
       ]

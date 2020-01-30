@@ -59,7 +59,7 @@ export class ConsultationComponent implements OnInit {
   cardCount = null;
   page = 0;
   showPhotoMenu = false;
-  nowSorting = 'Date Added';
+  nowSorting = 'Date';
   myDepartment = null;
   errLine = null;
   successMsg =  null;
@@ -369,7 +369,7 @@ getLgas() {
         break;
       case 'date':
         this.patients.sort((m, n) => new Date(n.createdAt).getTime() - new Date(m.createdAt).getTime());
-        this.nowSorting = 'Date Added';
+        this.nowSorting = 'Date';
         break;
         default:
         break;

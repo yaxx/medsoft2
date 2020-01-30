@@ -66,15 +66,18 @@
           text-align: center;
           top:16%;
           left:40%;
-          width: 40px;
-          height: 40px;
+          width: 45px;
+          height: 45px;
           border-radius: 50%;
           -webkit-border-radius: 50%;
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          justify-content: space-around;
         }
         .refresh i {
-          right: 13%;
-          bottom: -8%;
-          position:absolute;
+          position: absolute;
+          left: 11px;
         }
         .issue {
           width:200px;
@@ -96,20 +99,4 @@
         #menu-hilighter:hover {
           background:rgb(248,247,247);
         }
-.loading:after {
-    content: '';
-    display: block;
-    width: 60px;
-    height: 60px;
-    /* background: url("assets/img/loader.svg") 0 0/100% 100% no-repeat; */
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    fill:blue;
-    margin: -40px 0 0 -40px;
-    -webkit-animation: spin 2s linear infinite;
-    -moz-animation: spin 2s linear infinite;
-    -o-animation: spin 2s linear infinite;
-    -ms-animation: spin 2s linear infinite;
-    animation: spin 2s linear infinite;
-}
+

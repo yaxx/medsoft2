@@ -43,6 +43,7 @@ seg2 = null;
   isPharmacy() {
     return this.router.url.includes('pharmacy'); 
   }
+  
   isBillable() {
     return this.router.url.split('/')[1] === 'pharmacy' ||
     this.router.url.split('/')[1] === 'billing' ||

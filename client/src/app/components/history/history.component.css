@@ -17,7 +17,7 @@
 
   td {
     padding: 0.1em 1em;
-    font-size: small;
+    font-size: 12;
   }
   th {
     padding: 0.1em 1em;
@@ -406,7 +406,7 @@
   position: absolute;
   width: 100%;
   top: 52%;
-  border: 1px solid #79c7f7;
+  border: 1px solid #fdfdfd;
 }
 .date {
   position: absolute;

@@ -46,7 +46,7 @@ export class LabComponent implements OnInit {
   };
   sortBy = 'added';
   sortMenu = false;
-  nowSorting = 'Date added';
+  nowSorting = 'Date';
   view = 'default';
   count = 0;
   page = 0;

@@ -116,9 +116,9 @@ export class DataService {
     return this.http.post(
       `${this.uri}/update-record`, {patient, items} , {withCredentials: true});
  }
-  card(patient, card, invoice) {
+  card(patient, card, invoice, entry) {
     return this.http.post(
-      `${this.uri}/add-card`, {patient, card, invoice} , {withCredentials: true});
+      `${this.uri}/add-card`, {patient, card, invoice, entry} , {withCredentials: true});
  }
   updateHistory(patient, captures = []) {
     return this.http.post(

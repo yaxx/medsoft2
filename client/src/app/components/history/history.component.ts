@@ -55,7 +55,7 @@ export class HistoryComponent implements OnInit {
   conditions = Conditions;
   ctx = null;
   showing = 'BP';
-  unit = 'mmHg'
+  unit = 'mmHg';
   sortMenu = false;
   histories = [];
   complains = [];
@@ -692,6 +692,31 @@ getClient() {
   this.dataService.getClient().subscribe((res: any) => {
     this.client = res.client;
     this.products = res.client.inventory;
+    res.client.inventory.forEach(p => {
+      switch (p.item.category) {
+        case 'Test':
+          if(!this.tests.find(t => t === p.item.category)){
+            this.tests.push(p.item.name);
+          }
+
+          break;
+        case 'Surgery':
+          if(!this.surgeries.find(s => s === p.item.category)){
+            this.surgeries.push(p.item.name);
+          }
+
+          break;
+        case 'Scanning':
+          if(!this.scans.find(sc => sc === p.item.category)){
+            this.scans.push(p.item.name);
+          }
+          this.scans.push(p.item.name);
+          break;
+
+        default:
+          break;
+      }
+    })
     this.scans = res.client.inventory.filter(prod => prod.type === 'Services' &&
     prod.item.category === 'Scanning').map(scan => scan.item.name);
     this.medications = res.client.inventory.filter(prod => prod.type === 'Products').map(med => med.item.name);
@@ -1014,6 +1039,12 @@ addScanning() {
      this.addInvoice(this.session.scan.name, 'Scan');
      this.session.scan = new Scan();
   }
+}
+getStyle(medication) {
+  return {
+    textDecoration: medication.paused ? 'line-through' : 'none',
+    color: medication.paused ? 'light-grey' : 'black'
+  };
 }
 addComplain() {
   if (!this.session.complains.some(c => c.complain === this.session.complain.complain)) {

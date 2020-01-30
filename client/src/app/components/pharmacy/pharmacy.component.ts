@@ -49,7 +49,7 @@ export class PharmacyComponent implements OnInit {
   sortMenu = false;
 
   page = 0;
-  nowSorting = 'Date added';
+  nowSorting = 'Date';
   view = 'default';
   count = 0;
   id = '';
@@ -146,10 +146,10 @@ export class PharmacyComponent implements OnInit {
   //       //   completes.push(p);
   //       // }  else {
   //       //   pendings.push(p);
-  //       // } 
+  //       // }
   //     }
   //   });
-   
+
   //   screens.forEach(pat => {
   //     if (pat.record.invoices.every(i => i.every(j => j.paid === true))) {
   //         console.log(medications);
@@ -161,7 +161,7 @@ export class PharmacyComponent implements OnInit {
   //   // patients.forEach((p, i) => {
   //   //   this.viewOrders(i)
   //   // })
-   
+
   //   // screens.forEach(pat => {
   //   //   const medInvoices = [];
   //   //   pat.record.invoices.forEach(invoices => {
@@ -177,7 +177,7 @@ export class PharmacyComponent implements OnInit {
     this.loading = (this.page === 0) ? true : false;
     this.dataService.getPatients(type, this.page).subscribe((patients: Person[]) => {
       this.patients =  patients
-        .sort((m, n) => new Date(n.createdAt).getTime() - new Date(m.createdAt).getTime())
+        .sort((m, n) => new Date(n.createdAt).getTime() - new Date(m.createdAt).getTime());
       if (patients.length) {
         patients.forEach(p => {
           p.card = {menu: false, view: 'front', indicate: false};
@@ -260,7 +260,7 @@ export class PharmacyComponent implements OnInit {
         break;
       case 'date':
         this.patients.sort((m, n) => new Date(n.createdAt).getTime() - new Date(m.createdAt).getTime());
-        this.nowSorting = 'Date Added';
+        this.nowSorting = 'Date';
         break;
         default:
         break;
@@ -372,7 +372,7 @@ updatePrices() {
      });
     return total;
   }
- 
+
     getDp(avatar: String) {
       return `${host}/api/dp/${avatar}`;
   }

@@ -1,6 +1,6 @@
 {
   "name": "client",
-  "productName": "raflex",
+  "productName": "sprinc",
   "main": "main.js",
   "version": "1.2.5",
   "scripts": {
@@ -11,15 +11,15 @@
     "lint": "ng lint",
     "e2e": "ng e2e",
     "dist": "electron-builder",
-    "build-prod": "ng build --prod && mv dist ../server"
+    "build-prod": "ng build --prod "
   },
   "nsis": {
     "runAfterFinish": false,
     "license": "LICENSE"
   },
   "build": {
-    "appId": "com.raflex.app",
-    "productName": "raflex",
+    "appId": "com.sprinc.app",
+    "productName": "sprinc",
     "target": "NSIS",
     "files": [
       "main.js",

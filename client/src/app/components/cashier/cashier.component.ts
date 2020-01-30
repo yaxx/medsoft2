@@ -4,7 +4,7 @@ import {SocketService} from '../../services/socket.service';
 import {ActivatedRoute, Router} from '@angular/router';
 import {Person} from '../../models/person.model';
 import {CookieService} from 'ngx-cookie-service';
-import {Product, Item, Invoice, Card, StockInfo} from '../../models/inventory.model';
+import {Product, Item, Invoice, Card, Meta, StockInfo} from '../../models/inventory.model';
 import {Priscription, Medication} from '../../models/record.model';
 import * as cloneDeep from 'lodash/cloneDeep';
 // import { ThermalPrintModule } from 'ng-thermal-print';
@@ -32,11 +32,15 @@ export class CashierComponent implements OnInit {
   temProducts: Product[] = [];
   item: Item = new Item();
   searchedProducts: Product[] = [];
+  invoice: Invoice = new Invoice();
   invoices: Invoice[][] = new Array<Invoice[]>();
   edited: Invoice[] = [];
   editables: Invoice[] = [];
   inlinePatients = [];
   inlineProducts = [];
+  pool: Person[] = [];
+  reserved: Person[] = [];
+  searchResults: Person[] = [];
   transMsg = null;
   successMsg = null;
   errorMsg = null;
@@ -50,11 +54,13 @@ export class CashierComponent implements OnInit {
   };
   sortBy = 'added';
   sortMenu = false;
-  nowSorting = 'Date Added';
+  nowSorting = 'Date';
   view = 'default';
   count = 0;
   page = 0;
+  billing = false;
   cardCount = null;
+  bills: Invoice[] = [];
   id = '';
   logout = false;
   selected = null;
@@ -74,16 +80,16 @@ export class CashierComponent implements OnInit {
     private socket: SocketService) { }
 
   ngOnInit() {
-    this.usbPrintDriver = new UsbDriver();
-    this.printService.isConnected.subscribe(result => {
-        this.status = result;
-        if (result) {
-            console.log('Connected to printer!!!');
-        } else {
-        console.log('Not connected to printer.');
-        }
-    });
-    this.getPatients();
+    // this.usbPrintDriver = new UsbDriver();
+    // this.printService.isConnected.subscribe(result => {
+    //     this.status = result;
+    //     if (result) {
+    //         console.log('Connected to printer!!!');
+    //     } else {
+    //     console.log('Not connected to printer.');
+    //     }
+    // });
+    this.getPatients('billing');
     this.getProducts();
     this.socket.io.on('record update', (update) => {
       const i = this.patients.findIndex(p => p._id === update.patient._id);
@@ -182,33 +188,31 @@ print(driver: PrintDriver) {
   }
   refresh() {
     this.message = null;
-    this.getPatients();
+    this.getPatients('billing');
     this.getProducts();
   }
-  // filterPatients(patients: Person[]) : Person[] {
-  //   const completes: Person[] = [];
-  //   const pendings: Person[] = [];
-  //   patients.forEach(pat => {
-  //     pat.record.invoices.every(invoices => invoices.every(i => i.paid)) ? completes.push(pat) : pendings.push(pat);
-  //   });
-  //   return (this.router.url.includes('completed')) ? completes : pendings;
-  // }
+
+  populate(patients) {
+    this.pool = patients;
+    console.log(this.pool.length)
+    this.clonedPatients  = cloneDeep(patients);
+    this.patients   = patients.slice(0, 12);
+    patients.splice(0, 12);
+    this.reserved = patients;
+  }
   getPatients(type?: string) {
-    this.loading = true;
+    this.loading = (this.page === 0) ? true : false;
     this.dataService.getPatients(type, this.page).subscribe((patients: Person[]) => {
-      this.patients =  patients
-        .sort((m, n) => new Date(n.createdAt).getTime() - new Date(m.createdAt).getTime());
-      if (this.patients.length) {
-        this.patients.forEach(p => {
-          p.card = {menu: false, view: 'front', indicate: false};
+      if (patients.length) {
+        patients.forEach(p => {
+          p.card = {menu: false, view: 'front'};
         });
-        this.clonedPatients  = patients;
+        this.populate(patients);
         this.loading = false;
         this.message = null;
-        ++this.page;
       } else {
-        this.message = (this.page === 0) ? 'No Records So Far' : null;
-        this.loading = false;
+          this.message = (this.page === 0) ? 'No Records So Far' : null;
+          this.loading = false;
       }
     }, (e) => {
       this.loading = false;
@@ -216,10 +220,27 @@ print(driver: PrintDriver) {
       this.message = '...Network Error';
     });
   }
-  loadMore() {
-  //   if(this.page > 0) {
-  //     this.getPatients();
-  // }
+  onScroll() {
+    this.page = this.page + 1;
+    if(this.reserved.length) {
+      if(this.reserved.length >  12 ) {
+        this.patients = [...this.patients, ...this.reserved.slice(0, 12)];
+        this.reserved.splice(0,  12);
+      } else {
+        this.patients = [...this.patients, ...this.reserved];
+        this.reserved = [];
+      }
+    }
+  }
+  selectResult(person) {
+    const i = this.patients.findIndex(p => p._id === person._id);
+    if (i !== -1) {
+      this.patients.splice(i, 1);
+    } else {}
+    this.patients.unshift(person);
+    this.pool = this.clonedPatients;
+    this.searchResults = [];
+    this.searchTerm  = null;
   }
   getDesc(desc: string) {
     return desc.split('|')[0];
@@ -236,6 +257,7 @@ print(driver: PrintDriver) {
       }
     });
   });
+  this.billing = false;
   this.switchViews('editing');
 }
 switchCardView(i , view) {
@@ -289,6 +311,7 @@ viewOrders(i: number) {
   this.curIndex = i;
   this.patients[i].card.indicate = false;
   this.switchViews('orders');
+  this.patient = cloneDeep(this.patients[i]);
   this.invoices = cloneDeep(this.patients[i].record.invoices);
   this.invoices.forEach((invoices , j) => {
     const items = [];
@@ -393,17 +416,13 @@ comfirmPayment() {
         this.patients.sort((m: Person, n: Person) => n.info.personal.gender.localeCompare(m.info.personal.gender));
         this.nowSorting = 'Gender';
         break;
-      // case 'status':
-      //   this.patients.sort((m, n) => m.record.visits[m.record.visits.length-1].status.localeCompare(m.record.visits[n.record.visits.length-1].status.localeCompare));
-      //   this.nowSorting = 'Status';
-      //   break;
-        case 'age':
+      case 'age':
         this.patients.sort((m, n) => new Date(m.info.personal.dob).getFullYear() - new Date(n.info.personal.dob).getFullYear());
         this.nowSorting = 'Age';
         break;
       case 'date':
         this.patients.sort((m, n) => new Date(n.createdAt).getTime() - new Date(m.createdAt).getTime());
-        this.nowSorting = 'Date Added';
+        this.nowSorting = 'Date';
         break;
         default:
         break;
@@ -463,7 +482,7 @@ comfirmPayment() {
      });
     return total.toFixed(2);
   }
-    getDp(avatar: String) {
+    getDp(avatar: string) {
       return `${host}/api/dp/${avatar}`;
   }
   getStyle(i: Invoice) {
@@ -489,20 +508,79 @@ comfirmPayment() {
   hideLogOut() {
     this.logout = false;
   }
-
-
- searchPatient(name: string) {
-   if(name !== '') {
-    this.patients = this.patients.filter((patient) => {
-      const patern =  new RegExp('\^' + name , 'i');
-      return patern.test(patient.info.personal.firstName);
-      });
-   } else {
-     this.patients = this.clonedPatients;
+  searchPatient(name: string) {
+    if (name) {
+      this.searchResults = this.pool.filter((patient) => {
+       const patern =  new RegExp('\^' + name  , 'i');
+       return patern.test(patient.info.personal.firstName);
+       });
+    } else {
+       this.searchResults = [];
+       this.pool = this.clonedPatients;
+    }
    }
- }
+   composeInvoices() {
+    // const invoices = cloneDeep([...this.session.invoices, ...this.session.medInvoices]);
+    if (this.bills.length) {
+    if (this.patient.record.invoices.length) {
+      if (new Date(this.patient.record.invoices[0][0].meta.dateAdded)
+      .toLocaleDateString() === new Date().toLocaleDateString()) {
+        for (const b of this.bills) {
+          this.patient.record.invoices[0].unshift(b);
+        }
+       } else {
+          this.patient.record.invoices.unshift(this.bills);
+       }
+      } else {
+        this.patient.record.invoices = [this.bills];
+      }
+    }
+  }
+  addInvoice() {
+    this.bills.unshift({
+      ...this.invoice,
+      meta: new Meta(this.cookies.get('i'), this.cookies.get('h'))
+    });
+    this.invoice = new Invoice();
+  }
+  matchBills() {
+    if (this.invoices.length) {
+      if (new Date(this.invoices[0][0].meta.dateAdded)
+      .toLocaleDateString() === new Date().toLocaleDateString()) {
+        for (const b of this.bills) {
+          this.invoices[0].unshift(b);
+        }
+       } else {
+          this.invoices.unshift(this.bills);
+       }
+      } else {
+        this.invoices = [this.bills];
+      }
+  }
+   addBills() {
+    this.processing = true;
+    this.composeInvoices();
+    this.dataService.updateRecord(this.patient).subscribe((p: Person) => {
+      this.socket.io.emit('record update', {action: 'invoice update', patient: p});
+      this.successMsg = 'Bills added succesfully';
+      this.patients[this.curIndex].record = p.record;
+      this.matchBills();
+      this.bills = [];
+      this.processing = false;
+      setTimeout(() => {
+        this.successMsg = null;
+        this.billing = false;
+      }, 3000);
+    }, () => {
+      this.processing = false;
+      this.errorMsg = 'Unable to Update Medications';
+    });
+  }
+  switchBilling() {
+    this.billing = !this.billing;
+  }
+  removeBill(i) {
+    this.bills.splice(i, 1);
+  }
+  }
 
-
-
-
-}

@@ -12,6 +12,7 @@ import { Record,  Session} from '../../models/record.model';
 import * as cloneDeep from 'lodash/cloneDeep';
 import {PersonUtil} from '../../util/person.util';
 import {host} from '../../util/url';
+
 const uri = `${host}/api/upload`;
 @Component({
   selector: 'app-patient',
@@ -42,15 +43,15 @@ export class PatientComponent implements OnInit {
   lgas = lgas;
   states = states;
   sortMenu = false;
-  nowSorting = 'Date Added';
+  nowSorting = 'Date';
   message = null;
   feedback = null;
   searchTerm = '';
   selections = [];
   bills: Invoice[] = [];
-  invoice: Invoice = new Invoice()
+  invoice: Invoice = new Invoice();
   selected = null;
-  billing = false
+  billing = false;
   bedNum = null;
   processing = false;
   updating = false;
@@ -145,7 +146,7 @@ export class PatientComponent implements OnInit {
         break;
       case 'date':
         this.patients.sort((m, n) => new Date(n.createdAt).getTime() - new Date(m.createdAt).getTime());
-        this.nowSorting = 'Date Added';
+        this.nowSorting = 'Date';
         break;
         default:
         break;
@@ -157,12 +158,13 @@ export class PatientComponent implements OnInit {
   addInvoice() {
     this.bills.unshift({
       ...this.invoice,
+      paid: true,
       meta: new Meta(this.cookies.get('i'), this.cookies.get('h'))
     });
-    this.invoice = new Invoice()
+    this.invoice = new Invoice();
   }
-  removeBill(i){
-    this.bills.splice(i, 1)
+  removeBill(i) {
+    this.bills.splice(i, 1);
   }
   composeInvoices() {
     // const invoices = cloneDeep([...this.session.invoices, ...this.session.medInvoices]);
@@ -181,23 +183,25 @@ export class PatientComponent implements OnInit {
         this.patient.record.invoices = [this.bills];
       }
     }
+    console.log(this.patient.record.invoices);
   }
   addBills() {
-    this.processing = true
+    this.processing = true;
     this.composeInvoices();
-    this.dataService.updateRecord(this.patient).subscribe((p: Person) => {
-      this.socket.io.emit('record update', {action: 'invoice update', patient: p});
-      this.successMsg = 'Bills added succesfully';
-      this.patients[this.curIndex].record = p.record;
-      this.bills = [];
-      this.processing = false;
-      setTimeout(() => {
-        this.successMsg = null;
-      }, 3000);
-    }, () => {
-      this.processing = false;
-      this.errorMsg = 'Unable to Update Medications';
-    });
+    // this.dataService.updateRecord(this.patient).subscribe((p: Person) => {
+    //   this.socket.io.emit('record update', {action: 'invoice update', patient: p});
+    //   this.successMsg = 'Bills added succesfully';
+    //   this.patients[this.curIndex].record = p.record;
+    //   this.bills = [];
+    //   this.processing = false;
+    //   setTimeout(() => {
+    //     this.successMsg = null;
+    //     this.billing = false;
+    //   }, 3000);
+    // }, () => {
+    //   this.processing = false;
+    //   this.errorMsg = 'Unable to Update Medications';
+    // });
   }
    viewDetails(i) {
     this.curIndex = i;
@@ -228,7 +232,7 @@ export class PatientComponent implements OnInit {
     return this.withoutCard();
   }
   isValidContact() {
-      return (this.patient.info.contact.emergency.mobile);
+    return (this.patient.info.contact.emergency.mobile);
   }
   isInvalidForm() {
     return !(this.isValidInfo());
@@ -274,7 +278,7 @@ resetOrders() {
   }, 3000);
   setTimeout(() => {
     this.switchViews('orders');
-  }, 6000);
+  }, 5000);
 }
 getStyle(medication) {
   return {

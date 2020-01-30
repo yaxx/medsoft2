@@ -6,7 +6,7 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {CookieService } from 'ngx-cookie-service';
 import { Priscription, Scan, Session, Vital, Medication, Note, Bp, Resp, Pulse, Temp} from '../../models/record.model';
 import { Person } from '../../models/person.model';
-import { Product, Item} from '../../models/inventory.model';
+import { Product, Item, Invoice} from '../../models/inventory.model';
 import { Client} from '../../models/client.model';
 import * as cloneDeep from 'lodash/cloneDeep';
 import {host} from '../../util/url';
@@ -31,6 +31,7 @@ export class WardComponent implements OnInit {
   // vitals: Vital = new Vital();
   priscription: Priscription = new Priscription();
   medication: Medication = new Medication();
+  invoices: Invoice[][] = new Array<Invoice[]>();
   medications: any[] = [];
   temProducts: Product[] = [];
   item: Item = new Item();
@@ -58,12 +59,13 @@ export class WardComponent implements OnInit {
   allocated = null;
   count = 0;
   page = 0;
+  pageCount = 0;
   message = null;
   url = '';
   logout = false;
   cardCount = null;
   sortMenu = false;
-  nowSorting = 'Date Added';
+  nowSorting = 'Date';
   uploader: FileUploader = new FileUploader({url: uri});
   attachments: any = [];
   myDepartment = null;
@@ -170,6 +172,16 @@ export class WardComponent implements OnInit {
      this.patients = this.clonedPatients;
     }
    }
+   nextPage(pageNum: number) {
+     this.pageCount = pageNum;
+     if (pageNum === 2) {
+      this.invoices = this.patient.record.invoices;
+     }
+   }
+   viewOrders(i: number) {
+    this.curIndex = i;
+    this.invoices = cloneDeep(this.patients[i].record.invoices);
+  }
   medicationSelected() {
     return this.patients[this.curIndex].record.medications.some(med => med.some(m => m.selected));
   }
@@ -247,7 +259,7 @@ export class WardComponent implements OnInit {
         break;
       case 'date':
         this.patients.sort((m, n) => new Date(n.createdAt).getTime() - new Date(m.createdAt).getTime());
-        this.nowSorting = 'Date Added';
+        this.nowSorting = 'Date';
         break;
         default:
         break;

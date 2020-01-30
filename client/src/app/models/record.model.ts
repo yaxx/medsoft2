@@ -246,7 +246,7 @@ export class Session {
     public allegies: Allegy = new Allegy(),
     public devices: Device = new Device(),
     public visits: Visit = new Visit(),
-    public reqItem: Item = new Item(),
+    public reqItem: Item = new Item(null, null, 'Test'),
     public reqItems: any = [],
     public newItems: any = [],
     public conditions: Condition[] = [],

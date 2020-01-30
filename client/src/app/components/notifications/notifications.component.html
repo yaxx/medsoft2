@@ -55,11 +55,7 @@
                     </div>
                     <div data-simplebar  style='margin-left: 0px; border-left: 0px;padding-top:0%;' class="card-body notecardbody">
                     <div *ngIf="!notifications.length" style='position:absolute; top:40%;left:32%' class='issue'>
-                          <div *ngIf="loading" class="lds-css ng-scope">
-                              <div style="width:100%;height:100%" class="lds-rolling">
-                                  <div></div>
-                              </div>
-                          </div>
+                        <div *ngIf=loading  class="spinner main"></div>
                           <div *ngIf="feedback" style="top:15%;left:38%" title='Refresh' class='refresh'><i (click)=refresh() class="icon ion-ios-reload "></i></div>
                           <h6 *ngIf="feedback" style='font-size:13px;position:absolute;top:65%; width:100%; color:lightgrey;text-align: center'>
                           {{feedback}}

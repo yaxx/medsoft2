@@ -46,6 +46,7 @@ body {
         border: 1px solid rgba(0, 0, 0, .125);
         border-radius: .25rem;
         margin-bottom: 8px;
+
         /*height:400px;*/
     }
 }
@@ -440,6 +441,8 @@ html {
     height: 27px;
     border-radius: 4px;
     border-left: none;
+    border-bottom-left-radius: inherit;
+    border-top-left-radius: inherit;
 }
 
 
@@ -494,7 +497,8 @@ html {
     font-weight: bold;
     padding-right: 10px;
     border-top: 1px solid whitesmoke;
-    width: 100%
+    width: 100%;
+
 }
 
 .card-header.profileheader {
@@ -1210,3 +1214,102 @@ html {
     position: relative;
     cursor: pointer;
   }
+.disposition {
+    width:100%;
+    padding-left: 10px;
+    top:34px;
+}
+ .dispo {
+    padding: 4px 6px;
+    font-size: 11px;
+    outline: none;
+    box-shadow: none;
+    width:75px;
+}
+.ref-dept {
+   border-radius: 30px;
+    }
+.ref-dept:focus{
+    outline: none;
+    box-shadow: none;
+    }
+.dispo:focus{
+    outline: none;
+    box-shadow: none;
+}
+.disposition button:nth-child(1) {
+    border-radius: 30px;
+    border-top-right-radius: 0px;
+    border-bottom-right-radius: 0px;
+}
+.disposition button:nth-child(3) {
+    border-radius: 30px;
+    border-top-left-radius: 0px;
+    border-bottom-left-radius: 0px;
+}
+.age {
+  position: relative;
+  bottom:0.1%;
+  font-size: 12px;
+  color:lightgrey;
+  font-weight: normal;
+  /* left: 70%; */
+}
+.searched-name {
+  font-weight:600;
+  width:140px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: 2px;
+  margin-left: 4px;
+  top: -33px;
+  font-size: 13px;
+  left: 10px;
+}
+.searched-dp {
+  top:-1%;
+  margin-bottom: 0px;
+  position: relative;
+}
+.searched-item {
+  padding: 4px 4px 4px 4px;
+  border-top:none;
+  border-bottom:none;
+  height: 43px;
+  position: relative;
+  margin-bottom: 5px;
+  border-bottom: 1px solid whitesmoke;
+
+}
+.searched-item:hover {
+  background: whitesmoke;
+}
+.searchList {
+  border-radius: 10px;
+  border: none;
+  padding-top: 13px;
+  box-shadow: 0 1px 5px rgba(27,31,35,.11);
+}
+.spinner {
+  height: 45px;
+  width: 45px;
+  border-radius: 50%;
+  position: relative;
+  top: 100px;
+  margin: auto;
+  border: 2px solid rgba(29, 161, 242, .1);
+  border-top-color: #1da1f2;
+  animation: spin .8s infinite ease-in-out;
+}
+.spinner.main {
+  top: 14px;
+  border: 3px solid rgba(29, 161, 242, .1);
+  border-top-color: #1da1f2;
+  animation: spin .8s infinite ease-in-out;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

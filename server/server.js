@@ -21,7 +21,6 @@ app.use('/graphql', graphQlHttp({
 }))
 
  app.use(cors({origin:"http://localhost:4200", credentials: true}))
-
 // app.use(cors({origin:"*", credentials: true}))
 // app.use(express.static(path.join(__dirname,'dist','client')))
 // app.use(history());
@@ -62,7 +61,7 @@ io.sockets.on('connection', (socket) => {
 })
 app.get('/', (req, res) => {
     res.render('index')
-    //res.sendFile(path.join(__dirname,'dist','client','index.html'));
+    // res.sendFile(path.join(__dirname,'dist','client','index.html'));
 })
 // app.get('*',function (req, res) {
 //  res.redirect('/');

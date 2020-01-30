@@ -2,16 +2,16 @@
 const mongoose = require ('mongoose')
 const Person = require('../models/schemas/person')
 const Client = require ('../models/schemas/client')
-const escpos = require('escpos')
+// const escpos = require('escpos')
 const Capture = require ('../models/schemas/capture')
 const Department = require ('../models/schemas/department')
 const multer = require ('multer')
 const path = require('path');
 const  truncate  = require ('fs');
 const Notification = require('../models/schemas/noteschema')
-const Connection = require('../models/schemas/connection')
-const ThermalPrinter = require("node-thermal-printer").printer;
-const PrinterTypes = require("node-thermal-printer").types;
+// const Connection = require('../models/schemas/connection')
+// const ThermalPrinter = require("node-thermal-printer").printer;
+// const PrinterTypes = require("node-thermal-printer").types;
 // var Messages = require('../models/schemas/messageschema')
 let name = null
 const store = multer.diskStorage({
@@ -179,47 +179,52 @@ getPatients: async (req, res) => {
     switch(official.role) {
       case 'Doctor':
         patients = patients.filter(patient => patient.record.visits[0][0].status === req.params.type && patient.record.visits[0][0].dept === official.department);
-         res.send(patients) 
       break;
       case 'Nurse':
         patients = patients.filter(patient => patient.record.visits[0][0].status === req.params.type && patient.record.visits[0][0].dept === official.department);
-        res.send(patients) 
       break;
       case 'Pharmacist':
         patients = patients.filter(patient => patient.record.medications.length > 0);
-        res.send(patients) 
       case 'Lab Scientist':
           patients = patients.filter(patient => patient.record.tests
             .some(t => t.dept === official.dept) || patient.record.scans.some(t => t.dept === official.dept));
-            res.send(patients) 
       break;
-      case 'Cashier':
-        patients = patients.filter(patient => patient.record.invoices.length > 0);
-         res.send(patients) 
+      case 'Information':
+        if(req.params.type === 'billing') {
+          patients = patients.filter(patient => patient.record.invoices.length > 0);
+        } else if (req.params.type === 'out') {
+          patients = patients.filter(patient => patient.record.visits[0][0].status === req.params.type || !patient.record.visits[0][0].status);
+        } else {
+          patients = patients.filter(patient => patient.record.visits[0][0].status === req.params.type);
+        }
       break;
       case 'Admin':
         patients = (req.params.type) ? patients.filter(patient => patient.record.visits[0][0].status === req.params.type) : patients.filter(patient => patient.record.medications.length) ;
-         res.send(patients) 
       break;
       default:
       if(req.params.type === 'out') {
-        console.log('default')
         patients = patients.filter(patient => patient.record.visits[0][0].status === 'out' || !patient.record.visits[0][0].status);
+        // console.log(patients.length)
       } else {
          patients = patients.filter(patient => patient.record.visits[0][0].status === req.params.type);
       }
-        res.send(patients) 
       break
       // res.send(patients) 
     }
+    // console.log(req.params.page)
+    // let i = Number(req.params.page) * 9
     
+    // console.log(i)
+    // patients.splice(0,i)
+    // patients = patients.slice(0, 9);
+    // console.log(patients.length)
     // if (patients.length >= (Number(req.params.page) * 9) + 9 ) {
     //    patients = patients.slice(Number(req.params.page) * 9, 9);
     // } else {
     //   patients = patients.slice(Number(req.params.page) * 9);
     // }
-    
-    
+  //  console.log(patients.length)
+    res.send(patients.reverse())
   }
   catch(e){
     throw e
@@ -469,12 +474,14 @@ updateInfo: async (req, res) => {
 },
 updateRecord: async (req, res) => {
   try {
+    console.log(req.body)
     await Capture.insertMany(req.body.items);
     const person = await Person.findByIdAndUpdate(
       req.body.patient._id, {
         record: req.body.patient.record
       },{new: true}
       )
+     
     res.send(person);
   }
   catch(e) {
@@ -489,18 +496,17 @@ addCard: async (req, res) => {
       if (person.info.persnal.cardType === 'Family' && req.body.card.category === 'Family') {
         if(!req.body.patient.record.cards.some(c => c.pin === req.body.card.pin)) {
           req.body.patient.record.cards.unshift(req.body.card)
-          req.body.patient.info.personal.cardType = req.body.card.category
-          req.body.patient.info.personal.cardNum = req.body.card.pin
-          req.body.patient.record.invoices.unshift({
-            ...req.body.invoice, 
-            name: 'Consultation', 
-            desc: req.body.card.category,
-            kind: req.body.card.pin
-          })
         } else {
-          req.body.patient.info.personal.cardType = req.body.card.category
-          req.body.patient.info.personal.cardNum = req.body.card.pin
+          
         }
+        req.body.patient.record.invoices.unshift({
+          ...req.body.invoice, 
+          name: 'Consultation', 
+          desc: req.body.card.category,
+          kind: req.body.card.pin
+        })
+        req.body.patient.info.personal.cardType = req.body.card.category
+        req.body.patient.info.personal.cardNum = req.body.card.pin
       } else {
         res.status(400).send('Error validating card');
       }
@@ -508,17 +514,34 @@ addCard: async (req, res) => {
       req.body.patient.record.cards.unshift(req.body.card)
       req.body.patient.info.personal.cardType = req.body.card.category
       req.body.patient.info.personal.cardNum = req.body.card.pin
-      req.body.patient.record.invoices.unshift({
-        ...req.body.invoice,
-         name: 'Card', 
-         desc: req.body.card.category,
-         kind: req.body.card.pin
-        })
-    }
-     patient = await Person.findByIdAndUpdate(
-      req.body.patient._id, req.body.patient, {new: true}
+      if (req.body.entry === 'new') {
+        req.body.patient.record.invoices.unshift([
+          {
+            ...req.body.invoice,
+            name: 'Card', 
+            desc: req.body.card.category,
+            kind: req.body.card.pin
+          }, {
+            ...req.body.invoice,
+            name: 'Consultation', 
+            desc: req.body.card.category,
+            kind: req.body.card.pin
+          }]
+        )
+      } else {
+        req.body.patient.record.invoices.unshift({
+          ...req.body.invoice,
+           name: 'Consultation', 
+           desc: req.body.card.category,
+           kind: req.body.card.pin
+          })
+       }
+      }
+      patient = await Person.findByIdAndUpdate(
+        req.body.patient._id, req.body.patient, {new: true}
       )
-    res.send(patient);
+      res.send(patient);
+    
   } catch (error) {
     res.status(400).send('Error validating card');
   }
