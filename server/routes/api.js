@@ -130,9 +130,6 @@ catch (e) {
 getPatients: async (req, res) => {
 
   try {
-
-
-
     
     // console.log('printPaper! start')
     // const device = new escpos.USB();
@@ -155,19 +152,33 @@ getPatients: async (req, res) => {
     // console.log('printPaper! end')
     const {info: {official}} = await Person.findById(req.cookies.i).select('info');
     let patients = await Person.find()
-    patients = Array.from(patients).filter(person => person.info.official.department === null);
+    patients = Array.from(patients)
+    .filter(person => person.info.official.department === null);
     //record transformation
+    
   //   patients = Array.from(patients).map(p => p.toJSON()).map(patient => {
-  //     let {record} = patient
-  //     delete record.famHist
+  //     let {info} = patient
   //     return ({
-  //       ...patient, record: {
-  //         ...record, histories: []
-  //     }
+  //       ...patient, info: {
+  //           ...info, personal: {
+  //             ...info.personal, 
+  //             meta: {
+  //               addedBy: req.cookies.i,
+  //               facility: req.cookies.h,
+  //               dateAdded: patient.createdAt
+  //             }
+  //         }
+  //       }
   //   }) 
   // })
   // for (p of patients) {
-  //     Person.findByIdAndUpdate( mongoose.Types.ObjectId(p._id),{"record": p.record}, {new: true}, (e, data) => {
+  //     Person.findByIdAndUpdate( 
+  //       mongoose.Types.ObjectId(p._id),{
+  //         "info": p.info
+  //       }, {
+  //         new: true
+  //       }, (e, data) => {
+  //         console.log(data.info.personal.meta)
   //       if(e) {
   //         console.log(e)
   //       }
@@ -176,37 +187,60 @@ getPatients: async (req, res) => {
   // }
 
     
+
     switch(official.role) {
       case 'Doctor':
-        patients = patients.filter(patient => patient.record.visits[0][0].status === req.params.type && patient.record.visits[0][0].dept === official.department);
+        patients = patients.filter(
+          patient => patient.record.visits[0][0].status === req.params.type && 
+          patient.record.visits[0][0].dept === official.department
+          );
       break;
       case 'Nurse':
-        patients = patients.filter(patient => patient.record.visits[0][0].status === req.params.type && patient.record.visits[0][0].dept === official.department);
+        patients = patients.filter(
+          patient => patient.record.visits[0][0].status === req.params.type && 
+          patient.record.visits[0][0].dept === official.department
+          );
       break;
       case 'Pharmacist':
-        patients = patients.filter(patient => patient.record.medications.length > 0);
+        patients = patients.filter(
+          patient => patient.record.medications.length > 0
+          );
       case 'Lab Scientist':
           patients = patients.filter(patient => patient.record.tests
-            .some(t => t.dept === official.dept) || patient.record.scans.some(t => t.dept === official.dept));
+            .some(t => t.dept === official.dept) || patient.record.scans
+            .some(t => t.dept === official.dept)
+            );
       break;
       case 'Information':
         if(req.params.type === 'billing') {
           patients = patients.filter(patient => patient.record.invoices.length > 0);
         } else if (req.params.type === 'out') {
-          patients = patients.filter(patient => patient.record.visits[0][0].status === req.params.type || !patient.record.visits[0][0].status);
+          patients = patients.filter(
+            patient => patient.record.visits[0][0].status === req.params.type || 
+            !patient.record.visits[0][0].status
+            );
         } else {
-          patients = patients.filter(patient => patient.record.visits[0][0].status === req.params.type);
+          patients = patients.filter(
+            patient => patient.record.visits[0][0].status === req.params.type
+            );
         }
       break;
       case 'Admin':
-        patients = (req.params.type) ? patients.filter(patient => patient.record.visits[0][0].status === req.params.type) : patients.filter(patient => patient.record.medications.length) ;
+        patients = (req.params.type) ? patients.filter(
+          patient => patient.record.visits[0][0].status === req.params.type) : patients.filter(
+            patient => patient.record.medications.length
+            ) ;
       break;
       default:
       if(req.params.type === 'out') {
-        patients = patients.filter(patient => patient.record.visits[0][0].status === 'out' || !patient.record.visits[0][0].status);
+        patients = patients.filter(
+          patient => patient.record.visits[0][0].status === 'out' || 
+          !patient.record.visits[0][0].status);
         // console.log(patients.length)
       } else {
-         patients = patients.filter(patient => patient.record.visits[0][0].status === req.params.type);
+         patients = patients.filter(
+           patient => patient.record.visits[0][0].status === req.params.type
+           );
       }
       break
       // res.send(patients) 

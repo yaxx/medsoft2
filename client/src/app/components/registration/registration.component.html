@@ -93,9 +93,18 @@
                                         <option>Others</option>
                                     </select>
                                 </div>
-                                <div *ngIf='patient.record.cards.length' class="form-group vitals-section address">
-                                  <label style="font-size:8px" for="address" class="labelss">CARD NUMBER</label>
-                                  <input (focus) = clearError() [(ngModel)]=" patient.record.cards[0].pin" style='font-size:11px' autocomplete="off" type="text" name="address" class="form-control patientdata dystolic inputs dataInfo" />
+                                <div *ngIf=reg class="form-group vitals-section address">
+                                  <label style="font-size:8px" for="address" class="labelss">DATE ENROLED</label>
+                                  <input [(ngModel)]='patient.info.personal.meta.dateAdded' type = 'date' (focus) = clearError()  style='font-size:11px' autocomplete="off" name="address" class="form-control patientdata dystolic inputs dataInfo" />
+                                </div>
+                                <div *ngIf=!reg class="form-group vitals-section" style="width:49%; margin-right: 5px; display:inline-block">
+                                    <label style="font-size:8px" for="firstname" class="labelss"><span style='font-size:11px; color:red;'>*</span>CARD NUMBER
+                                    </label>
+                                    <input  (focus) = clearError() style='font-size:11px;text-align: left' autocomplete="off" type="text" name="firstname" class="form-control patientdata dystolic inputs dataInfo">
+                                </div>
+                                <div  *ngIf=!reg style="width:49%; display:inline-block" class="form-group vitals-section">
+                                    <label style="font-size:8px" for="enroled" class="labelss"><span style='font-size:11px; color:red;'>*</span>DATE ENROLED</label>
+                                    <input [(ngModel)]='patient.info.personal.meta.dateAdded  'type="date" (focus) = clearError()  style='font-size:11px' autocomplete="off" name="enroled" class="form-control patientdata dystolic inputs dataInfo"/>
                                 </div>
                               </form>
                               <form *ngIf="count===1"  style="top: 3%; height:100%;width:60%;position: relative;margin:auto;padding-top: 10px;" class=" staffsform">

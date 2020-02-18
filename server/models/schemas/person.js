@@ -20,7 +20,19 @@ const personScheema = new Scheema({
             mstatus: String,
             username: String,
             password: String,
-            status: String
+            status: String,
+            meta: {
+                addedBy: {
+                    type: Scheema.Types.ObjectId,
+                    ref: 'Person'
+                },
+                facility: {
+                    type: Scheema.Types.ObjectId,
+                    ref: 'Client'
+                },
+                selected: Boolean,
+                dateAdded: Date
+            }
 
         },
         contact: {

@@ -291,6 +291,7 @@ export class RegistrationComponent implements OnInit {
     this.errorMsg = null;
   }
   addDefaults() {
+    this.patient.info.personal.meta = new Meta(this.cookies.get('i'), this.cookies.get('h'));
     this.patient.record.visits = [[new Visit()]];
   }
   addRecord() {

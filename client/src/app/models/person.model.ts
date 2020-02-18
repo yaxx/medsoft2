@@ -1,5 +1,6 @@
 import {Record} from './record.model';
 import {Message} from './message.model';
+import {Meta} from './inventory.model';
   export class Notification {
     constructor(
       public person: string = null,
@@ -56,7 +57,8 @@ export class Personal {
     public mstatus: string = 'Single',
     public cardType: string = null,
     public cardNum: string = null,
-    public avatar: string = 'avatar.jpg'
+    public avatar: string = 'avatar.jpg',
+    public meta: Meta =  new Meta()
      ) {}
 }
 export class Me {
