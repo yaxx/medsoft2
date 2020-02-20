@@ -19,6 +19,8 @@ import {host} from '../../util/url';
 })
 export class LabComponent implements OnInit {
   patients: Person[] = [];
+  reserved: Person[] = [];
+  pool: Person[] = [];
   clonedPatients: Person[] = [];
   patient: Person = new Person();
   url = null;
@@ -61,7 +63,8 @@ export class LabComponent implements OnInit {
     private dataService: DataService,
     private cookies: CookieService,
     private router: Router,
-    private socket: SocketService) { }
+    private socket: SocketService
+    ) { }
 
   ngOnInit() {
     this.getPatients();
@@ -90,30 +93,26 @@ export class LabComponent implements OnInit {
       }
     });
   }
-  filterPatients(patients: Person[]) : Person[] {
-    const completes: Person[] = [];
-    const pendings: Person[] = [];
-    patients.forEach(pat => {
-      pat.record.scans.every(scans => scans.every(s => s.treated)) ? completes.push(pat) : pendings.push(pat);
-    });
-    return (this.router.url.includes('completed')) ? completes : pendings;
+  populate(patients) {
+    this.pool = patients;
+    this.clonedPatients  = patients;
+    this.patients   = patients.slice(0, 12);
+    patients.splice(0, 12);
+    this.reserved = patients;
   }
-  getPatients(type?: string) {
+  getPatients(type?:string) {
     this.loading = (this.page === 0) ? true : false;
     this.dataService.getPatients(type, this.page).subscribe((patients: Person[]) => {
-      this.patients = this.patients
-        .sort((m, n) => new Date(n.createdAt).getTime() - new Date(m.createdAt).getTime())
       if (patients.length) {
         patients.forEach(p => {
-          p.card = {menu: false, view: 'front', indicate: false};
+          p.card = {menu: false, view: 'front'};
         });
-        this.clonedPatients  = [...this.clonedPatients, ...patients];
+        this.populate(patients);
         this.loading = false;
         this.message = null;
-        ++this.page;
       } else {
-        this.message = (this.page === 0) ? 'No Records So Far' : null;
-        this.loading = false;
+          this.message = (this.page === 0) ? 'No Records So Far' : null;
+          this.loading = false;
       }
     }, (e) => {
       this.loading = false;
@@ -121,10 +120,17 @@ export class LabComponent implements OnInit {
       this.message = '...Network Error';
     });
   }
-  loadMore() {
-    if(this.page > 0) {
-      this.getPatients('Pharmacy');
-    }
+  onScroll() {
+    this.page = this.page + 1;
+    if(this.reserved.length) {
+      if(this.reserved.length >  12 ) {
+        this.patients = [...this.patients, ...this.reserved.slice(0, 12)];
+        this.reserved.splice(0,  12);
+      } else {
+        this.patients = [...this.patients, ...this.reserved];
+        this.reserved = [];
+      }
+    }  
   }
   clear() {
     this.sucssMsg = null;

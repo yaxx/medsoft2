@@ -18,6 +18,8 @@ import {host} from '../../util/url';
 export class PharmacyComponent implements OnInit {
   patients: Person[] = [];
   clonedPatients: Person[] = [];
+  reserved: Person[] = [];
+  pool: Person[] = [];
   patient: Person = new Person();
   products: Product[] = [];
   clonedStore: Product[] = [];
@@ -174,22 +176,27 @@ export class PharmacyComponent implements OnInit {
   //   // });
   //   return (this.router.url.includes('completed')) ? completes : pendings;
   // }
+
+  populate(patients) {
+    this.pool = patients;
+    this.clonedPatients  = patients;
+    this.patients   = patients.slice(0, 12);
+    patients.splice(0, 12);
+    this.reserved = patients;
+  }
   getPatients(type?:string) {
     this.loading = (this.page === 0) ? true : false;
     this.dataService.getPatients(type, this.page).subscribe((patients: Person[]) => {
-      this.patients =  patients
-        .sort((m, n) => new Date(n.createdAt).getTime() - new Date(m.createdAt).getTime());
       if (patients.length) {
         patients.forEach(p => {
-          p.card = {menu: false, view: 'front', indicate: false};
+          p.card = {menu: false, view: 'front'};
         });
-        this.clonedPatients  = [...this.clonedPatients, ...patients];
+        this.populate(patients);
         this.loading = false;
         this.message = null;
-        this.page = this.page + 1;
       } else {
-        this.message = (this.page === 0) ? 'No Records So Far' : null;
-        this.loading = false;
+          this.message = (this.page === 0) ? 'No Records So Far' : null;
+          this.loading = false;
       }
     }, (e) => {
       this.loading = false;
@@ -197,10 +204,17 @@ export class PharmacyComponent implements OnInit {
       this.message = '...Network Error';
     });
   }
-  loadMore() {
-    if(this.page > 0) {
-      // this.getPatients('Pharmacy');
-    }
+  onScroll() {
+    this.page = this.page + 1;
+    if(this.reserved.length) {
+      if(this.reserved.length >  12 ) {
+        this.patients = [...this.patients, ...this.reserved.slice(0, 12)];
+        this.reserved.splice(0,  12);
+      } else {
+        this.patients = [...this.patients, ...this.reserved];
+        this.reserved = [];
+      }
+    }  
   }
   recordChanged(bills: string[]) : boolean {
     return (bills.length && bills.some(bill => bill === 'Medication')) ? true : false;

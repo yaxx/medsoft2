@@ -207,8 +207,8 @@ getPatients: async (req, res) => {
           );
       case 'Lab Scientist':
           patients = patients.filter(patient => patient.record.tests
-            .some(t => t.dept === official.dept) || patient.record.scans
-            .some(t => t.dept === official.dept)
+            .some(test => test.some(t => t.dept === official.department)) || patient.record.scans
+            .some(scan => scan.some(s.dept === official.department))
             );
       break;
       case 'Information':
@@ -236,7 +236,6 @@ getPatients: async (req, res) => {
         patients = patients.filter(
           patient => patient.record.visits[0][0].status === 'out' || 
           !patient.record.visits[0][0].status);
-        // console.log(patients.length)
       } else {
          patients = patients.filter(
            patient => patient.record.visits[0][0].status === req.params.type
@@ -258,6 +257,7 @@ getPatients: async (req, res) => {
     //   patients = patients.slice(Number(req.params.page) * 9);
     // }
   //  console.log(patients.length)
+  console.log(patients)
     res.send(patients.reverse())
   }
   catch(e){

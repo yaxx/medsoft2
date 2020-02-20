@@ -202,7 +202,7 @@ export class RegistrationComponent implements OnInit {
     patients.splice(0, 12);
     this.reserved = patients;
   }
-  getPatients(type) {
+  getPatients(type?:string) {
     this.loading = (this.page === 0) ? true : false;
     this.dataService.getPatients(type, this.page).subscribe((patients: Person[]) => {
       if (patients.length) {
@@ -223,7 +223,6 @@ export class RegistrationComponent implements OnInit {
     });
   }
   onScroll() {
-    console.log(this.reserved.length);
     this.page = this.page + 1;
     if(this.reserved.length) {
       if(this.reserved.length >  12 ) {

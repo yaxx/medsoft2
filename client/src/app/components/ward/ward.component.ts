@@ -23,13 +23,14 @@ const uri = `${host}/api/upload`;
 export class WardComponent implements OnInit {
   patients: Person[] = [];
   clonedPatients: Person[] = [];
+  reserved: Person[] = [];
+  pool: Person[] = [];
   patient: Person = new Person();
   clonePatient: Person = new Person();
   products: Product[] = [];
   client: Client = new Client();
   cloneClient: Client = new Client();
   product: Product = new Product();
-  // vitals: Vital = new Vital();
   priscription: Priscription = new Priscription();
   medication: Medication = new Medication();
   invoices: Invoice[][] = new Array<Invoice[]>();
@@ -254,18 +255,24 @@ export class WardComponent implements OnInit {
   toggleSortMenu() {
     this.sortMenu = !this.sortMenu;
   }
-  getPatients(type) {
-    this.loading = true;
+  populate(patients) {
+    this.pool = patients;
+    this.clonedPatients  = patients;
+    this.patients   = patients.slice(0, 12);
+    patients.splice(0, 12);
+    this.reserved = patients;
+  }
+  
+  getPatients(type?:string) {
+    this.loading = (this.page === 0) ? true : false;
     this.dataService.getPatients(type, this.page).subscribe((patients: Person[]) => {
       if (patients.length) {
         patients.forEach(p => {
           p.card = {menu: false, indicate: false, view: 'front', name: null, processing: false, errorMsg: null, sucsMsg: null};
         });
-        this.patients   = [...this.patients, ...patients.sort((m, n) => new Date(n.createdAt).getTime() - new Date(m.createdAt).getTime())];
-        this.clonedPatients  = [...this.clonedPatients, ...patients];
+        this.populate(patients);
         this.loading = false;
         this.message = null;
-        ++this.page;
       } else {
           this.message = (this.page === 0) ? 'No Records So Far' : null;
           this.loading = false;
@@ -276,11 +283,19 @@ export class WardComponent implements OnInit {
       this.message = '...Network Error';
     });
   }
-  loadMore() {
-  //   if (this.page > 0) {
-  //     this.getPatients('Admit');
-  // }
+  onScroll() {
+    this.page = this.page + 1;
+    if(this.reserved.length) {
+      if(this.reserved.length >  12 ) {
+        this.patients = [...this.patients, ...this.reserved.slice(0, 12)];
+        this.reserved.splice(0,  12);
+      } else {
+        this.patients = [...this.patients, ...this.reserved];
+        this.reserved = [];
+      }
+    }  
   }
+
   getRooms(i) {
     return this.client.departments
     .find(dept => dept.name === this.patients[i].record.visits[0][0].dept).rooms;

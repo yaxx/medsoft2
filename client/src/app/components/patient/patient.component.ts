@@ -23,6 +23,8 @@ const uri = `${host}/api/upload`;
 export class PatientComponent implements OnInit {
   patients: Person[] = [];
   clonedPatients: Person[] = [];
+  pool: Person[] = [];
+  reserved: Person[] = [];
   patient: Person = new Person();
   uploader: FileUploader = new FileUploader({url: uri});
   temPatients: Person[] = new Array<Person>();
@@ -349,35 +351,49 @@ viewOrders(i: number) {
   prev() {
     this.count = this.count - 1;
   }
-   getPatients(type) {
+  populate(patients) {
+    this.pool = patients;
+    this.clonedPatients  = patients;
+    this.patients   = patients.slice(0, 12);
+    patients.splice(0, 12);
+    this.reserved = patients;
+  }
+  
+  getPatients(type?:string) {
     this.loading = (this.page === 0) ? true : false;
     this.dataService.getPatients(type, this.page).subscribe((patients: Person[]) => {
       if (patients.length) {
         patients.forEach(p => {
         p.card = {menu: false, view: 'front', btn: 'discharge', indicate: false};
       });
-        this.patients   = [...this.patients, ...patients.sort((m, n) => new Date(n.createdAt).getTime() - new Date(m.createdAt).getTime())];
-        this.clonedPatients  = [...this.clonedPatients, ...patients];
+        this.populate(patients);
         this.loading = false;
         this.message = null;
-        ++this.page;
-    } else {
-      this.message = (this.page === 0) ? 'No Records So Far' : null;
-      this.loading = false;
-    }
+      } else {
+          this.message = (this.page === 0) ? 'No Records So Far' : null;
+          this.loading = false;
+      }
     }, (e) => {
       this.loading = false;
       this.patients = [];
       this.message = '...Network Error';
     });
   }
+  onScroll() {
+    this.page = this.page + 1;
+    if(this.reserved.length) {
+      if(this.reserved.length >  12 ) {
+        this.patients = [...this.patients, ...this.reserved.slice(0, 12)];
+        this.reserved.splice(0,  12);
+      } else {
+        this.patients = [...this.patients, ...this.reserved];
+        this.reserved = [];
+      }
+    }  
+  }
+  
   clearError() {
     this.errorMsg = null;
-  }
-  loadMore() {
-  //   if(this.page > 0) {
-  //     this.getPatients('Admit');
-  // }
   }
   dispose(i: number, disposition: string, label) {
     this.patients[i].record.visits[0][0].status = disposition;

@@ -244,7 +244,8 @@
     </div>
 </nav>
 
-<div id="load-more" (click)='onScroll()' style="padding-top:60px" class="container">
+<div style="padding-top:60px" class="container">
+    <div style=position:absolute id="more" (click) = onScroll() ></div>
     <div class="row">
         <div *ngIf='!patients.length' class='issue'>
             <div *ngIf='loading'  class="spinner main"></div>

@@ -33,6 +33,8 @@ export class ConsultationComponent implements OnInit {
   patients: Person[] = [];
   products: Product[] = [];
   clonedPatient: Person = new Person();
+  pool: Person[] = [];
+  reserved: Person[] = [];
   clonedPatients: Person[] = [];
   record: Record = new Record();
   card: Card = new Card();
@@ -353,37 +355,50 @@ getLgas() {
 switchBtn(option: string) {
    this.in = option;
 }
+populate(patients) {
+  this.pool = patients;
+  this.clonedPatients  = patients;
+  this.patients   = patients.slice(0, 12);
+  patients.splice(0, 12);
+  this.reserved = patients;
+}
 
-getPatients(type) {
+getPatients(type?:string) {
   this.loading = (this.page === 0) ? true : false;
   this.dataService.getPatients(type, this.page).subscribe((patients: Person[]) => {
-     if (patients.length) {
+    if (patients.length) {
       patients.forEach(p => {
       p.card = {menu: false, view: 'front', btn: 'discharge', indicate: false};
     });
-      this.patients   = [...this.patients, ...patients.sort((m, n) => new Date(n.createdAt).getTime() - new Date(m.createdAt).getTime())];
-      this.clonedPatients  = [...this.clonedPatients, ...patients];
+      this.populate(patients);
       this.loading = false;
       this.message = null;
-      ++this.page;
-  } else {
-    this.message = (this.page === 0) ? 'No Records So Far' : null;
+    } else {
+        this.message = (this.page === 0) ? 'No Records So Far' : null;
+        this.loading = false;
+    }
+  }, (e) => {
     this.loading = false;
+    this.patients = [];
+    this.message = '...Network Error';
+  });
+}
+onScroll() {
+  this.page = this.page + 1;
+  if(this.reserved.length) {
+    if(this.reserved.length >  12 ) {
+      this.patients = [...this.patients, ...this.reserved.slice(0, 12)];
+      this.reserved.splice(0,  12);
+    } else {
+      this.patients = [...this.patients, ...this.reserved];
+      this.reserved = [];
+    }
+  }  
+}
+
+  getBMI() {
+    return  (this.session.vitals.weight.value / Math.pow(this.session.vitals.height.value, 2)).toFixed(2);
   }
-    }, (e) => {
-      this.loading = false;
-      this.patients = [];
-      this.message = '...Network Error';
-    });
-  }
-  loadMore() {
-    // if(this.page > 0) {
-    //     this.getPatients('queued');
-    // }
-  }
-   getBMI() {
-     return  (this.session.vitals.weight.value / Math.pow(this.session.vitals.height.value, 2)).toFixed(2);
-   }
   selectPatient(i: number) {
     this.curIndex = i;
     this.reg = false;
