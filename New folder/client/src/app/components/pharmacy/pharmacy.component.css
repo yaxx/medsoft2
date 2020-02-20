@@ -1,0 +1,37 @@
+.carditem.priscriptioncontainer.order {
+  border-left:2px solid blue;
+}
+
+.card-body.orderbody {
+  border-left:0px;
+  padding-top:3px;
+}
+#cancel:focus{
+  outline:none;
+}
+
+.carditem.priscriptioncontainer.order label {
+  width:100%;
+  position:absolute;
+  text-align:right;
+  font-size:11px;
+  padding-right:28px;
+  font-weight:bold;
+  cursor: pointer;
+}
+
+.qty-btn{
+  width: 60%;
+  border-radius: 0px;
+  position: relative;
+  padding: 2px;
+  margin-bottom: 0px;
+  border: none;
+  /* border-left: 1px solid whitesmoke; */
+  background: inherit;
+  text-align: center;
+  /* border-right: 1px solid whitesmoke; */
+}
+.qty-btn:focus{
+  outline: none;
+}

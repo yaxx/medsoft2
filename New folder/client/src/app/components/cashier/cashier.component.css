@@ -1,0 +1,59 @@
+.carditem.priscriptioncontainer.order {
+  border-left:2px solid blue;
+}
+
+.card-body.orderbody {
+  border-left:0px;
+  padding-top:3px;
+}
+#cancel:focus{
+  outline:none;
+}
+
+.carditem.priscriptioncontainer.order label {
+  width:100%;
+  position:absolute;
+  text-align:right;
+  font-size:11px;
+  padding-right:28px;
+  font-weight:bold;
+  cursor: pointer;
+}
+
+.off {
+  left: -100%;
+ }
+.on {
+  left: 0%;
+  animation-name: card-in;
+  animation-duration: .2s;
+  animation-timing-function: ease-in;
+}
+@keyframes card-in {
+    0% {
+        left: -100%;
+    }
+    100% {
+        left: 0%;
+    }
+}
+.age {
+  position: relative;
+  bottom:0.1%;
+  font-size: 12px;
+  color:lightgrey;
+  font-weight: normal;
+  /* left: 70%; */
+}
+.searched-name {
+  font-weight:600;
+  width:140px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: 2px;
+  margin-left: 4px;
+  top: -33px;
+  font-size: 13px;
+  left: 10px;
+}

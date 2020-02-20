@@ -1,0 +1,102 @@
+@keyframes lds-rolling {
+          0% {
+            -webkit-transform: translate(-50%, -50%) rotate(0deg);
+            transform: translate(-50%, -50%) rotate(0deg);
+          }
+          100% {
+            -webkit-transform: translate(-50%, -50%) rotate(360deg);
+            transform: translate(-50%, -50%) rotate(360deg);
+          }
+        }
+        @-webkit-keyframes lds-rolling {
+          0% {
+            -webkit-transform: translate(-50%, -50%) rotate(0deg);
+            transform: translate(-50%, -50%) rotate(0deg);
+          }
+          100% {
+            -webkit-transform: translate(-50%, -50%) rotate(360deg);
+            transform: translate(-50%, -50%) rotate(360deg);
+          }
+        }
+        .lds-rolling {
+          position: absolute;
+          left: 45%;
+          top: 31%;
+        }
+        .lds-rolling div,
+        .lds-rolling div:after {
+          position: absolute;
+          width: 160px;
+          height: 160px;
+          border: 16px solid #1da1f2;
+          border-top-color: transparent;
+          border-radius: 50%;
+          z-index: 2;
+          /* color:#1da1f2; */
+        }
+        .lds-rolling div {
+          -webkit-animation: lds-rolling 1s linear infinite;
+          animation: lds-rolling 1s linear infinite;
+          top: 50%;
+          left:50%;
+          position: absolute;
+        }
+        .lds-rolling div:after {
+          -webkit-transform: rotate(90deg);
+          transform: rotate(90deg);
+        }
+        .lds-rolling {
+          width: 47px !important;
+          height: 47px !important;
+          -webkit-transform: translate(-26.5px, -26.5px) scale(0.265) translate(26.5px, 26.5px);
+          transform: translate(-26.5px, -26.5px) scale(0.265) translate(26.5px, 26.5px);
+        }
+        .refresh:hover {
+
+        /* border:1px solid rgb(255, 255, 255); */
+          background-color: white;
+
+        }
+      .refresh {
+          color: lightgrey;
+          position: absolute;
+          font-size: 30px;
+          background: inherit;
+          cursor: pointer;
+          text-align: center;
+          top:16%;
+          left:40%;
+          width: 45px;
+          height: 45px;
+          border-radius: 50%;
+          -webkit-border-radius: 50%;
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          justify-content: space-around;
+        }
+        .refresh i {
+          position: absolute;
+          left: 11px;
+        }
+        .issue {
+          width:200px;
+          height:100px;
+          position:relative;
+          margin:auto;
+          top: 200px;
+
+        }
+        .expired {
+          text-decoration:none;
+          /* text-decoration: line-through red;
+          text-decoration-color: red; */
+          color: red;
+        }
+        #menu-hilighter{
+          background:white;
+        }
+        #menu-hilighter:hover {
+          background:rgb(248,247,247);
+        }
+
