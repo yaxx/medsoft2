@@ -72,7 +72,7 @@ export class ConsultationComponent implements OnInit {
   webcamImage: WebcamImage = null;
   count = 0;
   dept = null;
- 
+
   url = null;
   file: File = null;
   uploader: FileUploader = new FileUploader({url: uri});
@@ -302,7 +302,7 @@ getLgas() {
        this.patients[i].card.btn = 'discharge';
        this.dept = this.patients[i].record.visits[0][0].dept;
        break;
-       default: 
+       default:
        this.cardCount = null;
        this.patients[i].record.visits[0][0].status = 'queued';
        this.patients[i].record.visits[0][0].dept = this.dept;
@@ -363,7 +363,7 @@ populate(patients) {
   this.reserved = patients;
 }
 
-getPatients(type?:string) {
+getPatients(type?: string) {
   this.loading = (this.page === 0) ? true : false;
   this.dataService.getPatients(type, this.page).subscribe((patients: Person[]) => {
     if (patients.length) {
@@ -393,7 +393,7 @@ onScroll() {
       this.patients = [...this.patients, ...this.reserved];
       this.reserved = [];
     }
-  }  
+  }
 }
 
   getBMI() {
