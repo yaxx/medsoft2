@@ -8,7 +8,7 @@ import {Product, Item, StockInfo,Invoice} from '../../models/inventory.model';
 import {Priscription, Medication} from '../../models/record.model';
 import * as cloneDeep from 'lodash/cloneDeep';
 import sorter from '../../util/functions';
-import {host} from '../../util/url';
+import {host,appName} from '../../util/url';
 
 @Component({
   selector: 'app-pharmacy',
@@ -16,6 +16,7 @@ import {host} from '../../util/url';
   styleUrls: ['./pharmacy.component.css']
 })
 export class PharmacyComponent implements OnInit {
+  appName = appName;
   patients: Person[] = [];
   clonedPatients: Person[] = [];
   reserved: Person[] = [];
@@ -214,7 +215,7 @@ export class PharmacyComponent implements OnInit {
         this.patients = [...this.patients, ...this.reserved];
         this.reserved = [];
       }
-    }  
+    }
   }
   recordChanged(bills: string[]) : boolean {
     return (bills.length && bills.some(bill => bill === 'Medication')) ? true : false;

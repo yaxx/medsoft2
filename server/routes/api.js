@@ -2,7 +2,6 @@
 const mongoose = require ('mongoose')
 const Person = require('../models/schemas/person')
 const Client = require ('../models/schemas/client')
-// const escpos = require('escpos')
 const Capture = require ('../models/schemas/capture')
 const Department = require ('../models/schemas/department')
 const multer = require ('multer')
@@ -10,9 +9,9 @@ const path = require('path');
 const  truncate  = require ('fs');
 const Notification = require('../models/schemas/noteschema')
 const Connection = require('../models/schemas/connection')
-// const ThermalPrinter = require("node-thermal-printer").printer;
-// const PrinterTypes = require("node-thermal-printer").types;
-// var Messages = require('../models/schemas/messageschema')
+const escpos = require('escpos');
+escpos.USB = require('escpos-usb');
+const device  = new escpos.USB()
 let name = null
 const store = multer.diskStorage({
  destination:'./uploads',
@@ -31,7 +30,7 @@ const createPerson = async data => {
   try {
     let con = null
     let  person
-    if(data.info.official.hospital){
+    if(data.info.official.hospital) {
       con = await new Connection().save()
        person = await new Person({
         info: data.info, 
@@ -268,29 +267,31 @@ getPatients: async (req, res) => {
 
 
 addClient: async (req, res) => {
+  console.log(req.body)
   try {
-    const exist = await Person.findOne({ $or: [{
-      'info.contact.me.email': req.body.info.email}, {
-        'info.contact.me.mobile': req.body.info.mobile
+    const client = await Person.findOne({ $or: [{
+      'info.contact.me.email': req.body.client.info.email}, {
+        'info.contact.me.mobile': req.body.client.info.mobile
       }]
     })
-    if(exist) {
-        res.status(400).send(exist)
+    console.log(client)
+    if(client) {
+        res.status(400).send(client)
       } else {
-        const client = await new Client(req.body).save()
+        const client = await new Client(req.body.client).save()
             let data = {
               info: {
                 personal: {
                   firstName: 'Admin',
                   lastName: '',
                   username: 'admin',
-                  password: req.body.info.password,
+                  password: req.body.client.info.password,
                   avatar:'avatar.jpg'
                 },
                 contact: {
                   me: {
-                    email: req.body.info.email,
-                    mobile: req.body.info.mobile
+                    email: req.body.client.info.email,
+                    mobile: req.body.client.info.mobile
                   }
                 },
                 official: {
@@ -377,6 +378,19 @@ runTransaction: async (req, res) => {
       'record': req.body.record
      }, {new: true})
     await client.save()
+    device.open(function(error) {
+      printer
+      .font('a')
+      .style('bu')
+      .size(1, 1)
+      .tableCustom([
+        { text:"Amoxile 200ml                500", align:"LEFT",  width:0.33 },
+      ])
+      .qrimage('https://github.com/song940/node-escpos', function(err){
+        this.cut();
+        this.close();
+      });
+    });
     res.send(person)
   }
   catch(e) {

@@ -10,7 +10,7 @@ import {Meta} from '../../models/inventory.model';
 import {Report} from '../../models/record.model';
 import * as cloneDeep from 'lodash/cloneDeep';
 import { timeout } from 'q';
-import {host} from '../../util/url';
+import {host, appName} from '../../util/url';
  const uri = `${host}/api/upload`;
 @Component({
   selector: 'app-lab',
@@ -18,6 +18,7 @@ import {host} from '../../util/url';
   styleUrls: ['./lab.component.css']
 })
 export class LabComponent implements OnInit {
+  appName = appName;
   patients: Person[] = [];
   reserved: Person[] = [];
   pool: Person[] = [];
@@ -130,7 +131,7 @@ export class LabComponent implements OnInit {
         this.patients = [...this.patients, ...this.reserved];
         this.reserved = [];
       }
-    }  
+    }
   }
   clear() {
     this.sucssMsg = null;

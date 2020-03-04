@@ -1,6 +1,6 @@
 {
   "name": "client",
-  "productName": "init",
+  "productName": "oxengine",
   "main": "main.js",
   "version": "1.2.5",
   "scripts": {
@@ -18,8 +18,8 @@
     "license": "LICENSE"
   },
   "build": {
-    "appId": "com.init.app",
-    "productName": "init",
+    "appId": "com.oxengine.app",
+    "productName": "oxengine",
     "target": "NSIS",
     "files": [
       "main.js",

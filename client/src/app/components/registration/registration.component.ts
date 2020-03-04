@@ -13,7 +13,7 @@ import {Visit, Session} from '../../models/record.model';
 import {Client, Department} from '../../models/client.model';
 import sorter from '../../util/functions';
 import {CookieService } from 'ngx-cookie-service';
-import {host} from '../../util/url';
+import {host, appName} from '../../util/url';
 const uri = `${host}/api/upload`;
 @Component({
   selector: 'app-registration',
@@ -21,6 +21,7 @@ const uri = `${host}/api/upload`;
   styleUrls: ['./registration.component.css']
 })
 export class RegistrationComponent implements OnInit {
+  appName = appName;
   form: NgForm;
   patients: Person[] = [];
   clonedPatients: Person[] = [];
@@ -232,7 +233,7 @@ export class RegistrationComponent implements OnInit {
         this.patients = [...this.patients, ...this.reserved];
         this.reserved = [];
       }
-    }  
+    }
   }
   showMenu(i: number) {
     this.hideMenu();

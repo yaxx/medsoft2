@@ -11,7 +11,7 @@ import {Product, Item, Meta, Invoice, Card, StockInfo} from '../../models/invent
 import { Record,  Session} from '../../models/record.model';
 import * as cloneDeep from 'lodash/cloneDeep';
 import {PersonUtil} from '../../util/person.util';
-import {host} from '../../util/url';
+import {host, appName} from '../../util/url';
 import sorter from '../../util/functions';
 
 const uri = `${host}/api/upload`;
@@ -21,6 +21,7 @@ const uri = `${host}/api/upload`;
   styleUrls: ['./patient.component.css']
 })
 export class PatientComponent implements OnInit {
+  appName = appName;
   patients: Person[] = [];
   clonedPatients: Person[] = [];
   pool: Person[] = [];
@@ -358,7 +359,7 @@ viewOrders(i: number) {
     patients.splice(0, 12);
     this.reserved = patients;
   }
-  
+
   getPatients(type?:string) {
     this.loading = (this.page === 0) ? true : false;
     this.dataService.getPatients(type, this.page).subscribe((patients: Person[]) => {
@@ -389,9 +390,9 @@ viewOrders(i: number) {
         this.patients = [...this.patients, ...this.reserved];
         this.reserved = [];
       }
-    }  
+    }
   }
-  
+
   clearError() {
     this.errorMsg = null;
   }

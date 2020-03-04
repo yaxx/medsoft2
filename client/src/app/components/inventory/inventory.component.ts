@@ -5,7 +5,7 @@ import {Tests, Scannings, Surgeries} from '../../data/request';
 import {CookieService } from 'ngx-cookie-service';
 import {SocketService} from '../../services/socket.service';
 import * as cloneDeep from 'lodash/cloneDeep';
-import {host} from '../../util/url';
+import {host, appName} from '../../util/url';
 import Simplebar from 'simplebar';
 import 'simplebar/dist/simplebar.css';
 @Component({
@@ -14,6 +14,7 @@ import 'simplebar/dist/simplebar.css';
   styleUrls: ['./inventory.component.css']
 })
 export class InventoryComponent implements OnInit {
+  appName = appName;
   product: Product = new Product();
   clonedInventory: Product[] = [];
   item: Item = new Item();
@@ -201,7 +202,7 @@ export class InventoryComponent implements OnInit {
     // }
   }
   addMore() {
-    if (this.products.some(product => product.item.name === this.product.item.name) || 
+    if (this.products.some(product => product.item.name === this.product.item.name) ||
       this.temProducts.some(product => product.item.name === this.product.item.name)) {
       this.errLine = 'Product already exist';
       } else {
@@ -210,7 +211,7 @@ export class InventoryComponent implements OnInit {
     }
   }
   addMoreService() {
-     if (this.products.some(product => product.item.name === this.product.item.name) || 
+     if (this.products.some(product => product.item.name === this.product.item.name) ||
      this.temProducts.some(product => product.item.name === this.product.item.name)) {
     this.errLine = 'Service already exist';
     } else {
@@ -245,7 +246,7 @@ export class InventoryComponent implements OnInit {
     this.product = new Product();
     this.curentItems.forEach(product => {
       product.selected = false;
-    }); 
+    });
   }
   toggleMenu() {
     this.menuView = !this.menuView;

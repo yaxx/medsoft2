@@ -12,13 +12,14 @@ import { PrintDriver } from 'ng-thermal-print/lib/drivers/PrintDriver';
 import { PrintService, UsbDriver, WebPrintDriver } from 'ng-thermal-print';
 import { timeout } from 'q';
 import { fromEvent } from 'rxjs';
-import {host} from '../../util/url';
+import {host, appName} from '../../util/url';
 @Component({
   selector: 'app-cashier',
   templateUrl: './cashier.component.html',
   styleUrls: ['./cashier.component.css']
 })
 export class CashierComponent implements OnInit {
+  appName = appName;
   patients: Person[] = [];
   clonedPatients: Person[] = [];
   patient: Person = new Person();
@@ -339,11 +340,7 @@ runTransaction(type: string, patient) {
     this.processing = false;
   });
 }
-closeModal() {
-  // if (this.patients[this.curIndex].record.invoices.every(invoices => invoices.every(i => i.paid))) {
-  //   this.patients.splice(this.curIndex, 1);
-  // }
-}
+
 comfirmPayment() {
   if ( this.edited.some(i => i.name === 'Card' || i.name === 'Consultation')) {
     this.patients[this.curIndex].record.visits[0][0].status = 'queued';

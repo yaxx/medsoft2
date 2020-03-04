@@ -15,7 +15,6 @@ import { InfiniteScrollModule } from 'ngx-infinite-scroll';
 import {WebcamModule} from 'ngx-webcam';
 import { FormsModule } from '@angular/forms';
 import { DobPipe } from './pipes/dob.pipe';
-
 import { AppointmentsComponent } from './components/appointments/appointments.component';
 import { CashierComponent } from './components/cashier/cashier.component';
 import { ConsultationComponent } from './components/consultation/consultation.component';

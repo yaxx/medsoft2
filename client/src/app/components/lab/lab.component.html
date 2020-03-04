@@ -10,10 +10,10 @@
                      <div style="left:23px;top:13px" class="timeline lastdoc priscriber headerdp small-dp">
                         <img [src]=getDp(patient.info.personal.avatar)/>
                         <div *ngIf="patient.card.indicate" class="indicator"></div>
-                    </div> 
+                    </div>
                      <p style="top:5px"  href="#" class="patien-name small-name">
                       {{patient.info.personal.firstName + ' '+ patient.info.personal.lastName}}<span class="small-headericon"></span>
-                    </p> 
+                    </p>
                     <h6 style='font-size:10px; font-weight:bold; position:absolute;color:dodgerblue;top:5%;left:70%' class="patien-name small-name">LAB REQUESTS</h6>
                 </div>
                 <div *ngIf='cardView.orders' class="card-body orderbody" style=" width:55%; margin:auto;">
@@ -76,14 +76,14 @@
                 <div *ngIf='cardView.report' style="left:7%; top:45%;position: absolute;
                     width: 7%;" class="btn-group disposition">
                     <button (click)="switchViews('orders')" style="width:32px;border:none;height: 32px;border-radius: 50%;left:35%"   class="btn btn-outline-primary  dispo " >
-                        <i style='position:absolute;right:36%;top:2px; font-size:large; cursor:pointer; display: inline-block;' title="Back" class="icon ion-android-arrow-back "> 
+                        <i style='position:absolute;right:36%;top:2px; font-size:large; cursor:pointer; display: inline-block;' title="Back" class="icon ion-android-arrow-back ">
                         </i>
                     </button>
                 </div>
                 <div *ngIf="itemSelected() && cardView.orders" style="left:80%; top:45%;position: absolute;
                 width: 7%;" class="btn-group disposition">
                     <button (click)="switchViews('report')" style="width:32px;border:none;height: 32px;border-radius: 50%;left:35%"   class="btn btn-outline-primary  dispo " >
-                        <i   style='position:absolute;right:36%;top:2px; font-size:large; cursor:pointer; display: inline-block;' title="Go to report" class="icon ion-android-arrow-forward "> 
+                        <i   style='position:absolute;right:36%;top:2px; font-size:large; cursor:pointer; display: inline-block;' title="Go to report" class="icon ion-android-arrow-forward ">
                         </i>
                     </button>
                 </div>
@@ -101,8 +101,8 @@
 <nav class="navbar fixed-top navbar-light navbar-expand-md navigation-clean-search" style="padding:0px; margin-bottom:0px">
     <div class="container">
         <a class="navbar-brand" href="#">
-            <em>automata</em>
-        </a>        
+            <em>{{appName}}</em>
+        </a>
         <div class="collapse navbar-collapse" id="navcol-1">
             <form class="top-searchform" target="_self">
                 <div class="form-group">
@@ -127,7 +127,7 @@
         </div>
     </div>
     <div (mouseleave)='hideLogOut()' class="timeline lastdoc priscriber headerdp small-dp user-dp" style="left:90%;position:absolute;height:87px;width:90px;top:5px; margin-bottom:0px;background:inherit">
-        <div  class="timeline lastdoc priscriber headerdp small-dp user-dp" style="position:absolute;height:30px;width:30px;top:5px; margin-bottom:0px; "> 
+        <div  class="timeline lastdoc priscriber headerdp small-dp user-dp" style="position:absolute;height:30px;width:30px;top:5px; margin-bottom:0px; ">
             <img (click)='showLogOut()' style='height:100%; width:100%; object-fit:cover; cursor: pointer;' [src]=getMyDp()/>
             <span *ngIf="logout">
                 <div style='position: absolute;width: 100px;top: 33px;height: 34px; padding-left: 0px;left: -95%;' class="menu">
@@ -196,7 +196,7 @@
                     </div>
                 </div>
                 <button (click)='openRequests(i)'  data-toggle="modal" data-target="#requestModal" style=" width: 120px;font-size: 10px; height:27px;left:26%; bottom:7%;" class="btn btn-sm btn-outline-primary mainbtn">
-                    OPEN REQUESTS 
+                    OPEN REQUESTS
                 </button>
             </div>
         </div>

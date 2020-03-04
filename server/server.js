@@ -3,7 +3,7 @@ const app = express()
 const server = require('http').Server(app)
 const io = require('socket.io')(server)
 const api = require('./routes/api')
-// var history = require('connect-history-api-fallback');
+// const history = require('connect-history-api-fallback');
 const Connection = require('./models/schemas/connection')
 const Messages = require('./models/schemas/messageschema')
 const path = require('path');
@@ -13,16 +13,37 @@ const graphQlHttp = require('express-graphql')
 const {buildSchema} = require('graphql')
 const graphQlSchema = require('./graphql/schemas/index')
 const graphQlResolvers = require('./graphql/resolvers/index')
-// app.set('view engine', 'html');
+const escpos = require('escpos');
+escpos.USB = require('escpos-usb');
+const device  = new escpos.USB()
+const options = { encoding: "GB18030" /* default */ }
+const printer = new escpos.Printer(device, options);
+
+
+device.open(function(error) {
+  printer
+  .font('a')
+  .style('bu')
+  .size(1, 1)
+  .tableCustom([
+    { text:"Amoxile 200ml                 500", align:"LEFT",  width:0.33 },
+  ])
+  // .qrimage('https://github.com/song940/node-escpos', function(err){
+  //   this.cut();
+  //   this.close();
+  // });
+});
+
 app.use('/graphql', graphQlHttp({
   schema: graphQlSchema,
   rootValue: graphQlResolvers,
   graphiql: true
 }))
 
-//  app.use(cors({origin:"http://localhost:4200", credentials: true}))
-app.use(cors({origin:"*", credentials: true}))
-app.use(express.static(path.join(__dirname,'dist','client')))
+
+ app.use(cors({origin:"http://localhost:4200", credentials: true}))
+// app.use(cors({origin:"*", credentials: true}))
+// app.use(express.static(path.join(__dirname,'dist','client')))
 // app.use(history());
 app.use(require('morgan')('dev'))
 app.use(bodyParser.json())
@@ -59,13 +80,12 @@ io.sockets.on('connection', (socket) => {
     })
   })
 })
+
 app.get('/', (req, res) => {
-    //res.render('index')
-     res.sendFile(path.join(__dirname,'dist','client','index.html'));
+    res.render('index')
+    //  res.sendFile(path.join(__dirname,'dist','client','index.html'));
 })
-// app.get('*',function (req, res) {
-//  res.redirect('/');
-// }); 
+
 app.get('/api/client', api.getClient)  
 app.get('/api/patients/:type/:page', api.getPatients)
 app.get('/api/myaccount', api.getMyAccount)

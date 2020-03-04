@@ -36,7 +36,7 @@
                             </div>
                             <div class="form-group vitals-section address" style='width:100%'>
                                 <label style="font-size:8px" for="request" class="labelss">EXPIRY</label>
-                                <input (focus)=clearFeedback() type="date" style='width: 91%;' name='request' 
+                                <input (focus)=clearFeedback() type="date" style='width: 91%;' name='request'
                                 [(ngModel)]="product.stockInfo.expiry"  autocomplete="off" class="patientdata dystolic inputs dataInfo">
                                 <div style="background: white;top:0px;height: 28px; cursor:pointer" id='moreBtn' >
                                     <i title="Add Product" *ngIf = formCompleted()  style="left:13%; top:-29%;" (click) = addMore() class = "icon ion-ios-plus-empty arrow">
@@ -116,7 +116,7 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr *ngFor="let product of temProducts; let i = index; let odd = odd;" style="border-bottom:2px solid white;" [class.even]=odd 
+                                        <tr *ngFor="let product of temProducts; let i = index; let odd = odd;" style="border-bottom:2px solid white;" [class.even]=odd
                                         class="ro staff-row">
                                             <td style="padding-left:4px;" class="data"> {{product.item.name}}<span class="predata"></span></td>
                                             <td class="data">{{product.item.category}}</td>
@@ -257,7 +257,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr *ngFor="let product of edited; let i = index; let odd = odd;" style="border-bottom:2px solid white;" [class.even]=odd 
+                                    <tr *ngFor="let product of edited; let i = index; let odd = odd;" style="border-bottom:2px solid white;" [class.even]=odd
                                     class="ro staff-row">
                                         <td style="padding-left:4px;" class="data">
                                             {{product.item.name}}<span class="predata"></span>
@@ -303,7 +303,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr *ngFor="let product of edited; let i = index; let odd = odd;" style="border-bottom:2px solid white;" [class.even]=odd 
+                                    <tr *ngFor="let product of edited; let i = index; let odd = odd;" style="border-bottom:2px solid white;" [class.even]=odd
                                     class="ro staff-row">
                                         <td style="padding-left:4px;" class="data">
                                             {{product.item.name}}<span class="predata">
@@ -353,7 +353,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr *ngFor="let product of edited; let i = index; let odd = odd;" style="border-bottom:2px solid white;" [class.even]=odd 
+                                    <tr *ngFor="let product of edited; let i = index; let odd = odd;" style="border-bottom:2px solid white;" [class.even]=odd
                                     class="ro staff-row">
                                         <td style="padding-left:4px;" class="data">
                                             {{product.item.name}}<span class="predata">
@@ -386,7 +386,7 @@
                 </div>
                 <div *ngIf='tableView==="Services"'  style=" top:112px; left:55%; width:7%;" class="btn-group disposition shift-btn">
                     <button [disabled] = !product.item.name (click)=next() style="width:30px;height: 30px;border-radius: 50%;border: none;"   class="btn btn-outline-primary  dispo ">
-                        <i style='position:absolute;right:36%;top:2px; font-size:large; cursor:pointer; display: inline-block;' title="Next" class="icon ion-android-arrow-forward "> 
+                        <i style='position:absolute;right:36%;top:2px; font-size:large; cursor:pointer; display: inline-block;' title="Next" class="icon ion-android-arrow-forward ">
                         </i>
                     </button>
                 </div>
@@ -397,7 +397,7 @@
                 </div>
                 <div *ngIf='tableView==="Cards"'  style=" top:131px; left:55%; width:7%;" class="btn-group disposition shift-btn">
                     <button [disabled] = !product.item.name (click)=next() style="width:30px;height: 30px;border-radius: 50%;border: none;"   class="btn btn-outline-primary  dispo ">
-                        <i style='position:absolute;right:36%;top:2px; font-size:large; cursor:pointer; display: inline-block;' title="Next" class="icon ion-android-arrow-forward "> 
+                        <i style='position:absolute;right:36%;top:2px; font-size:large; cursor:pointer; display: inline-block;' title="Next" class="icon ion-android-arrow-forward ">
                         </i>
                     </button>
                 </div>
@@ -408,7 +408,7 @@
                 </div>
                 <div *ngIf='tableView==="Products"'  style=" top:149px; left:55%; width:7%;" class="btn-group disposition shift-btn">
                     <button [disabled] = !product.item.name (click)=next() style="width:30px;height: 30px;border-radius: 50%;border: none;"   class="btn btn-outline-primary  dispo ">
-                        <i style='position:absolute;right:36%;top:2px; font-size:large; cursor:pointer; display: inline-block;' title="Next" class="icon ion-android-arrow-forward "> 
+                        <i style='position:absolute;right:36%;top:2px; font-size:large; cursor:pointer; display: inline-block;' title="Next" class="icon ion-android-arrow-forward ">
                         </i>
                     </button>
                 </div>
@@ -467,7 +467,7 @@
 <nav class="navbar fixed-top navbar-light navbar-expand-md navigation-clean-search" style="padding:0px; margin-bottom:0px;">
     <div class="container">
         <a class="navbar-brand" href="#">
-            <em>automata</em>
+            <em>{{appName}}</em>
         </a>
         <form class="top-searchform" target="_self">
             <div class="form-group">
@@ -481,7 +481,7 @@
                     outline:none;
                     background-color: rgba(233, 236, 239, 0.7);
                     " class="form-control" type="search" name="search" id="search-field" placeholder="Search products">
-              
+
                 <i style='font-size:20px; top:3px;left:83%;position:relative;display:inline' class="icon ion-ios-search " title="Search"></i>
                 <h6 style='font-size:12px;
                 left:98%;position:relative;display:inline-block;
@@ -499,13 +499,13 @@
         </form>
 
     </div>
-   
+
     <i *ngIf="tableView ==='Products'" style="left:75%;" class="icon ion-ios-plus-empty arrow buble" id="add" title="Add Product" data-target="#productModal" data-toggle="modal"></i>
     <i *ngIf="tableView === 'Services'" style="left:75%;" class="icon ion-ios-plus-empty arrow buble" id="add" title="Add Service" data-target="#productModal" data-toggle="modal"></i>
     <i *ngIf="tableView === 'Cards'" style="left:75%;" class="icon ion-ios-plus-empty arrow buble" id="add" title="Add Card" data-target="#productModal" data-toggle="modal"></i>
-  
+
     <div (mouseleave) = hideLogOut() class="timeline lastdoc priscriber headerdp small-dp user-dp" style="left:90%;position:absolute;height:87px;width:90px;top:5px; margin-bottom:0px;background:inherit">
-        <div  class="timeline lastdoc priscriber headerdp small-dp user-dp" style="position:absolute;height:30px;width:30px;top:5px; margin-bottom:0px;"> 
+        <div  class="timeline lastdoc priscriber headerdp small-dp user-dp" style="position:absolute;height:30px;width:30px;top:5px; margin-bottom:0px;">
             <img (click) = showLogOut() style='height:100%; width:100%; object-fit:cover; cursor: pointer;' [src]=getMyDp()/>
             <span *ngIf="logout">
                 <div style='position: absolute;width: 100px;top: 33px;height: 34px; padding-left: 0px;left: -95%;' class="menu">

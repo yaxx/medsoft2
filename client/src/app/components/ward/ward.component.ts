@@ -10,7 +10,7 @@ import { Product, Item, Invoice} from '../../models/inventory.model';
 import { Client} from '../../models/client.model';
 import * as cloneDeep from 'lodash/cloneDeep';
 import sorter from '../../util/functions';
-import {host} from '../../util/url';
+import {host, appName} from '../../util/url';
 
 
 
@@ -21,6 +21,7 @@ const uri = `${host}/api/upload`;
   styleUrls: ['./ward.component.css']
 })
 export class WardComponent implements OnInit {
+  appName = appName;
   patients: Person[] = [];
   clonedPatients: Person[] = [];
   reserved: Person[] = [];
@@ -262,7 +263,7 @@ export class WardComponent implements OnInit {
     patients.splice(0, 12);
     this.reserved = patients;
   }
-  
+
   getPatients(type?:string) {
     this.loading = (this.page === 0) ? true : false;
     this.dataService.getPatients(type, this.page).subscribe((patients: Person[]) => {
@@ -293,7 +294,7 @@ export class WardComponent implements OnInit {
         this.patients = [...this.patients, ...this.reserved];
         this.reserved = [];
       }
-    }  
+    }
   }
 
   getRooms(i) {

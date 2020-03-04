@@ -259,7 +259,7 @@
 <nav class="navbar fixed-top navbar-light navbar-expand-md navigation-clean-search" style="padding:0px; margin-bottom:0px;">
     <div class="container">
         <a class="navbar-brand" href="#">
-            <em>automata</em>
+            <em>{{appName}}</em>
         </a>
         <div class="collapse navbar-collapse" id="navcol-1">
             <form class="top-searchform" target="_self">
@@ -315,17 +315,18 @@
                 {{message}}</h6>
         </div>
         <div *ngFor="let patient of patients; let i = index" class="col-xl-4 col-lg-4 col-md-4 col-sm-6 col-xs-12">
+          <div style="left: 62%" (mouseleave)='hideMenu()' *ngIf="patient.card.menu" class="menu">
+            <ul  class="actions primary">
+                <li (click)="switchCards(i,'dispose')" class="action">Disposition</li>
+                <li (click)="switchCards(i,'ap')" class="action">Set Appointment</li>
+            </ul>
+          </div>
             <div  style="overflow: hidden;" class="card card-secondary maincard " >
                 <div *ngIf="patient.card.view==='front'"  style='padding-left: 30px; border-top-right-radius: 12px; border-top-left-radius: 12px;  padding-top: 0px;
                 height: 32px;
                 padding-bottom: 0px;' class="card-header profileheader">
                 <i *ngIf="isConsult()" (click)='showMenu(i)' class="icon ion-android-more-vertical headericon moreicon actions-icon"></i>
-                    <div style="left: 62%" (mouseleave)='hideMenu()' *ngIf="patient.card.menu" class="menu">
-                        <ul  class="actions primary">
-                            <li (click)="switchCards(i,'dispose')" class="action">Disposition</li>
-                            <li (click)="switchCards(i,'ap')" class="action">Set Appointment</li>
-                        </ul>
-                    </div>
+
                 </div>
                 <div *ngIf="patient.card.view ==='dispose'|| patient.card.view === 'ap'" style='padding-left: 37px;   border-top-right-radius: 12px; border-top-left-radius: 12px; padding-top: 0px;
                 position:absolute;  width:100%;padding-bottom: 0px;height:32px' class="card-header profileheader small-header">

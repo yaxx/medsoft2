@@ -6,11 +6,13 @@ import { FileSelectDirective, FileUploader } from 'ng2-file-upload';
 import {DataService} from '../../services/data.service';
 import {SocketService} from '../../services/socket.service';
 import {Person, Info} from '../../models/person.model';
+import {Client, Department} from '../../models/client.model';
 import {Visit , Appointment} from '../../models/record.model';
 import {states, lgas } from '../../data/states';
 import {CookieService } from 'ngx-cookie-service';
+import { Record,  Session} from '../../models/record.model';
 import * as cloneDeep from 'lodash/cloneDeep';
-import {host} from '../../util/url';
+import {host, appName} from '../../util/url';
 import sorter from '../../util/functions';
 const uri = `${host}/api/upload`;
 @Component({
@@ -19,10 +21,14 @@ const uri = `${host}/api/upload`;
   styleUrls: ['./appointments.component.css']
 })
 export class AppointmentsComponent implements OnInit {
+  appName = appName;
   patients: Person[] = [];
   clonedPatients: Person[] = [];
   clonedPatient: Person = new Person();
+  client: Client = new Client();
+  cardTypes = [];
   patient: Person = new Person();
+  session: Session = new Session();
    file: File = null;
    info: Info = new Info();
    url = '';
@@ -47,6 +53,7 @@ export class AppointmentsComponent implements OnInit {
    feedback = null;
    searchTerm = '';
    regMode =  'all';
+   dept = null;
   //  dpurl = 'http://localhost:5000/api/dp/';
    dpurl = 'http://192.168.1.100:5000/api/dp/';
    appointment: Appointment = new Appointment();
@@ -63,6 +70,7 @@ export class AppointmentsComponent implements OnInit {
    ngOnInit() {
       this.myDepartment = this.route.snapshot.url[0].path;
       this.getPatients('ap');
+      this.getClient();
       this.socket.io.on('record update', (update) => {
         const i = this.patients.findIndex(p => p._id === update.patient._id);
         switch (update.action) {
@@ -85,6 +93,12 @@ export class AppointmentsComponent implements OnInit {
   getMyDp() {
     return this.getDp(this.cookies.get('d'));
   }
+  getClient() {
+    this.dataService.getClient().subscribe((res: any) => {
+      this.client = res.client;
+      this.cardTypes = res.client.inventory.filter(p => p.type === 'Cards');
+  });
+  }
   toggleSortMenu() {
     this.sortMenu = !this.sortMenu;
   }
@@ -99,6 +113,14 @@ export class AppointmentsComponent implements OnInit {
         this.patients[this.curIndex].card = {menu: false, view: 'front'};
       }, 3000);
     });
+  }
+  getRefDept() {
+    return this.client.departments.filter(dept => dept.hasWard && dept.name !== this.dept);
+  }
+
+  dispose(i: number, disposition: string, label) {
+    this.patients[i].record.visits[0][0].status = disposition;
+    this.patients[i].card.btn = label;
   }
   routeHas(path) {
     return this.router.url.includes(path);
@@ -123,6 +145,55 @@ export class AppointmentsComponent implements OnInit {
       this.patients.splice(this.curIndex , 1);
     });
   }
+  switchCards(i: number, face: string) {
+    this.patients[this.curIndex].card.view = 'front';
+    this.curIndex = i;
+    this.patients[i].record.visits[0][0].status = 'out';
+    this.patients[i].card.view = face;
+    switch (face) {
+       case 'ap':
+       this.cardCount = 'dispose';
+       break;
+       case 'appointment':
+       this.cardCount = 'ap';
+       break;
+       case 'dispose':
+       this.cardCount = 'dispose';
+       this.patients[i].card.btn = 'discharge';
+       this.dept = this.patients[i].record.visits[0][0].dept;
+       break;
+       default:
+       this.cardCount = null;
+       this.patients[i].record.visits[0][0].status = 'queued';
+       this.patients[i].record.visits[0][0].dept = this.dept;
+       this.patients[i].card.btn = 'discharge';
+       break;
+     }
+   }
+  comfirmDesposition(i: number) {
+    this.processing = true;
+    this.patients[i].record.visits[0][0].dept = (this.patients[i].record.visits[0][0].status !== 'queued')
+       ? this.dept : this.patients[i].record.visits[0][0].dept;
+    this.patients[i].record.visits[0][0].dischargedOn = new Date();
+    this.dataService.updateRecord(this.patients[i], this.session.newItems).subscribe((p: Person) => {
+    this.processing = false;
+    this.socket.io.emit('record update', {action: 'disposition', patient: this.patients[i]});
+    this.successMsg = 'Success';
+    setTimeout(() => {
+      this.successMsg = null;
+    }, 5000);
+    setTimeout(() => {
+      this.switchCards(i, 'front');
+    }, 8000);
+    setTimeout(() => {
+      this.patients.splice(i, 1);
+      this.message = ( this.patients.length) ? null : 'No Record So Far';
+    }, 10000);
+  }, (e) => {
+    this.errorMsg = '...Network Error';
+    this.processing = false;
+  });
+}
    getPatients(type) {
     this.loading = (this.page === 0) ? true : false;
     this.dataService.getPatients(type, this.page).subscribe((patients: Person[]) => {

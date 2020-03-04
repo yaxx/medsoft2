@@ -46,7 +46,7 @@ max-width:100%;">
                             <p style="top:5px" class="patien-name small-name">
                               {{patient.info.personal.firstName + ' '+ patient.info.personal.lastName}}<span class="small-headericon"></span>
                             </p>
-                            <h6 style='font-size:11px;position:absolute;color:dodgerblue; font-weight: normal; top:18px;left:75%' class="patien-name small-name">ENCOUNTER</h6>
+                            <h6 style='font-size:11px;position:absolute;color:dodgerblue; font-weight: normal; top:18px;left:75%' class="patien-name small-name">UPDATE</h6>
                         </div>
                         <div class="card-body orderbody" style="width:85%;margin:auto;">
                             <div class="steps">
@@ -580,15 +580,18 @@ max-width:100%;">
                                 </i>
                             </button>
                         </div>
+
                         <div *ngIf="count === 6" style="left:31%;top:-74px;position:relative;width:53%" class="btn-group disposition">
                             <button [disabled]='isEmptySession()'
                             (click) = updateRecord() style=" width:170px;font-size: 10px; border-radius: 30px; height:27px;left:15%; bottom:10%;" class="btn btn-sm btn-outline-primary mainbtn">
-                            <span>
-                                <i *ngIf="processing"  class="fa fa-circle-o-notch fa-spin fa-10x slow-spin" style="position:absolute;bottom:2px;left:14px;font-size:20px;color: #1da1f2;">
-                                </i>
-                            </span>
-                                UPDATE RECORD
+                                <div class='spinner small'></div>
+                                <!-- <i *ngIf="processing"  class="fa fa-circle-o-notch fa-spin fa-10x slow-spin" style="position:absolute;bottom:2px;left:14px;font-size:20px;color: #1da1f2;">
+                                </i> -->
+
+
+                                <!-- UPDATE RECORD -->
                             </button>
+
                         </div>
                         <h6 *ngIf="feedback" class="feedbackMsg">{{feedback}}</h6>
                         <h6 *ngIf="errLine"  style="color: red" class="feedbackMsg">{{errLine}}</h6>
@@ -801,8 +804,8 @@ max-width:100%;">
                                 <i *ngIf="edit" (click)= hideEdidt() style="left: 108%; position: absolute; top: -7px;" title="close" class="icon ion-ios-close-empty close-comment"></i>
                             </div>
                             <div style="width:150px;margin:auto;top:70%;left: 33%;position: absolute;">
-                                <button *ngIf="isConsult() && (patient.record.visits[0][0].status ==='queued'|| patient.record.visits[0][0].status === 'Admit') " data-toggle="modal" data-target="#consModal"   style=" width:150px;top:16px;margin:auto;font-size:10px; height:27px;position:relative;left: 4px;" class="btn btn-sm btn-outline-primary  mainbtn">
-                                    ENCOUNTER
+                                <button *ngIf="isConsult() && (patient.record.visits[0][0].status !=='out') " data-toggle="modal" data-target="#consModal"   style=" width:150px;top:16px;margin:auto;font-size:10px; height:27px;position:relative;left: 4px;" class="btn btn-sm btn-outline-primary  mainbtn">
+                                    RECORD
                                 </button>
                             </div>
                     </div>

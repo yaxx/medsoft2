@@ -16,7 +16,7 @@ import { Item, StockInfo, Product, Card, Invoice, Meta} from '../../models/inven
 import {Subject} from 'rxjs';
 import {Observable} from 'rxjs';
 import {WebcamImage, WebcamInitError, WebcamUtil} from 'ngx-webcam';
-import {host} from '../../util/url';
+import {host, appName} from '../../util/url';
 import { Record,  Session} from '../../models/record.model';
 const uri = `${host}/api/upload`;
 @Component({
@@ -26,6 +26,7 @@ const uri = `${host}/api/upload`;
 })
 export class ConsultationComponent implements OnInit {
   tests = Tests;
+  appName = appName;
   scannings = Scannings;
   surgeries = Surgeries;
   conditions = Conditions;
@@ -337,7 +338,7 @@ getLgas() {
   sortPatients(order: string) {
     this.sortMenu = false;
     this.nowSorting = order;
-    this.patients = sorter(this.patients, order)
+    this.patients = sorter(this.patients, order);
   }
   searchPatient(name: string) {
     if (name !== '') {
