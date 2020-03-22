@@ -11,6 +11,8 @@
                                 </h6>
                                 <h6 *ngIf="tableView ==='Cards'" style='font-size:11px;position:absolute;color:dodgerblue; font-weight:normal; top:18px; width:100%' class="patien-name small-name">ADD CARDS<span style="left:87%;bottom:-4px; cursor:pointer;position:absolute;font-size:20px;"><i (click)=clearTemVariables() title="Close" class="icon ion-android-close" data-dismiss ='modal' style="font-size: 17px;"></i></span>
                                 </h6>
+                                <h6 *ngIf="tableView ==='Invoice'" style='font-size:11px;position:absolute;color:dodgerblue; font-weight:normal; top:18px; width:100%' class="patien-name small-name">ADD CARDS<span style="left:87%;bottom:-4px; cursor:pointer;position:absolute;font-size:20px;"><i (click)=clearTemVariables() title="Close" class="icon ion-android-close" data-dismiss ='modal' style="font-size: 17px;"></i></span>
+                                </h6>
                             </div>
                             <div *ngIf="tableView ==='Products'"  class="card-body orderbody" style="width:85%;margin:auto;">
                                 <form style="top:15%; width:60%;margin:auto;" class=" staffsform" (submit) = addProducts()>
@@ -493,6 +495,7 @@
                         <li (click)='toggleView("Products")' class="action">Products</li>
                         <li (click)='toggleView("Services")' class="action">Services</li>
                         <li (click)='toggleView("Cards")' class="action">Cards</li>
+                        <li (click)='toggleView("Invoices")' class="action">Invoices</li>
                     </ul>
                 </div>
             </div>
@@ -504,7 +507,7 @@
     <i *ngIf="tableView === 'Services'" style="left:75%;" class="icon ion-ios-plus-empty arrow buble" id="add" title="Add Service" data-target="#productModal" data-toggle="modal"></i>
     <i *ngIf="tableView === 'Cards'" style="left:75%;" class="icon ion-ios-plus-empty arrow buble" id="add" title="Add Card" data-target="#productModal" data-toggle="modal"></i>
 
-    <div (mouseleave) = hideLogOut() class="timeline lastdoc priscriber headerdp small-dp user-dp" style="left:90%;position:absolute;height:87px;width:90px;top:5px; margin-bottom:0px;background:inherit">
+    <!-- <div (mouseleave) = hideLogOut() class="timeline lastdoc priscriber headerdp small-dp user-dp" style="left:90%;position:absolute;height:87px;width:90px;top:5px; margin-bottom:0px;background:inherit">
         <div  class="timeline lastdoc priscriber headerdp small-dp user-dp" style="position:absolute;height:30px;width:30px;top:5px; margin-bottom:0px;">
             <img (click) = showLogOut() style='height:100%; width:100%; object-fit:cover; cursor: pointer;' [src]=getMyDp()/>
             <span *ngIf="logout">
@@ -518,7 +521,7 @@
             </span>
             <i style="top: -26px;left: 31px;" (click) ='showLogOut()' class="icon ion-ios-arrow-down shevron"></i>
         </div>
-    </div>
+    </div> -->
 </nav>
 
 
@@ -675,6 +678,78 @@
                 <td>{{product.item.description}}</td>
                 <td style="font-size: 10.5px;">{{getSatus(product.stockInfo.status)}}</td>
                 <td style='text-align:center'>{{product.dateCreated|date:'dd-MM-y'}}</td>
+            </tr>
+        </tbody>
+    </table>
+    <table *ngIf='tableView === "Invoices"' cellspacing="0" class="data-table" summary="List of all items in store. ">
+        <thead>
+            <tr>
+                <th class="checkhead"></th>
+                <th title="Sort by name" (click)="sortProducts('name')" title="Sort by name">PATIENT
+                    <span class="sorter">
+                          <i *ngIf="sortBy ==='name'" style="color:lightgreen" class="icon ion-android-arrow-dropdown"></i>
+                     </span>
+                </th>
+                <th title="Sort by price" (click)="sortProducts('price')">CARD NUMBER
+                    <span class="sorter">
+                          <i *ngIf="sortBy==='price'" style="color:lightgreen" class="icon ion-android-arrow-dropdown"></i>
+                     </span>
+                </th>
+                <th title="Sort by price" (click)="sortProducts('description')">CARD FEE
+                    <span class="sorter">
+                          <i *ngIf="sortBy==='description'" style="color:lightgreen" class="icon ion-android-arrow-dropdown"></i>
+                     </span>
+                </th>
+                <th title="Sort by sold" (click)="sortProducts('status')">CONSULTATION
+                    <span class="sorter">
+                        <i *ngIf="sortBy === 'status'" style="color:lightgreen" class="icon ion-android-arrow-dropdown"></i>
+                  </span>
+                </th>
+                <th title="Sort by sold" (click)="sortProducts('status')">PHARMACY
+                    <span class="sorter">
+                        <i *ngIf="sortBy === 'status'" style="color:lightgreen" class="icon ion-android-arrow-dropdown"></i>
+                  </span>
+                </th>
+                <th title="Sort by sold" (click)="sortProducts('status')">LAB SERVICE
+                    <span class="sorter">
+                        <i *ngIf="sortBy === 'status'" style="color:lightgreen" class="icon ion-android-arrow-dropdown"></i>
+                  </span>
+                </th>
+                <th title="Sort by sold" (click)="sortProducts('status')">BED FEE
+                    <span class="sorter">
+                        <i *ngIf="sortBy === 'status'" style="color:lightgreen" class="icon ion-android-arrow-dropdown"></i>
+                  </span>
+                </th>
+                <th title="Sort by sold" (click)="sortProducts('status')">OTHERS
+                    <span class="sorter">
+                        <i *ngIf="sortBy === 'status'" style="color:lightgreen" class="icon ion-android-arrow-dropdown"></i>
+                  </span>
+                </th>
+                <th title="Sort by sold" (click)="sortProducts('status')">OWINGS
+                    <span class="sorter">
+                        <i *ngIf="sortBy === 'status'" style="color:lightgreen" class="icon ion-android-arrow-dropdown"></i>
+                  </span>
+                </th>
+                <th style='text-align:center' title="Sort by recently added" (click)="sortProducts('added')" title="Sort by date added">TOTAL
+                    <span class="sorter">
+                        <i *ngIf="sortBy==='added'" style="color:lightgreen" class="icon ion-android-arrow-dropdown"></i>
+                    </span>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr  [class.selection]=product.selected>
+                <td class="check-box"></td>
+                <td>Amina Mohammed&nbsp;<span class="predata"></span></td>
+                <td>1998675400243</td>
+                <td>200</td>
+                <td>100</td>
+                <td>1500</td>
+                <td>2800</td>
+                <td>0</td>
+                <td>1000</td>
+                <td>250</td>
+                <td style='text-align:center'>9250</td>
             </tr>
         </tbody>
     </table>

@@ -9,10 +9,14 @@ const path = require('path');
 const  truncate  = require ('fs');
 const Notification = require('../models/schemas/noteschema')
 const Connection = require('../models/schemas/connection')
-const escpos = require('escpos');
-escpos.USB = require('escpos-usb');
-const device  = new escpos.USB()
-let name = null
+// const escpos = require('escpos');
+// escpos.USB = require('escpos-usb');
+// const device  = new escpos.USB()
+// const options = { encoding: "GB18030" /* default */ }
+// const printer = new escpos.Printer(device, options);
+
+
+let name = null;
 const store = multer.diskStorage({
  destination:'./uploads',
  filename: (req, file, cb) => {
@@ -127,28 +131,7 @@ catch (e) {
 },
 
 getPatients: async (req, res) => {
-
   try {
-    
-    // console.log('printPaper! start')
-    // const device = new escpos.USB();
-    // const device = new escpos.Serial('COM10');
-    // const device  = new escpos.Network('localhost');
-    // const options = {encoding: "GB18030" /* default */}
-    // const printer = new escpos.Printer(device, options);
-    // device.open(function () {
-    //     printer
-    //         .font('a')
-    //         .align('ct')
-    //         .style('bu')
-    //         .size(1, 1)
-    //         .text('Hello world!')
-    //         .text('Welcome to the Awesome-land!!!')
-    //         .cut()
-    //         .close();
-    // })
-   
-    // console.log('printPaper! end')
     const {info: {official}} = await Person.findById(req.cookies.i).select('info');
     let patients = await Person.find()
     patients = Array.from(patients)
@@ -204,6 +187,7 @@ getPatients: async (req, res) => {
         patients = patients.filter(
           patient => patient.record.medications.length > 0
           );
+        break
       case 'Lab Scientist':
           patients = patients.filter(patient => patient.record.tests
             .some(test => test.some(t => t.dept === official.department)) || patient.record.scans
@@ -256,7 +240,6 @@ getPatients: async (req, res) => {
     //   patients = patients.slice(Number(req.params.page) * 9);
     // }
   //  console.log(patients.length)
-  console.log(patients)
     res.send(patients.reverse())
   }
   catch(e){
@@ -267,7 +250,6 @@ getPatients: async (req, res) => {
 
 
 addClient: async (req, res) => {
-  console.log(req.body)
   try {
     const client = await Person.findOne({ $or: [{
       'info.contact.me.email': req.body.client.info.email}, {
@@ -378,19 +360,40 @@ runTransaction: async (req, res) => {
       'record': req.body.record
      }, {new: true})
     await client.save()
-    device.open(function(error) {
-      printer
-      .font('a')
-      .style('bu')
-      .size(1, 1)
-      .tableCustom([
-        { text:"Amoxile 200ml                500", align:"LEFT",  width:0.33 },
-      ])
-      .qrimage('https://github.com/song940/node-escpos', function(err){
-        this.cut();
-        this.close();
-      });
-    });
+    let reciepts = [];
+    let totalAmount = 0;
+    req.body.reciepts.forEach(r => {
+      let nameSpace = 26 - r.name.length
+      let ammountSapce = 5 - r.price.toString().length
+      let totalSpace = nameSpace + ammountSapce
+      totalAmount += r.price
+      let s = '';
+      for(let i = 0; i<totalSpace; i++) {
+        s = s.concat(' ');
+      }
+      reciepts.push({
+        text:r.name + s + r.price, align:"LEFT", width:0.65
+      })
+    })
+    // device.open(function(error) {
+    //   printer
+    //   .font('a')
+    //   .style('bu')
+    //   .size(1, 1)
+    //   .align('ct')
+    //   .text('JAMAA HOSPITAL')
+    //   .drawLine()
+    //   .tableCustom(reciepts)
+    //   .drawLine()
+    //   .align('rt')
+    //   .text(totalAmount.toLocaleString())
+    //   .qrimage('./uploads/sn.jpg', function(err) {
+    //     this.cut();
+    //     this.close();
+    //   })
+    //   .align('ct')
+    //   .text(new Date().toLocaleString())
+    // });
     res.send(person)
   }
   catch(e) {
@@ -439,19 +442,7 @@ getClient: async (req, res)=> {
   }
 },
 
-deleteStaff: (req, res)=>{
-  //     Client.findOneAndUpdate({
-  //       _id:req.body.hosId
-  //     },{
-  //       $pull: {
-  //         staffs:req.body._id
-  //       }
-  //     })
-  //     res.send(docs)
-    
-  // })
 
-},
 updateClient: async (req, res) => {
   try {
       const client = await Client.findByIdAndUpdate(req.cookies.h, {

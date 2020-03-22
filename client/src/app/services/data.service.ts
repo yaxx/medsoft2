@@ -47,9 +47,9 @@ export class DataService {
      return this.http.get(
       `${this.uri}/connections/${id}`, {withCredentials: true} );
   }
-  getPatients(type?:string, page?:number) {
+  getPatients(type?: string, page?: number) {
     return this.http.get(
-      `${this.uri}/patients/${type}/${page}`, {withCredentials: true}
+      `${this.uri}/patients/${type}`, {withCredentials: true}
       );
   }
   getConsultees(dept) {
@@ -83,9 +83,9 @@ export class DataService {
       `${this.uri}/update-products`, products, {withCredentials: true}
       );
   }
-  runTransaction(pid, record, cart) {
+  runTransaction(pid, record, cart,reciepts) {
     return this.http.post(
-      `${this.uri}/transaction`, {id: pid, record, cart}, {withCredentials: true}
+      `${this.uri}/transaction`, {id: pid, record, cart, reciepts}, {withCredentials: true}
       );
   }
   deleteProducts(product) {

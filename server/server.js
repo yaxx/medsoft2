@@ -13,27 +13,6 @@ const graphQlHttp = require('express-graphql')
 const {buildSchema} = require('graphql')
 const graphQlSchema = require('./graphql/schemas/index')
 const graphQlResolvers = require('./graphql/resolvers/index')
-const escpos = require('escpos');
-escpos.USB = require('escpos-usb');
-const device  = new escpos.USB()
-const options = { encoding: "GB18030" /* default */ }
-const printer = new escpos.Printer(device, options);
-
-
-device.open(function(error) {
-  printer
-  .font('a')
-  .style('bu')
-  .size(1, 1)
-  .tableCustom([
-    { text:"Amoxile 200ml                 500", align:"LEFT",  width:0.33 },
-  ])
-  // .qrimage('https://github.com/song940/node-escpos', function(err){
-  //   this.cut();
-  //   this.close();
-  // });
-});
-
 app.use('/graphql', graphQlHttp({
   schema: graphQlSchema,
   rootValue: graphQlResolvers,
@@ -41,7 +20,7 @@ app.use('/graphql', graphQlHttp({
 }))
 
 
- app.use(cors({origin:"http://localhost:4200", credentials: true}))
+app.use(cors({origin:"http://localhost:4200", credentials: true}))
 // app.use(cors({origin:"*", credentials: true}))
 // app.use(express.static(path.join(__dirname,'dist','client')))
 // app.use(history());
@@ -83,11 +62,11 @@ io.sockets.on('connection', (socket) => {
 
 app.get('/', (req, res) => {
     res.render('index')
-    //  res.sendFile(path.join(__dirname,'dist','client','index.html'));
+     // res.sendFile(path.join(__dirname,'dist','client','index.html'));
 })
 
 app.get('/api/client', api.getClient)  
-app.get('/api/patients/:type/:page', api.getPatients)
+app.get('/api/patients/:type', api.getPatients)
 app.get('/api/myaccount', api.getMyAccount)
 app.get('/api/explore', api.explore)
 // app.get('/api/departments', api.getDepartments)
@@ -107,19 +86,16 @@ app.post('/api/new-product', api.addProduct)
 app.post('/api/person', api.addPerson)
 app.post('/api/updatenote', api.updateNote)
 app.post('/api/addnotification', api.addNotifications)
-// app.post('/api/updateNotification', api.updateNotifications)
 app.post('/api/upload', api.uploadFile)
 app.post('/api/upload-scans', api.uploadScans)
-// app.post('/api/report', api.postReport)
 app.post('/api/download', api.downloadFile)
 app.post('/api/update-history', api.updateHistory)
-app.post('/api/delete-staff', api.deleteStaff)
 app.post('/api/update-record', api.updateRecord)
 app.post('/api/update-info', api.updateInfo)
 app.post('/api/add-card', api.addCard)
-app.post('/api/updateclient', api.updateClient)
-app.post('/api/login', api.login)
-app.post('/api/transaction', api.runTransaction)
+// app.post('/api/updateclient', api.updateClient)
+// app.post('/api/login', api.login)
+// app.post('/api/transaction', api.runTransaction)
 server.listen(5000, (err) => {
   if (err) {
     console.log(err.stack)

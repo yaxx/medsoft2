@@ -11,7 +11,7 @@ import {Report} from '../../models/record.model';
 import * as cloneDeep from 'lodash/cloneDeep';
 import { timeout } from 'q';
 import {host, appName} from '../../util/url';
- const uri = `${host}/api/upload`;
+const uri = `${host}/api/upload`;
 @Component({
   selector: 'app-lab',
   templateUrl: './lab.component.html',
@@ -85,12 +85,12 @@ export class LabComponent implements OnInit {
                   this.message = ( this.patients.length) ? null : 'No Record So Far';
                 }
             }
-          break;
+            break;
         default:
             if (i !== -1 ) {
               this.patients[i] = { ...update.patient, card: this.patients[i].card };
             }
-          break;
+            break;
       }
     });
   }
@@ -159,7 +159,7 @@ export class LabComponent implements OnInit {
   hideLogOut() {
     this.logout = false;
   }
-  getDp(avatar: String) {
+  getDp(avatar: string) {
     return `${host}/api/dp/${avatar}`;
   }
   getMyDp() {
@@ -252,6 +252,8 @@ export class LabComponent implements OnInit {
       this.sucssMsg = null;
     }, 3000);
     setTimeout(() => {
+      this.allFiles = [];
+      this.report = new Report();
       this.switchViews('orders');
     }, 4000);
   }
@@ -279,7 +281,7 @@ export class LabComponent implements OnInit {
       this.socket.io.emit('record update', {action: 'new report', patient});
       this.patients[this.curIndex] = patient;
       this.sucssMsg = 'Report Posted Successfull';
-      this.reset()
+      this.reset();
     }, (e) => {
       this.processing = false;
       this.errMsg = 'Unable to post report';

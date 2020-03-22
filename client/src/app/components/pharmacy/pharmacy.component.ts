@@ -127,56 +127,6 @@ export class PharmacyComponent implements OnInit {
     this.getPatients();
     this.getProducts();
   }
-  // filterPatients(patients: Person[]) : Person[] {
-  //   const completes: Person[] = [];
-  //   const pendings: Person[] = [];
-  //   const medications = [];
-  //   const screens = [];
-  //   let items = [];
-  //   patients.forEach(p => {
-  //     p.record.invoices.forEach((i1) => {
-  //       // let items = [];
-  //       items = i1.filter(m => m.desc === 'Medication');
-  //       if (items.length) {
-  //         // (items.every(i => i.paid)) ? completes.push(p) : pendings.push(p);
-  //         medications.push(items);
-  //       }
-  //     });
-  //     if (medications.length) {
-  //       console.log(medications);
-  //       screens.push(p);
-  //       // if(medications.every(i => i.every(j => j.paid === true))) {
-  //       //   console.log(medications);
-  //       //   completes.push(p);
-  //       // }  else {
-  //       //   pendings.push(p);
-  //       // }
-  //     }
-  //   });
-
-  //   screens.forEach(pat => {
-  //     if (pat.record.invoices.every(i => i.every(j => j.paid === true))) {
-  //         console.log(medications);
-  //         completes.push(pat);
-  //       }  else {
-  //         pendings.push(pat);
-  //       }
-  //   });
-  //   // patients.forEach((p, i) => {
-  //   //   this.viewOrders(i)
-  //   // })
-
-  //   // screens.forEach(pat => {
-  //   //   const medInvoices = [];
-  //   //   pat.record.invoices.forEach(invoices => {
-  //   //     if (invoices.some(i => i.desc === 'Medication')) {
-  //   //       medInvoices.push(invoices.filter(n => n.desc === 'Medication'));
-  //   //     }
-  //   //   });
-  //   //   medInvoices.every(invoices => invoices.every(i => i.paid)) ? completes.push(pat) : pendings.push(pat);
-  //   // });
-  //   return (this.router.url.includes('completed')) ? completes : pendings;
-  // }
 
   populate(patients) {
     this.pool = patients;

@@ -6,10 +6,10 @@ import {ActivatedRoute, Router} from '@angular/router';
   styleUrls: ['./main.component.css']
 })
 export class MainComponent implements OnInit {
-dept = null;
-info = null;
-admin = null;
-seg2 = null;
+  dept = null;
+  info = null;
+  admin = null;
+  seg2 = null;
 
   constructor(
     private route: ActivatedRoute,
@@ -20,12 +20,12 @@ seg2 = null;
     this.info = this.route.snapshot.url[0].path || null;
     this.admin = this.route.snapshot.url[0].path || null;
     this.seg2 = this.route.snapshot.url[0].path  || null;
- 
+
   }
   isConsult() {
     return !this.isInfo() &&
-     !this.isBillable() && 
-     !this.isWard() && 
+     !this.isBillable() &&
+     !this.isWard() &&
      !this.isAdmin();
   }
   isAdmin() {
@@ -38,16 +38,16 @@ seg2 = null;
     return this.router.url.includes('ward');
   }
   isVisible() {
-    return !this.router.url.includes('pharmacy') || !this.router.url.includes('billing'); 
+    return !this.router.url.includes('pharmacy') || !this.router.url.includes('billing');
   }
   isPharmacy() {
-    return this.router.url.includes('pharmacy'); 
+    return this.router.url.includes('pharmacy');
   }
-  
+
   isBillable() {
     return this.router.url.split('/')[1] === 'pharmacy' ||
     this.router.url.split('/')[1] === 'billing' ||
     this.router.url.split('/')[1] === 'lab';
   }
- 
+
 }

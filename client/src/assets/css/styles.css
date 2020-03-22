@@ -1322,3 +1322,31 @@ html {
     transform: rotate(360deg);
   }
 }
+.credits {
+  margin-bottom: 0px;
+  position: absolute;
+  font-size: 11px;
+  left: 102%;
+  color: lightgray;
+  width: 150px;
+  bottom: 26%;
+}
+.credits span:nth-child(1) {
+  font-weight: bold;
+  margin-left: 6px;
+  color: darkgray;
+  font-size: 12px;
+}
+.credit-form {
+  position: absolute;
+  left: 39%;
+  bottom: 35%;
+  width:22%;
+}
+.credit-val {
+  border-top: 0px;
+  border-left: 0px;
+  border-right: 0px;
+  border-radius: 0px;
+  
+}

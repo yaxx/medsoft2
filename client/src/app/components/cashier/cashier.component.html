@@ -18,7 +18,7 @@
                         <img [src]=getDp(patients[curIndex].info.personal.avatar)/>
                     </div>
                     <p style="top:5px;left:15px"  href="#" class="patien-name small-name">
-                    {{patients[curIndex]?.info.personal.firstName + ' '+ patients[curIndex].info.personal.lastName}}<span class="small-headericon"></span>
+                    {{patients[curIndex]?.info.personal.firstName +' '+ patients[curIndex].info.personal.lastName}}<span class="small-headericon"></span>
                     </p>
                     <h6 style='font-size:11px; font-weight:bold; position:absolute;color:dodgerblue;top:5%;left:70%' class="patien-name small-name">BILLS</h6>
                 </div>
@@ -56,6 +56,12 @@
                                 </div>
                             </div>
                         </div>
+                        <!-- <p class="credits">CREDITS :
+                            <span>{{credit.price||0}}</span>
+                            <span>
+                                <div title="Mark" style='position: absolute;bottom:1px; left:70%;' class="mycheckbox"></div>
+                            </span>
+                        </p> -->
                     </div>
                     <div *ngIf='cardView.editing' class="card-body orderbody" style="width:55%;margin:auto;">
                         <form style="top:15%;" class=" staffsform">
@@ -63,9 +69,9 @@
                                 <table *ngIf="edited.length" cellspacing="0" class="data-table drugs-table" style="width:100%;left:0%;">
                                     <thead class='productHead'>
                                         <tr style="padding-left: 4px" class="staff-th">
-                                            <th style="padding:3px 8px;font-weight: bold;color:#1da1f2;" class="headlbl staff-th">ORDER</th>
+                                            <th style="padding:3px 8px;font-weight: bold;color:#1da1f2;" class="headlbl staff-th">BILL</th>
                                             <th style='text-align:right;padding:3px 8px;font-weight: bold;color:#1da1f2;' class="headlbl staff-th">PRICE</th>
-                                            <th style='padding: 4px;font-size:10px;color: #6c757d; text-align: right;' class="headlbl patient-th">CREDIT</th>
+                                            <!-- <th style='padding: 4px;font-size:10px;color: #6c757d; text-align: right;' class="headlbl patient-th">CREDIT</th> -->
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -74,14 +80,14 @@
                                             <td style='font-size:11px;text-align:right;padding:2px 6px;' class="data">
                                                 {{invoice.quantity * invoice.price}}
                                             </td>
-                                            <td style="text-align: right; padding-left:3px" class="data">
+                                            <!-- <td style="text-align: right; padding-left:3px" class="data">
                                                 <div title="Credit Payment" *ngIf="!invoice.credit" (click)='markAsCreadit(i,true)' style='position:relative;bottom:0px; left: 75%;' class="mycheckbox">
                                                 </div>
                                                 <span *ngIf="invoice.credit" style="left: -24%;position: relative;  text-align: center;
                                                 bottom: 12px;" class="predata priceval">
                                                     <i title="Unmark"  (click)='markAsCreadit(i,false) '  style=' color:lightgrey;'  class="icon ion-ios-checkmark-empty paid-icon" title="Deselect "></i>
                                                 </span>
-                                            </td>
+                                            </td> -->
                                         </tr>
                                     </tbody>
                                     <tfoot col-span='4' style='font-size:11px; text-align:right; position:absolute; font-weight:bold;padding-right: 5px; border-top: 1px solid whitesmoke;width:100%'>Total: <span>{{getPriceTotal()}}</span>
@@ -94,6 +100,11 @@
                                 </span>
                             </button>
                         </form>
+                        <div class="form-group vitals-section formGroup credit-form">
+                          <label style='font-size:8px;left: 32px;top:-15%;' for="desc" class="labelss complain">CREADIT
+                          </label>
+                          <input  [min]='0' type="number" [(ngModel)]='credit.price' autocomplete ='off'  class="form-control patientdata inputs dataInfo credit-val">
+                        </div>
                     </div>
                     <div *ngIf='billing' class="card-body orderbody" style="width:55%;margin:auto;">
                         <form style="top:15%;" class=" staffsform">
@@ -117,30 +128,30 @@
                                   </div>
                                   <div *ngIf='bills.length' class="form-group vitals-section setGroup">
                                       <table cellspacing="0" class="data-table drugs-table" style="width:100%;left:0%;" summary="List of all items in store. ">
-                                      <thead class='productHead'>
-                                          <tr class="patient-th">
-                                              <th style='padding: 4px;font-size:10px;color: #6c757d;font-weight:bold' class="headlbl patient-th">DESCRIPTION</th>
-                                              <th style='padding: 4px;font-size:10px;text-align: right; color: #6c757d;font-weight:bold' class="headlbl patient-th">PRICE</th>
-                                              <!-- <th style='padding: 4px;font-size:10px;text-align: right; color: #6c757d;font-weight:bold' class="headlbl patient-th">DEPARTMENT</th> -->
-                                              <th style='padding: 4px;font-size:10px;color: #6c757d;' class="headlbl patient-th"></th>
-                                          </tr>
-                                      </thead>
-                                      <tbody>
-                                          <tr style="border-bottom: 1px solid #f8f9fa;" *ngFor='let b of bills; let i = index; let odd = odd' class="ro patient-row">
-                                              <td style="padding:0px;padding-left:4px;" class="data">
-                                                  {{b.name}}
-                                              </td>
-                                              <td style="padding:0px;text-align: right;padding-left:4px;" class="data">
-                                                  {{b.price}}
-                                              </td>
-                                              <!-- <td style="padding:0px;text-align: right;padding-left:4px;" class="data">
-                                                  {{b.dept}}
-                                              </td> -->
-                                              <td style='padding:0px; padding-left:3px;text-align: center' class="data">
-                                                  <i (click)='removeBill(i)' class="icon ion-ios-trash-outline tableicon" title="Discard" style="font-size:15px; cursor: pointer;"></i>
-                                              </td>
-                                          </tr>
-                                      </tbody>
+                                        <thead class='productHead'>
+                                            <tr class="patient-th">
+                                                <th style='padding: 4px;font-size:10px;color: #6c757d;font-weight:bold' class="headlbl patient-th">DESCRIPTION</th>
+                                                <th style='padding: 4px;font-size:10px;text-align: right; color: #6c757d;font-weight:bold' class="headlbl patient-th">PRICE</th>
+                                                <!-- <th style='padding: 4px;font-size:10px;text-align: right; color: #6c757d;font-weight:bold' class="headlbl patient-th">DEPARTMENT</th> -->
+                                                <th style='padding: 4px;font-size:10px;color: #6c757d;' class="headlbl patient-th"></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr style="border-bottom: 1px solid #f8f9fa;" *ngFor='let b of bills; let i = index; let odd = odd' class="ro patient-row">
+                                                <td style="padding:0px;padding-left:4px;" class="data">
+                                                    {{b.name}}
+                                                </td>
+                                                <td style="padding:0px;text-align: right;padding-left:4px;" class="data">
+                                                    {{b.price}}
+                                                </td>
+                                                <!-- <td style="padding:0px;text-align: right;padding-left:4px;" class="data">
+                                                    {{b.dept}}
+                                                </td> -->
+                                                <td style='padding:0px; padding-left:3px;text-align: center' class="data">
+                                                    <i (click)='removeBill(i)' class="icon ion-ios-trash-outline tableicon" title="Discard" style="font-size:15px; cursor: pointer;"></i>
+                                                </td>
+                                            </tr>
+                                        </tbody>
                                   </table>
                               </div>
                               <button [disabled]='!bills.length' (click)='addBills()' style=" width: 170px;font-size: 10px; height:27px;left:28%; bottom:20%;" class="btn btn-sm btn-outline-primary mainbtn">ADD INVOICE
@@ -149,6 +160,7 @@
                                   </span>
                               </button>
                           </form>
+
                       </div>
                     <div *ngIf='cardView.editing || cardView.reversing' style="left:7%; top:45%;position: absolute;
                         width: 7%;" class="btn-group disposition">

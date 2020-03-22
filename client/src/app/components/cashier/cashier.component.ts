@@ -62,6 +62,8 @@ export class CashierComponent implements OnInit {
   billing = false;
   cardCount = null;
   bills: Invoice[] = [];
+  credit: Invoice = new Invoice();
+  credIndex = {row: 0, col: 0};
   id = '';
   logout = false;
   selected = null;
@@ -81,15 +83,6 @@ export class CashierComponent implements OnInit {
     private socket: SocketService) { }
 
   ngOnInit() {
-    // this.usbPrintDriver = new UsbDriver();
-    // this.printService.isConnected.subscribe(result => {
-    //     this.status = result;
-    //     if (result) {
-    //         console.log('Connected to printer!!!');
-    //     } else {
-    //     console.log('Not connected to printer.');
-    //     }
-    // });
     this.getPatients('billing');
     this.getProducts();
     this.socket.io.on('record update', (update) => {
@@ -161,26 +154,6 @@ export class CashierComponent implements OnInit {
       }
     });
   }
-  requestUsb() {
-    this.usbPrintDriver.requestUsb().subscribe(result => {
-        this.printService.setDriver(this.usbPrintDriver, 'ESC/POS');
-    });
-}
-
-connectToWebPrint() {
-    this.webPrintDriver = new WebPrintDriver(this.ip);
-    this.printService.setDriver(this.webPrintDriver, 'WebPRNT');
-}
-
-print(driver: PrintDriver) {
-    this.printService.init()
-        .setBold(true)
-        .writeLine('Hello World!')
-        .setBold(false)
-        .feed(4)
-        .cut('full')
-        .flush();
-}
   toggleSortMenu() {
     this.sortMenu = !this.sortMenu;
   }
@@ -195,7 +168,6 @@ print(driver: PrintDriver) {
 
   populate(patients) {
     this.pool = patients;
-    console.log(this.pool.length)
     this.clonedPatients  = cloneDeep(patients);
     this.patients   = patients.slice(0, 12);
     patients.splice(0, 12);
@@ -271,25 +243,27 @@ switchCardView(i , view) {
 }
 updateInvoices() {
     this.edited.forEach(invoice => {
-      this.patients[this.curIndex].record.invoices.forEach((m) => {
-        m[m.findIndex(i => i._id === invoice._id)] = {
-          ...invoice,
-          paid: true,
-          datePaid: new Date(),
-          comfirmedBy: this.cookies.get('i')
-        };
-      });
-      this.products.forEach(prod => {
-        if (prod.item.name === invoice.name || prod.item.name === invoice.desc) {
-          if (invoice.name === 'Card' || invoice.name === 'Consultation') {
-          } else {
-            prod.stockInfo.quantity = prod.stockInfo.quantity - invoice.quantity;
-            prod.stockInfo.sold = prod.stockInfo.sold + invoice.quantity;
+      if(invoice.name !=='Credit') {
+        this.patients[this.curIndex].record.invoices.forEach((m) => {
+          m[m.findIndex(i => i._id === invoice._id)] = {
+            ...invoice,
+            paid: true,
+            datePaid: new Date(),
+            comfirmedBy: this.cookies.get('i')
+          };
+        });
+        this.products.forEach(prod => {
+          if (prod.item.name === invoice.name || prod.item.name === invoice.desc) {
+            if (invoice.name === 'Card' || invoice.name === 'Consultation') {
+            } else {
+              prod.stockInfo.quantity = prod.stockInfo.quantity - invoice.quantity;
+              prod.stockInfo.sold = prod.stockInfo.sold + invoice.quantity;
+            }
+            this.cart.push(prod);
           }
-          this.cart.push(prod);
-        }
-      });
-      console.log(this.cart);
+        });
+      }
+     
     });
  }
 updatePrices(invoices: Invoice[], i: number) {
@@ -309,25 +283,31 @@ updatePrices(invoices: Invoice[], i: number) {
 }
 
 viewOrders(i: number) {
+  this.credit = new Invoice()
   this.curIndex = i;
   this.patients[i].card.indicate = false;
   this.switchViews('orders');
   this.patient = cloneDeep(this.patients[i]);
   this.invoices = cloneDeep(this.patients[i].record.invoices);
-  this.invoices.forEach((invoices , j) => {
+  this.invoices.forEach((invoices , row) => {
     const items = [];
-    invoices.forEach((invoice) => {
+    invoices.forEach((invoice, col) => {
       if (invoice.processed) {
         items.push(invoice);
+      } else {}
+      if (invoice.name === 'Credit') {
+        this.credit = invoice;
+        this.invoices.splice(row, 1);
+        this.invoices.unshift([this.credit]);
       }
       });
-    this.updatePrices(items, j);
+    this.updatePrices(items, row);
   });
 }
 runTransaction(type: string, patient) {
   this.errorMsg = null;
   this.processing = true;
-  this.dataService.runTransaction(patient._id, patient.record, this.cart).subscribe((p: any) => {
+  this.dataService.runTransaction(patient._id, patient.record, this.cart, this.edited).subscribe((p: any) => {
     this.products = this.clonedStore;
     this.processing = false;
     this.patients[this.curIndex].record = p.record;
@@ -340,37 +320,57 @@ runTransaction(type: string, patient) {
     this.processing = false;
   });
 }
-
+processCredit() {
+  if (this.credit.price) {
+    if (this.invoices[0][0].name === 'Credit') {
+      this.invoices[0][0]  = this.credit;
+    } else {
+      this.invoices.unshift([{
+        ...this.credit,
+        name: 'Credit',
+        desc: 'To pay later',
+        kind: 'Credit',
+        meta: new Meta(this.cookies.get('i'), this.cookies.get('h'))
+      }
+    ]);
+    }
+    
+  } else if (this.invoices[0][0].name === 'Credit') {
+    this.invoices.splice(0, 1);
+  }
+}
 comfirmPayment() {
+  this.processCredit();
   if ( this.edited.some(i => i.name === 'Card' || i.name === 'Consultation')) {
     this.patients[this.curIndex].record.visits[0][0].status = 'queued';
   } else {}
+  this.patients[this.curIndex].record.invoices = this.invoices;
   this.updateInvoices();
   this.runTransaction('purchase', this.patients[this.curIndex]);
  }
 
-  switchViews(view) {
-    switch(view) {
-      case 'orders':
-      this.cardView.orders = true;
-      this.cardView.editing = false;
-      this.cardView.reversing = false;
-      this.edited = this.editables = [];
-      break;
-      case 'editing':
-      this.cardView.orders = false;
-      this.cardView.editing = true;
-      this.cardView.reversing = false;
-      break;
-      case 'reversing':
-      this.cardView.orders = false;
-      this.cardView.editing = false;
-      this.cardView.reversing = true;
-      break;
-      default:
-      break;
-    }
+switchViews(view) {
+  switch (view) {
+    case 'orders':
+    this.cardView.orders = true;
+    this.cardView.editing = false;
+    this.cardView.reversing = false;
+    this.edited = this.editables = [];
+    break;
+    case 'editing':
+    this.cardView.orders = false;
+    this.cardView.editing = true;
+    this.cardView.reversing = false;
+    break;
+    case 'reversing':
+    this.cardView.orders = false;
+    this.cardView.editing = false;
+    this.cardView.reversing = true;
+    break;
+    default:
+    break;
   }
+}
 
   assignCard() {
   const i = this.products.findIndex(p => p.item.description === this.card.pin);
@@ -423,7 +423,6 @@ comfirmPayment() {
       this.successMsg = null;
       this.cart = [];
       this.clonedStore = [];
-      // this.patients[this.curIndex].record = this.patient.record;
     }, 3000);
     setTimeout(() => {
       this.switchViews('orders');
