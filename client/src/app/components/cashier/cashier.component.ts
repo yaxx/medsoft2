@@ -263,7 +263,7 @@ updateInvoices() {
           }
         });
       }
-     
+
     });
  }
 updatePrices(invoices: Invoice[], i: number) {
@@ -334,7 +334,7 @@ processCredit() {
       }
     ]);
     }
-    
+
   } else if (this.invoices[0][0].name === 'Credit') {
     this.invoices.splice(0, 1);
   }
@@ -463,7 +463,7 @@ switchViews(view) {
     getDp(avatar: string) {
       return `${host}/api/dp/${avatar}`;
   }
-  getStyle(i: Invoice) {
+  getStyle(i) {
     return {color: i.paid ? 'black' : 'lightgrey'};
   }
   markAsCreadit(i: number, optn: boolean) {

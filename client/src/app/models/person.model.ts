@@ -31,16 +31,13 @@ import {Meta} from './inventory.model';
       public messages: any[] = []
       ) {}
 
-  }
-
-  
-  export class Connections {
+  } 
+ export class Connections {
     constructor(
       public _id?: string,
       public people: Connection[] = new Array<Connection>(),
       public notifications: Notification[] = new Array<Notification>()
     ) {}
-
   }
 export class Personal {
   constructor(

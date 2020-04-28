@@ -66,7 +66,7 @@ module.exports = {
 uploadFile: (req, res) => {
   upload(req, res, (err) => {
     if(err) {
-     return res.status(501).jason({error:err})
+     return res.status(501).jason({error: err})
     } else {
      res.send(req.file.filename)
     }
@@ -137,34 +137,28 @@ getPatients: async (req, res) => {
     patients = Array.from(patients)
     .filter(person => person.info.official.department === null);
     //record transformation
-    
   //   patients = Array.from(patients).map(p => p.toJSON()).map(patient => {
-  //     let {info} = patient
+  //     let {record} = patient
   //     return ({
-  //       ...patient, info: {
-  //           ...info, personal: {
-  //             ...info.personal, 
-  //             meta: {
-  //               addedBy: req.cookies.i,
-  //               facility: req.cookies.h,
-  //               dateAdded: patient.createdAt
-  //             }
-  //         }
+  //       ...patient, record: {
+  //           ...record, invoices: record.invoices.map(invoice => invoice.map(i => (i.paid) ?  
+  //             ({...i, datePaid: new Date(i.datePaid.toString()).toLocaleDateString()}) : i
+  //             )
+  //           )
   //       }
   //   }) 
   // })
   // for (p of patients) {
   //     Person.findByIdAndUpdate( 
   //       mongoose.Types.ObjectId(p._id),{
-  //         "info": p.info
+  //         "record": p.record
   //       }, {
   //         new: true
   //       }, (e, data) => {
-  //         console.log(data.info.personal.meta)
+  //         console.log(data.record.invoices)
   //       if(e) {
   //         console.log(e)
   //       }
-       
   //     })
   // }
 
@@ -430,7 +424,7 @@ login: async (req, res) => {
   
 },
   
-getClient: async (req, res)=> {
+getClient: async (req, res) => {
   try {
     const client  = await Client.findById(req.cookies.h)
     .populate('staffs').exec()
@@ -449,7 +443,8 @@ updateClient: async (req, res) => {
       info: req.body.info,
       departments: req.body.departments,
       inventory: req.body.inventory
-    },{new: true})
+    },{new: true}
+    )
     res.send(client);
   }
 
@@ -461,7 +456,6 @@ updateClient: async (req, res) => {
 getInPatients: (req, res)=>{
     Person.find({'record.visits.status':'admitted'},(e, patients)=>{
     if(!e){
- 
       res.send(patients)
     }
     else{
@@ -475,7 +469,7 @@ getOrders: (req, res)=>{
      
       res.send(patients)
     }
-    else{
+    else {
       console.log(e)
     }
   })
@@ -520,8 +514,7 @@ updateRecord: async (req, res) => {
         record: req.body.patient.record
       },{new: true}
       )
-     
-    res.send(person);
+   res.send(person);
   }
   catch(e) {
     throw e
@@ -629,15 +622,15 @@ updateHistory: async(req, res) => {
 },
 
 
-updateNote: (req, res)=>{
+updateNote: (req, res) => {
   Person.findOne({ _id:req.body.id} ,(e, doc) => {
      if(!e){
       doc.record.notes.push(req.body.note)
-      doc.save((e,p)=>{
+      doc.save((e,p) => {
         if(!e){
           res.send(p)
         }
-        else{
+        else {
           console.log(e)
         }
       })
@@ -663,7 +656,9 @@ addNotifications: async(req, res)=>{
 
 updateMedication: async (req, res) => {
   try {
-  let {record:{medications}} = await Person.findByIdAndUpdate(req.cookies.i,{"record.medications": req.body.medications}, {new: true})
+  let {record:{medications}} = await Person.findByIdAndUpdate(
+    req.cookies.i, {"record.medications": req.body.medications}, {new: true}
+    )
    res.send(medications)
   } catch(e) {
     throw e
@@ -683,15 +678,7 @@ updateMedication: async (req, res) => {
 
 },
 
-// const mycon = await Connection.findByIdAndUpdate(
-//   me.connections,{ $push: {people: {
-//       person: person._id,
-//       follower: false,
-//       following: true,
-//       blocked: false,
-//       messages: []
-//   }},
-//  })
+
 
 addProduct: async (req, res) => {
   try {
@@ -708,9 +695,25 @@ addProduct: async (req, res) => {
 getProducts: async (req, res) => {
   try {
     let {inventory} = await Client.findById(req.cookies.h)
-  //    client.inventory = Array.from(client.inventory).map(o => o.toJSON()).map(product => ({...product, type:'Products'}))
+    let patients = await Person.find({"record.invoices": {$elemMatch: {$elemMatch: {paid: true, datePaid: '3/8/2020'}}}})
+    patients.forEach(p => {
+      p.record.invoices = p.record.invoices.map(i => i.filter(invoice => invoice.paid && invoice.datePaid === '3/8/2020')).filter(i=>i.length > 0)
+      console.log(p.record.invoices)
+    })
+  //  client.inventory = Array.from(client.inventory).map(o => o.toJSON()).map(product => ({...product, type:'Products'}))
   //  client = await client.save()
-      res.send({inventory})
+    //let patients = await Person.find({'record.invoices':})
+      res.send({inventory, patients})
+  }
+  catch(e)  {
+    throw e
+  }
+      
+},
+getTransactions: async (req, res) => {
+  try {
+    let p = await Person.find(req.cookies.h)
+     res.send(p)
   }
   catch(e)  {
     throw e
@@ -748,16 +751,6 @@ deleteProducts: async (req, res) => {
 },
 
 
-
-
-
-// checkSession: (req, res) => {
-//   if (req.cookies.q) {
-//     res.status(200).send('in session')
-//   } else {
-//     res.status(403).send('out of session')
-//   }
-// },
 
 getPerson: function (req, res) {
   User.findOne({username: req.params.username}, (err, person) => {

@@ -482,7 +482,7 @@ const personScheema = new Scheema({
                 paid: Boolean,
                 credit: Boolean,
                 processed: Boolean,
-                datePaid: Date,
+                datePaid: String,
                 comfirmedBy: {
                     type: Scheema.Types.ObjectId,
                     ref: 'Person'

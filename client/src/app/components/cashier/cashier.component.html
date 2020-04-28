@@ -260,7 +260,7 @@
     <div style=position:absolute id="more" (click) = onScroll() ></div>
     <div class="row">
         <div *ngIf='!patients.length' class='issue'>
-            <div *ngIf='loading'  class="spinner main"></div>
+            <div *ngIf='loading' class="spinner main"></div>
             <div (click)='refresh()' *ngIf='message' title='Refresh' class='refresh'><i class="icon ion-ios-reload "></i></div>
             <h6 *ngIf='message' style='font-size:13px;position:absolute;top:65%; width:100%; color:lightgrey;text-align: center'>{{message}}</h6>
         </div>

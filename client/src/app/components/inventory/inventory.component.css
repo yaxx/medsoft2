@@ -10,7 +10,7 @@
 .drugs-table td {
   font-size:11px;
 }
- .expired {
+.expired {
    text-decoration: line-through;
    text-decoration-color: !important red;
    -webkit-text-decoration-color: red;
@@ -41,4 +41,15 @@
 }
 .prod-data {
   padding: 0px;
+}
+.bills {
+  width: 80%;
+  margin: auto;
+  list-style: none;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+.bills li {
+  display: inline-block;
 }

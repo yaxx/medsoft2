@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy} from '@angular/core';
 import {DataService} from '../../services/data.service';
 import {Product, Item, StockInfo} from '../../models/inventory.model';
 import {Tests, Scannings, Surgeries} from '../../data/request';
+import {Person} from '../../models/person.model';
 import {CookieService } from 'ngx-cookie-service';
 import {SocketService} from '../../services/socket.service';
 import * as cloneDeep from 'lodash/cloneDeep';
@@ -21,6 +22,7 @@ export class InventoryComponent implements OnInit {
   stockInfo: StockInfo = new StockInfo();
   temItems: Item[] = [];
   items: Item[] = [];
+  patients: Person[] = [];
   scanItems = [];
   surgeryItems = [];
   inventoryItems = [];
@@ -49,11 +51,18 @@ export class InventoryComponent implements OnInit {
   menuView = false;
   cat = 'Products';
   errLine = null;
+  header = 2;
   cardType = 'Standard';
   curentItems = [];
   sortBy = 'added';
   searchTerm = '';
   count = 0;
+  tableHeaders = [
+    ['CARD', 'PRICE', 'CARD NUMBER', 'STATUS', 'DATE ADDED'],
+    ['SERVICE', 'CATEGORY', 'PRICE', 'REQUEST', 'DATE ADDED'],
+    ['PRODUCT', 'CATEGORY', 'PRICE', 'QUANTITY', 'SOLD', 'DATE ADDED', 'EXPIRY'],
+    ['PATIENT', 'MEDICATIONS', 'LAB', 'OTHERS','TOTAL EXPENSES']
+  ];
 
   constructor(
     private dataService: DataService,
@@ -107,6 +116,23 @@ export class InventoryComponent implements OnInit {
     this.loading = (this.page === 0) ? true : false;
     this.dataService.getProducts().subscribe((res: any) => {
       this.items = res.items;
+      this.patients = res.patients.map(p => {
+        p.record.invoices = p.record.invoices.map(i => {
+          let summary = [0,0,0];
+          i.forEach(i=> {
+            if(i.desc === 'Medication') {
+              summary[0] = summary[0] + i.price * i.quantity
+            } else if (i.desc === 'Test') {
+              summary[1] = summary[1] + i.price * i.quantity
+            } else {
+              summary[2] = summary[2] + i.price * i.quantity
+            }
+          })
+          return summary
+        })
+        return p
+      })
+      console.log(this.patients)
       if (res.inventory.length) {
         this.clonedInventory = res.inventory;
         this.products = res.inventory.map(p => ({...p, selected: false}));
@@ -125,8 +151,15 @@ export class InventoryComponent implements OnInit {
       this.message = '...Network Error';
     });
   }
+getTotalExpenses(expenses) {
+  let total = 0;
+  expenses.forEach(e => {
+    total = total + e;
+  })
+  return total;
+}
   loadMore() {
-    if(this.page > 0) {
+    if (this.page > 0) {
       this.getProducts();
   }
 }
@@ -235,7 +268,8 @@ export class InventoryComponent implements OnInit {
     this.feedback = null;
     this.errLine = null;
   }
-  toggleView(view: string) {
+  toggleView(view: string, i: number) {
+    this.header = i;
     this.tableView = view;
     const p = this.clonedInventory;
     this.curentItems =  p.filter(product => product.type === view).map(p => ({...p, selected: false}));

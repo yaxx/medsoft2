@@ -91,9 +91,8 @@ export class ConsultationComponent implements OnInit {
     const i = this.patients.findIndex(p => p._id === update.patient._id);
     switch (update.action) {
       case 'payment':
-        console.log(update);
         if (i !== -1 ) {
-          this.patients[i] =  { ...update.patient, card: this.patients[i].card };
+          this.patients[i] =  {...update.patient, card: this.patients[i].card };
         } else if (update.cart.some(prod => (prod.type === 'Cards' || prod.item.category === 'Consultation')
          && update.patient.record.visits[0][0].dept === this.cookies.get('dpt')) ) {
           this.patients.unshift({ ...update.patient, card: {menu: false, view: 'front', btn: 'discharge', indicate: true} });

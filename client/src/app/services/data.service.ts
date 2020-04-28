@@ -72,7 +72,7 @@ export class DataService {
       `${this.uri}/unfollow`, {id: me, yourid: you.person._id, yourcon: you.person.connections}, {withCredentials: true}
       );
   }
-  
+
   addProducts(products: Product[], items: Item[]) {
     return this.http.post(
     `${this.uri}/new-product`,  {products, items}, {withCredentials: true}
@@ -128,8 +128,6 @@ export class DataService {
     return this.http.post(
       `${this.uri}/update-info`, {info, id}, {withCredentials: true});
  }
-
-
   uploadScans(formData) {
     return this.http.post(
       `${this.uri}/upload-scans`, formData, {withCredentials: true});
@@ -138,13 +136,12 @@ export class DataService {
     return this.http.post(
       `${this.uri}/upload`, image, {withCredentials: true});
   }
-  download(file: string){
+  download(file: string) {
     return this.http.post(
       `${this.uri}/download`, {fileName: file}, {
         withCredentials: true,
         responseType: 'blob',
         headers: new HttpHeaders().append('Content-Type', 'application/json')
-
       });
   }
   updateMedication(m) {
