@@ -501,8 +501,29 @@ const personScheema = new Scheema({
                 }
             }]
         ]
+    },
+    messages: [{
+        contactId: String,
+        chats: [
+            [
+                {
+                    message: String,
+                    sender: String,
+                    reciever: String,
+                    delivered: Boolean,
+                    read: Boolean,
+                    sendOn: Date
+                }
+            ]
+        ]
     }
-}, { timestamps: true, strict: false })
+        
+    ]
+}, { 
+    timestamps: true, 
+    strict: false 
+});
 
-const Person = mongoose.model('Person', personScheema)
+
+const Person = mongoose.model('Person', personScheema);
 module.exports = Person;

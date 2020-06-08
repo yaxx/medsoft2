@@ -97,7 +97,7 @@
 </div>
 </nav>
 
-<div id="load-more" (click) = loadMore() style="padding-top:60px" class="container">
+<div id="load-more" (click) = onScroll() style="padding-top:60px" class="container">
         <div class="row">
         <div *ngIf='!patients.length' class='issue'>
             <div *ngIf='loading' class="lds-css ng-scope">

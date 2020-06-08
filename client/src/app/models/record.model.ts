@@ -265,7 +265,7 @@ export class Session {
 
      ) {}
   }
-  export class Record {
+export class Record {
     constructor(
       public complains: any[] = [],
       public histories: any[] = [],

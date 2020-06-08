@@ -1,5 +1,5 @@
-  import {Person} from '../models/person.model'
-  export default  (patients: Person[], order: string) =>  {
+  import {Person} from '../models/person.model';
+  export const sorter  = (patients: Person[], order: string) =>  {
     switch (order) {
       case 'A-Z':
         return patients.sort((m: Person, n: Person) =>
@@ -21,3 +21,10 @@
         break;
     }
   }
+  export const searchPatients = (patients, name) : Person[] => {
+   const p = patients.filter((patient) => {
+      const pattern  = new RegExp('\^' + name, 'i');
+      return pattern.test(patient.info.personal.firstName);
+  });
+   return p;
+};

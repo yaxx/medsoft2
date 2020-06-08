@@ -53,3 +53,96 @@
 .bills li {
   display: inline-block;
 }
+#search-field {
+  border-radius:.999em;
+  width:80%;display:inline-block;
+  position: absolute;
+  text-align: left;
+  vertical-align: middle;
+  top:11%;
+  box-shadow:none;
+  outline:none;
+  background-color: rgba(233, 236, 239, 0.7);
+}
+.view  {
+  font-size:12px;
+  left:98%;
+  position:relative;
+  display:inline-block;
+  color:grey;
+  font-weight:normal;
+}
+.search-icon {
+  font-size:20px;
+  top:3px;
+  left:83%;
+  position:relative;
+  display:inline
+}
+.date-picker {
+  border: none;
+  background: inherit;
+  color: #1da1f2;
+  height: 100%;
+  width: 100%;
+  text-align: center;
+  outline: none;
+  box-shadow: none;
+}
+.menu.view  {
+  position: absolute;
+  background: inherit;
+  left:150%;
+  width:120px;
+  top:10px;
+  box-shadow: none;
+}
+.issue {
+  width: 100%;
+  height: 100px;
+  position: absolute;
+  margin: auto;
+  top: 250px;
+}
+.fbMsg {
+  font-size:13px;
+  position:absolute;
+  top:65%;
+  width:100%;
+  color:lightgrey;
+  text-align: center
+}
+.options.trans-summary {
+  height:40px;
+  bottom: 0%;
+  background: #f9fafb;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  align-content: center;
+}
+.options.trans-summary p {
+  font-size: 12px;
+  margin-right: 20px;
+  color: lightgrey;
+  margin-bottom: 0px;
+}
+.options.trans-summary p span {
+  color: #a0a0a0;
+}
+.small-name.add {
+  font-size:11px;
+  position:absolute;
+  color:dodgerblue; 
+  font-weight:normal; 
+  top:18px; 
+  width:100%;
+}
+.small-name.add span {
+  left:87%;
+  bottom:-4px; 
+  cursor:pointer;
+  position:absolute;
+  font-size:20px;
+}

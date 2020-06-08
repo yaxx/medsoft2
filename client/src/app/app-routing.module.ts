@@ -31,6 +31,10 @@ const routes: Routes = [
     component: LoginComponent
   },
   {
+    path: 'messages',
+    component: MessagesComponent
+  },
+  {
     path: 'signup',
     component: LoginComponent
   },
@@ -42,10 +46,6 @@ const routes: Routes = [
     path: 'pharmacy',
     component: MainComponent,
     children: [
-      {
-        path: 'me',
-        component: MessagesComponent
-      },
       {
         path: 'pending',
         component: PharmacyComponent
@@ -61,6 +61,10 @@ const routes: Routes = [
       {
         path: 'inventory',
         component: InventoryComponent
+      },
+      {
+        path: 'messages',
+        component: MessagesComponent
       },
       {
         path: '',
@@ -89,6 +93,10 @@ const routes: Routes = [
         component: NotificationsComponent
       },
       {
+        path: 'messages',
+        component: MessagesComponent
+      },
+      {
         path: '',
         component: LabComponent
       }
@@ -113,6 +121,10 @@ const routes: Routes = [
       {
         path: 'notifications',
         component: NotificationsComponent
+      },
+      {
+        path: 'messages',
+        component: MessagesComponent
       },
       {
         path: '',
@@ -173,6 +185,10 @@ const routes: Routes = [
         component: SettingsComponent
       },
       {
+        path: 'messages',
+        component: MessagesComponent
+      },
+      {
         path: '',
         component: RegistrationComponent
       }
@@ -215,6 +231,10 @@ const routes: Routes = [
           component: CashierComponent
         },
         {
+          path: 'messages',
+          component: MessagesComponent
+        },
+        {
           path: '', component: RegistrationComponent
         }
       ]
@@ -233,7 +253,7 @@ const routes: Routes = [
           component:  DeceasedComponent
         },
         {
-          path: 'me',
+          path: 'messages',
           component: MessagesComponent
         },
         {
@@ -260,6 +280,10 @@ const routes: Routes = [
         {
           path: 'notifications',
           component: NotificationsComponent
+        },
+        {
+          path: 'messages',
+          component: MessagesComponent
         },
         {
           path: 'discharged',

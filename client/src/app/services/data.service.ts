@@ -136,21 +136,29 @@ export class DataService {
     return this.http.post(
       `${this.uri}/upload`, image, {withCredentials: true});
   }
+  getTransactions(date) {
+    return this.http.get(
+      `${this.uri}/trans/${date}`, {withCredentials: true});
+  }
   download(file: string) {
     return this.http.post(
       `${this.uri}/download`, {fileName: file}, {
         withCredentials: true,
         responseType: 'blob',
         headers: new HttpHeaders().append('Content-Type', 'application/json')
-      });
+    });
   }
   updateMedication(m) {
      return this.http.post(
       `${this.uri}/update-medication`, {medications: m}, {withCredentials: true});
   }
+  updateMessages(msg) {
+     return this.http.post(
+      `${this.uri}/update-msg`, msg, {withCredentials: true});
+  }
   updateBed(patient, client) {
     return this.http.post(
-      `${this.uri}/updatebed`, {patient: patient, client: client}, {withCredentials: true});
+      `${this.uri}/updatebed`, {patient, client}, {withCredentials: true});
   }
   updateNote(i, n) {
     return this.http.post(

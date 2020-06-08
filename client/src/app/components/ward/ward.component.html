@@ -397,10 +397,11 @@
               <li (click)="selectPatient(i)" data-target="#medicModal" data-toggle="modal" class="action">Record</li>
           </ul>
         </div>
-          <div  style="overflow: hidden;" class="card card-secondary maincard " >
+          <div (mouseenter) = showMoreIcon(i) (mouseleave) = hideMoreIcon(i) style="overflow: hidden;" class="card card-secondary maincard " >
               <div *ngIf="patient.card.view==='front'"  style='padding-left:30px; border-top-right-radius: 12px; border-top-left-radius: 12px;  padding-top: 0px;height: 32px;padding-bottom: 0px;' class="card-header profileheader">
-              <i (click)='showMenu(i)' class="icon ion-android-more-vertical headericon moreicon actions-icon"></i>
-
+                <div (click)='showMenu(i)' title="More" *ngIf="isWard() && patient.card.more" class="more-wrap">
+                  <i class="icon ion-android-more-vertical"></i>
+                </div>
               </div>
               <div *ngIf="patient.card.view ==='dispose'|| patient.card.view === 'ap'"  style='padding-left: 37px; border-top-right-radius: 12px; border-top-left-radius: 12px; padding-top: 0px;
               position:absolute;  width:100%;padding-bottom: 0px;height:32px' class="card-header profileheader small-header">

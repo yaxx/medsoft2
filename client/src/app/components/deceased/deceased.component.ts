@@ -2,8 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { FileSelectDirective, FileUploader } from 'ng2-file-upload';
 import {DataService} from '../../services/data.service';
 import {SocketService} from '../../services/socket.service';
-import sorter from '../../util/functions';
-import {ActivatedRoute,Router} from '@angular/router';
+import {sorter, searchPatients} from '../../util/functions';
+import {ActivatedRoute, Router} from '@angular/router';
 import * as cloneDeep from 'lodash/cloneDeep';
 import {Person, Info} from '../../models/person.model';
 import {Visit} from '../../models/record.model';
@@ -18,8 +18,10 @@ const uri = `${host}/api/upload`;
 })
 export class DeceasedComponent implements OnInit {
   patients: Person[] = [];
+  pool: Person[] = [];
+  reserved: Person[] = [];
+  temp: Person[] = [];
   clonedPatients: Person[] = [];
-  clonedPatient: Person = new Person();
   patient: Person = new Person();
   client: Client = new Client();
   file: File = null;
@@ -71,18 +73,28 @@ export class DeceasedComponent implements OnInit {
       this.client = res.client;
   });
 }
-getPatients(type) {
+populate(patients) {
+  this.pool = patients;
+  this.clonedPatients  = cloneDeep(patients);
+  this.patients   = patients.slice(0, 12);
+  patients.splice(0, 12);
+  this.reserved = patients;
+}
+getPatients(type?: string) {
   this.loading = (this.page === 0) ? true : false;
-  this.dataService.getPatients(type, this.page).subscribe((patients: Person[]) => {
+  this.dataService.getPatients(type, this.page)
+  .subscribe((patients: Person[]) => {
     if (patients.length) {
       patients.forEach(p => {
-        p.card = {menu: false, view: 'front'};
+        p.card = {
+          menu: false,
+          view: 'front',
+          more: false
+        };
       });
-      this.patients   = [...this.patients, ...patients.sort((m, n) => new Date(n.createdAt).getTime() - new Date(m.createdAt).getTime())];
-      this.clonedPatients  = [...this.clonedPatients, ...patients];
+      this.populate(patients);
       this.loading = false;
       this.message = null;
-      ++this.page;
     } else {
         this.message = (this.page === 0) ? 'No Records So Far' : null;
         this.loading = false;
@@ -92,6 +104,18 @@ getPatients(type) {
     this.patients = [];
     this.message = '...Network Error';
   });
+}
+onScroll() {
+  this.page = this.page + 1;
+  if(this.reserved.length) {
+    if(this.reserved.length >  12 ) {
+      this.patients = [...this.patients, ...this.reserved.slice(0, 12)];
+      this.reserved.splice(0,  12);
+    } else {
+      this.patients = [...this.patients, ...this.reserved];
+      this.reserved = [];
+    }
+  }
 }
 loadMore() {
   if(this.page > 0) {

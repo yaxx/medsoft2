@@ -49,7 +49,7 @@ export class Invoice {
     public paid: boolean = false,
     public credit: boolean = false,
     public quantity: number = 1,
-    public datePaid: Date = null,
+    public datePaid: string = null,
     public meta: Meta = new Meta(),
     public processed: boolean = true,
     public _id?: string

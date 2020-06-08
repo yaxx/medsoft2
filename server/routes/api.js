@@ -175,18 +175,18 @@ getPatients: async (req, res) => {
         patients = patients.filter(
           patient => patient.record.visits[0][0].status === req.params.type && 
           patient.record.visits[0][0].dept === official.department
-          );
+        );
       break;
       case 'Pharmacist':
         patients = patients.filter(
           patient => patient.record.medications.length > 0
-          );
+        );
         break
       case 'Lab Scientist':
           patients = patients.filter(patient => patient.record.tests
             .some(test => test.some(t => t.dept === official.department)) || patient.record.scans
             .some(scan => scan.some(s.dept === official.department))
-            );
+          );
       break;
       case 'Information':
         if(req.params.type === 'billing') {
@@ -199,14 +199,14 @@ getPatients: async (req, res) => {
         } else {
           patients = patients.filter(
             patient => patient.record.visits[0][0].status === req.params.type
-            );
+          );
         }
       break;
       case 'Admin':
         patients = (req.params.type) ? patients.filter(
           patient => patient.record.visits[0][0].status === req.params.type) : patients.filter(
             patient => patient.record.medications.length
-            ) ;
+        ) ;
       break;
       default:
       if(req.params.type === 'out') {
@@ -216,7 +216,7 @@ getPatients: async (req, res) => {
       } else {
          patients = patients.filter(
            patient => patient.record.visits[0][0].status === req.params.type
-           );
+          );
       }
       break
       // res.send(patients) 
@@ -301,11 +301,13 @@ getConnections: (req, res) => {
 
 getMyAccount: async (req, res) => {
   try {
-    const me  = await Person.findById(req.cookies.i,'_id info connections')
-    me.connections = await Connection.findById(me.connections)
-    .populate({path:'people.person', select:'_id info'})
-    .exec()
-    res.send(me)
+    const me  = await Person.findById(req.cookies.i,'_id info')
+    let colleagues  = await Person.find({"info.official.role": {$ne: null}})
+   
+    // me.connections = await Connection.findById(me.connections)
+    // .populate({path:'people.person', select:'_id info'})
+    // .exec()
+    res.send({me, colleagues})
   } 
   catch (e) {
    console.log(e)
@@ -318,21 +320,34 @@ getMyAccount: async (req, res) => {
 
 
 
-updateMessages: (data)=>{
-Connection.findOneAndUpdate({'people.person': data.sender},{"people.$.messages": data.convs},(e, me)=>{
-    if(!e){
-      Connection.findOneAndUpdate({'people.person': data.reciever},{"people.$.messages": data.convs},(e, myconn) => {
-        if(!e){
-          console.log(myconn)// res.send(myconn);
-        }else{
-          console.log(e)
-        }
+updateMessages: async (req, res) => {
+  try {
+    const reciever = await Person.findById(req.body.rid)
+    const i = reciever.messages.findIndex(m => m.contactId === req.body.sid)
+    if (i === -1) {
+      reciever.messages.push(req.body.to)
+    } else {
+      reciever.messages[i] = req.body.to
+    }
+    let sender = await Person.findById(req.body.sid)
+    const j = sender.messages.findIndex(m => m.contactId === req.body.rid)
+    if(j === -1) {
+      sender.messages.push({
+        ...req.body.to,
+        contactId: req.body.rid
       })
     } else {
-      console.log(e)
+      sender.messages[j] = {
+        ...req.body.to, 
+        contactId: req.body.rid
+      }
     }
-  })
-
+    sender.save()
+    reciever.save()
+    res.send()
+  } catch (error) {
+    console.log(error)
+  }
 },
 
 explore: async (req, res) => {
@@ -683,8 +698,6 @@ updateMedication: async (req, res) => {
 addProduct: async (req, res) => {
   try {
     const client = await Client.findByIdAndUpdate(req.cookies.h, { $push: {inventory: { $each: req.body.products}}}, {new: true} )
-    // req.body.items = req.body.items.map(item => ({...item, type: 'drug'}))
-    // await Item.insertMany(req.body.items)
     let cart = client.inventory.splice(client.inventory.length - req.body.products.length, req.body.products.length)
     res.send(cart)
 }
@@ -695,30 +708,29 @@ addProduct: async (req, res) => {
 getProducts: async (req, res) => {
   try {
     let {inventory} = await Client.findById(req.cookies.h)
-    let patients = await Person.find({"record.invoices": {$elemMatch: {$elemMatch: {paid: true, datePaid: '3/8/2020'}}}})
+    let patients = await Person.find({"record.invoices": {$elemMatch: {$elemMatch: {paid: true, datePaid: new Date().toLocaleDateString()}}}})
     patients.forEach(p => {
-      p.record.invoices = p.record.invoices.map(i => i.filter(invoice => invoice.paid && invoice.datePaid === '3/8/2020')).filter(i=>i.length > 0)
-      console.log(p.record.invoices)
+      p.record.invoices = p.record.invoices.map(i => i.filter(invoice => invoice.paid && invoice.datePaid === new Date().toLocaleDateString())).filter(i=>i.length > 0)
     })
-  //  client.inventory = Array.from(client.inventory).map(o => o.toJSON()).map(product => ({...product, type:'Products'}))
-  //  client = await client.save()
-    //let patients = await Person.find({'record.invoices':})
       res.send({inventory, patients})
   }
   catch(e)  {
     throw e
   }
-      
 },
 getTransactions: async (req, res) => {
   try {
-    let p = await Person.find(req.cookies.h)
-     res.send(p)
+    let patients = await Person.find({
+      "record.invoices": {$elemMatch: {$elemMatch: {paid: true, datePaid: new Date(req.params.date).toLocaleDateString()}}}
+    })
+    patients.forEach(p => {
+      p.record.invoices = p.record.invoices.map(i => i.filter(invoice => invoice.paid && invoice.datePaid === new Date(req.params.date).toLocaleDateString())).filter(i => i.length > 0)
+    })
+    res.send(patients);
   }
   catch(e)  {
     throw e
   }
-      
 },
 
 updateProducts: async (req, res) => {

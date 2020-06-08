@@ -4,7 +4,7 @@ import { FileSelectDirective, FileUploader } from 'ng2-file-upload';
 import {SocketService} from '../../services/socket.service';
 import {ActivatedRoute, Router} from '@angular/router';
 import {Person} from '../../models/person.model';
-import sorter from '../../util/functions';
+import {sorter, searchPatients} from '../../util/functions';
 import {CookieService} from 'ngx-cookie-service';
 import {Meta} from '../../models/inventory.model';
 import {Report} from '../../models/record.model';

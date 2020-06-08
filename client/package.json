@@ -11,7 +11,7 @@
     "lint": "ng lint",
     "e2e": "ng e2e",
     "dist": "electron-builder",
-    "prod": "ng build --prod "
+    "prod": "ng build --prod"
   },
   "nsis": {
     "runAfterFinish": false,

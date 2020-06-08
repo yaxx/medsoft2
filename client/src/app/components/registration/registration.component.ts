@@ -11,7 +11,7 @@ import {states, lgas } from '../../data/states';
 import { Item, StockInfo, Product, Card, Invoice, Meta} from '../../models/inventory.model';
 import {Visit, Session} from '../../models/record.model';
 import {Client, Department} from '../../models/client.model';
-import sorter from '../../util/functions';
+import {sorter, searchPatients} from '../../util/functions';
 import {CookieService } from 'ngx-cookie-service';
 import {host, appName} from '../../util/url';
 const uri = `${host}/api/upload`;
@@ -53,7 +53,7 @@ export class RegistrationComponent implements OnInit {
   cardTypes = [];
   pool: Person[] = [];
   reserved: Person[] = [];
-  searchResults: Person[] = [];
+  temp: Person[] = [];
   processing = false;
   sortBy = 'added';
   cardCount = null;
@@ -118,27 +118,14 @@ export class RegistrationComponent implements OnInit {
     this.patients[i].card.view = view;
     this.patient = cloneDeep(this.patients[i]);
     this.card.pin = this.generatePin();
-    // this.card = this.patient.record.cards[0] || new Card();
   }
-//   printPaper() {
-//     console.log('printPaper! start')
-//     const device = new escpos.USB();
-//     const options = {encoding: "GB18030" /* default */}
-//     const printer = new escpos.Printer(device, options);
 
-//     device.open(function () {
-//         printer
-//             .font('a')
-//             .align('ct')
-//             .style('bu')
-//             .size(1, 1)
-//             .text('Hello world!')
-//             .text('Welcome to the Awesome-land!!!')
-//             .cut()
-//             .close();
-//     });
-//     console.log('printPaper! end')
-// }
+  showMoreIcon(i) {
+    this.patients[i].card.more = true;
+  }
+  hideMoreIcon(i) {
+    this.patients[i].card.more = false;
+  }
   getDp(avatar: string) {
     return `${host}/api/dp/${avatar}`;
   }
@@ -198,17 +185,22 @@ export class RegistrationComponent implements OnInit {
   }
   populate(patients) {
     this.pool = patients;
-    this.clonedPatients  = patients;
+    this.clonedPatients  = cloneDeep(patients);
     this.patients   = patients.slice(0, 12);
     patients.splice(0, 12);
     this.reserved = patients;
   }
-  getPatients(type?:string) {
+  getPatients(type?: string) {
     this.loading = (this.page === 0) ? true : false;
-    this.dataService.getPatients(type, this.page).subscribe((patients: Person[]) => {
+    this.dataService.getPatients(type, this.page)
+    .subscribe((patients: Person[]) => {
       if (patients.length) {
         patients.forEach(p => {
-          p.card = {menu: false, view: 'front'};
+          p.card = {
+            menu: false,
+            view: 'front',
+            more: false
+          };
         });
         this.populate(patients);
         this.loading = false;
@@ -291,7 +283,9 @@ export class RegistrationComponent implements OnInit {
     this.errorMsg = null;
   }
   addDefaults() {
-    this.patient.info.personal.meta = new Meta(this.cookies.get('i'), this.cookies.get('h'));
+    this.patient.info.personal.meta = new Meta(
+      this.cookies.get('i'), this.cookies.get('h')
+      );
     this.patient.record.visits = [[new Visit()]];
   }
   addRecord() {
@@ -337,14 +331,17 @@ export class RegistrationComponent implements OnInit {
     }
   }
   searchPatient(name: string) {
-   if (name) {
-    this.searchResults = this.pool.filter((patient) => {
-      const patern =  new RegExp('\^' + name  , 'i');
-      return patern.test(patient.info.personal.firstName);
-      });
+    if (!this.temp.length) {
+      this.temp = cloneDeep(this.patients);
+    }
+    if (name.length) {
+      this.patients = searchPatients(this.clonedPatients, name);
+      if(!this.patients.length) {
+        this.message = '...No record found';
+      }
    } else {
-      this.searchResults = [];
-      this.pool = this.clonedPatients;
+      this.patients = this.temp;
+      this.temp = [];
    }
   }
   selectResult(person) {
@@ -354,7 +351,6 @@ export class RegistrationComponent implements OnInit {
     } else {}
     this.patients.unshift(person);
     this.pool = this.clonedPatients;
-    this.searchResults = [];
     this.searchTerm  = null;
   }
 
@@ -389,7 +385,7 @@ isConsult() {
   sortPatients(order: string) {
     this.sortMenu = false;
     this.nowSorting = order;
-    this.patients = sorter(this.patients, order)
+    this.patients = sorter(this.patients, order);
   }
 
 

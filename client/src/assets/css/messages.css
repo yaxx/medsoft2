@@ -17,6 +17,7 @@
   padding-right:9px;
   margin-left:0px;
   border:none;
+  position: relative;
 }
 
 .message-recieved .message-container:first-child .msg-text {
@@ -92,8 +93,8 @@
 }
 
 .message-msg {
-  margin:0 10px;
-  max-width:60%;
+  margin:1px 10px;
+  max-width:70%;
   border-radius:20px;
 }
 
@@ -145,6 +146,7 @@ message-text.msg-msg {
   border-radius:.999em;
   border-bottom-right-radius:0px;
   border-top-right-radius:0px;
+  background-color: rgba(29, 161, 242, .8);
 }
 
 .msg-text {
@@ -157,7 +159,7 @@ message-text.msg-msg {
 .message {
   flex-direction:column;
   list-style-type:none;
-  margin-bottom:10px;
+  margin-bottom:30px;
   display:flex;
 }
 
@@ -222,10 +224,6 @@ message-text.msg-msg {
   /*padding-bottom:12px;*/
   border-radius:0px;
   font-size:14px;
-  /*margin:4px;*/
-  /*min-height:15px;*/
-  scroll:hiden;
-  /*padding-right:1%;*/
 }
 
 .message-group {

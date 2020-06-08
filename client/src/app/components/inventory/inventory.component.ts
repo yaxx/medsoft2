@@ -45,10 +45,11 @@ export class InventoryComponent implements OnInit {
   processing = false;
   message = null;
   page = 0;
-  tableView = 'Products';
+  tableView = 'Transactions';
   feedback = null;
   categories = [];
   menuView = false;
+  expSummary = [];
   cat = 'Products';
   errLine = null;
   header = 2;
@@ -57,11 +58,13 @@ export class InventoryComponent implements OnInit {
   sortBy = 'added';
   searchTerm = '';
   count = 0;
+  clonedPatients = [];
+  curDate = new Date();
   tableHeaders = [
     ['CARD', 'PRICE', 'CARD NUMBER', 'STATUS', 'DATE ADDED'],
     ['SERVICE', 'CATEGORY', 'PRICE', 'REQUEST', 'DATE ADDED'],
     ['PRODUCT', 'CATEGORY', 'PRICE', 'QUANTITY', 'SOLD', 'DATE ADDED', 'EXPIRY'],
-    ['PATIENT', 'MEDICATIONS', 'LAB', 'OTHERS','TOTAL EXPENSES']
+    ['PATIENT', 'MEDICATIONS', 'LAB', 'OTHERS', 'TOTAL EXPENSES']
   ];
 
   constructor(
@@ -72,30 +75,38 @@ export class InventoryComponent implements OnInit {
 
   ngOnInit() {
     this.getProducts();
-    this.socket.io.on('payment', changes => {
-      changes.item.forEach(product => {
-        this.curentItems[this.curentItems.findIndex(pro => pro._id === product._id)] = product;
-    });
+    this.socket.io.on('record update', changes => {
+     if (changes.action === 'payment') {
+       console.log(changes);
+       changes.patient.record.invoices = this.summarizeInvoice(changes.patient.record.invoices);
+       const i = this.patients.findIndex(p => p._id === changes.patient._id);
+       if (i !== -1) {
+          this.patients.splice(i, 1);
+          this.patients.unshift(changes.patient);
+        } else {
+          this.patients.unshift(changes.patient);
+        }
+     }
     });
     this.socket.io.on('new card', changes => {
-        this.curentItems[this.curentItems.findIndex(pro => pro._id === changes.item._id)] = changes.item;
+        this.curentItems[this.curentItems
+          .findIndex(pro => pro._id === changes.item._id)] = changes.item;
     });
-    // this.socket.io.on('enroled', changes => {
-    //     this.curentItems[this.curentItems.findIndex(pro => pro._id === changes.item._id)] = changes.item;
-    // });
-    // this.socket.io.on('refund', refund => {
-    //     this.products.forEach(prod => {
-    //       if(prod._id === refund.product._id) {
-    //           prod.stockInfo.inStock = prod.stockInfo.inStock + refund.purchased;
-    //           prod.stockInfo.sold = prod.stockInfo.sold - refund.purchased;
-    //         }
-    //     });
-    // });
   }
-
+  getTransactions() {
+    this.patients = [];
+    this.expSummary = [];
+    this.loading = true;
+    this.dataService
+    .getTransactions(new Date(this.curDate))
+    .subscribe((patients: any) => {
+      this.sumTransactions(patients);
+    }, (e) => {
+      this.loading = false;
+      this.message = '...Network Error';
+    });
+  }
   switchToEdit() {
-    // this.product = this.products.filter((p) => p.selected)[0];
-    // this.input = this.product.item.name + ' ' + this.product.item.mesure + this.product.item.unit;
   }
   getDp(avatar: string) {
     return `${host}/api/dp/${avatar}`;
@@ -113,56 +124,83 @@ export class InventoryComponent implements OnInit {
     this.logout = false;
   }
   getProducts() {
-    this.loading = (this.page === 0) ? true : false;
+    this.loading =  true;
+    this.patients = [];
     this.dataService.getProducts().subscribe((res: any) => {
+      this.loading = false;
+      this.sumTransactions(res.patients);
       this.items = res.items;
-      this.patients = res.patients.map(p => {
-        p.record.invoices = p.record.invoices.map(i => {
-          let summary = [0,0,0];
-          i.forEach(i=> {
-            if(i.desc === 'Medication') {
-              summary[0] = summary[0] + i.price * i.quantity
-            } else if (i.desc === 'Test') {
-              summary[1] = summary[1] + i.price * i.quantity
-            } else {
-              summary[2] = summary[2] + i.price * i.quantity
-            }
-          })
-          return summary
-        })
-        return p
-      })
-      console.log(this.patients)
-      if (res.inventory.length) {
-        this.clonedInventory = res.inventory;
-        this.products = res.inventory.map(p => ({...p, selected: false}));
-        this.curentItems  =  [...this.curentItems, ...this.products.filter(product => product.type === 'Products')];
-        this.medications  =  this.curentItems.map(m => m.item.name);
-        this.loading = false;
-        this.message = null;
-        ++this.page;
-      } else {
-        this.message = (this.page === 0) ? `No ${this.tableView} So Far` : null;
-        this.loading = false;
-      }
+      this.distInventory(res.inventory);
     }, (e) => {
       this.loading = false;
       this.curentItems = [];
+      this.patients = [];
       this.message = '...Network Error';
     });
   }
-getTotalExpenses(expenses) {
-  let total = 0;
-  expenses.forEach(e => {
-    total = total + e;
-  })
-  return total;
-}
+  distInventory(inventory) {
+    if (inventory.length) {
+      this.clonedInventory = inventory;
+      this.products = inventory.map(p => ({...p, selected: false}));
+      this.curentItems  =  [...this.curentItems, ...this.products.filter(product => product.type === 'Products')];
+      this.medications  =  this.curentItems.map(m => m.item.name);
+      // this.loading = false;
+      // this.message = null;
+      // ++this.page;
+    } else {
+      // this.message = (this.page === 0) ? `NO ${this.tableView} SO FAR` : null;
+      // this.loading = false;
+    }
+  }
+  summarizeInvoice(invoices) {
+    const summary = [0, 0, 0];
+    invoices.map(invoice => {
+      invoice.forEach(i => {
+        if (i.desc === 'Medication') {
+          summary[0] = summary[0] + i.price * i.quantity;
+        } else if (i.desc === 'Test') {
+          summary[1] = summary[1] + i.price * i.quantity;
+        } else {
+          summary[2] = summary[2] + i.price * i.quantity;
+        }
+      });
+    });
+    this.expSummary.push(summary);
+    return summary;
+  }
+  sumTransactions(patients) {
+    if (patients.length) {
+      this.patients = patients.map(p => {
+        p.record.invoices =  this.summarizeInvoice(p.record.invoices);
+        return p;
+      });
+    } else {
+      this.loading = false;
+      this.message = 'NO TRANSACTIONS SO FAR';
+    }
+
+  }
+  getSubTotals() {
+    const sums = [0, 0, 0];
+    this.expSummary.forEach(exp => {
+      sums[0] = sums[0] + exp[0];
+      sums[1] = sums[1] + exp[1];
+      sums[2] = sums[2] + exp[2];
+    });
+    return sums;
+  }
+  getOveralTotal() {
+    return this.getSubTotals().reduce((n, m) => n + m, 0);
+  }
+
+  getTotalExpenses(expenses) {
+    return expenses.reduce((n, m) => n + m, 0);
+  }
   loadMore() {
     if (this.page > 0) {
       this.getProducts();
+    }
   }
-}
   refresh() {
     this.getProducts();
   }
@@ -323,8 +361,8 @@ getTotalExpenses(expenses) {
       }
   }
   prev() {
-       this.editables.unshift(this.product);
-        this.product = this.edited.shift();
+      this.editables.unshift(this.product);
+      this.product = this.edited.shift();
   }
   selectionOccure() {
     return this.curentItems.some((product) => product.selected);
@@ -352,6 +390,7 @@ getDescriptions() {
     break;
     case 'Test':
       this.searchTests();
+    // tslint:disable-next-line:align
     break;
     default:
     break;
@@ -438,13 +477,13 @@ searchDesc() {
           const i  = this.curentItems.findIndex(pro => pro._id === product._id);
           this.curentItems[i] = {...product, selected: false};
     });
-    this.socket.io.emit('store update', {action: 'update', changes: this.edited});
-    this.product = new Product();
-    this.edited = [];
-    this.editables = [];
-    this.processing = false;
-    this.feedback = 'Update succesfull';
-    setTimeout(() => {
+        this.socket.io.emit('store update', {action: 'update', changes: this.edited});
+        this.product = new Product();
+        this.edited = [];
+        this.editables = [];
+        this.processing = false;
+        this.feedback = 'Update succesfull';
+        setTimeout(() => {
       this.feedback = null;
     }, 3000);
    }, (e) => {
@@ -482,8 +521,25 @@ searchProducts(search: string) {
      return patern.test(product.item.name);
   });
 }
-
 }
+searchStuff(name) {
+  if (this.tableView === 'Transactions') {
+    this.searchPatient(name);
+  } else {
+    this.searchProducts(name);
+  }
+}
+searchPatient(name: string) {
+  if (name) {
+    this.clonedPatients = cloneDeep(this.patients);
+    this.patients = this.patients.filter((patient) => {
+     const patern =  new RegExp('\^' + name  , 'i');
+     return patern.test(patient.info.personal.firstName);
+     });
+  } else {
+     this.patients = this.clonedPatients;
+  }
+ }
 
 getSatus(status: boolean) {
   return (status) ? 'AVAILABLE' : 'TAKEN' ;

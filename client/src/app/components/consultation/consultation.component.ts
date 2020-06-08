@@ -11,7 +11,7 @@ import {Client, Department} from '../../models/client.model';
 import {Conditions} from '../../data/conditions';
 import {states, lgas } from '../../data/states';
 import {PersonUtil} from '../../util/person.util';
-import sorter from '../../util/functions';
+import {sorter, searchPatients} from '../../util/functions';
 import { Item, StockInfo, Product, Card, Invoice, Meta} from '../../models/inventory.model';
 import {Subject} from 'rxjs';
 import {Observable} from 'rxjs';
@@ -30,6 +30,7 @@ export class ConsultationComponent implements OnInit {
   scannings = Scannings;
   surgeries = Surgeries;
   conditions = Conditions;
+  temp: Person[] = [];
   patient: Person = new Person();
   patients: Person[] = [];
   products: Product[] = [];
@@ -340,24 +341,28 @@ getLgas() {
     this.patients = sorter(this.patients, order);
   }
   searchPatient(name: string) {
-    if (name !== '') {
-     this.patients = this.patients.filter((patient) => {
-       const patern =  new RegExp('\^' + name , 'i');
-       return patern.test(patient.info.personal.firstName);
-       });
-    } else {
-      this.patients = this.clonedPatients;
+    if (!this.temp.length) {
+      this.temp = cloneDeep(this.patients);
     }
+    if (name.length) {
+      this.patients = searchPatients(this.clonedPatients, name);
+      if(!this.patients.length) {
+        this.message = '...No record found';
+      }
+   } else {
+      this.patients = this.temp;
+      this.temp = [];
    }
-   toggleSortMenu() {
-    this.sortMenu = !this.sortMenu;
   }
+  toggleSortMenu() {
+    this.sortMenu = !this.sortMenu;
+}
 switchBtn(option: string) {
    this.in = option;
 }
 populate(patients) {
   this.pool = patients;
-  this.clonedPatients  = patients;
+  this.clonedPatients  = cloneDeep(patients);
   this.patients   = patients.slice(0, 12);
   patients.splice(0, 12);
   this.reserved = patients;
@@ -365,10 +370,17 @@ populate(patients) {
 
 getPatients(type?: string) {
   this.loading = (this.page === 0) ? true : false;
-  this.dataService.getPatients(type, this.page).subscribe((patients: Person[]) => {
+  this.dataService.getPatients(type, this.page)
+  .subscribe((patients: Person[]) => {
     if (patients.length) {
       patients.forEach(p => {
-      p.card = {menu: false, view: 'front', btn: 'discharge', indicate: false};
+      p.card = {
+        menu: false,
+        view: 'front',
+        btn: 'discharge',
+        indicate: false,
+        more: false
+      };
     });
       this.populate(patients);
       this.loading = false;
@@ -407,6 +419,13 @@ onScroll() {
     this.patient = this.patients[i];
     this.url = this.getDp(this.patient.info.personal.avatar);
    }
+
+   showMoreIcon(i) {
+    this.patients[i].card.more = true;
+  }
+  hideMoreIcon(i) {
+    this.patients[i].card.more = false;
+  }
 
    removeDp() {
      this.url = null;

@@ -13,7 +13,7 @@ import {CookieService } from 'ngx-cookie-service';
 import { Record,  Session} from '../../models/record.model';
 import * as cloneDeep from 'lodash/cloneDeep';
 import {host, appName} from '../../util/url';
-import sorter from '../../util/functions';
+import {sorter, searchPatients} from '../../util/functions';
 const uri = `${host}/api/upload`;
 @Component({
   selector: 'app-appointments',
@@ -22,6 +22,9 @@ const uri = `${host}/api/upload`;
 })
 export class AppointmentsComponent implements OnInit {
   appName = appName;
+  temp: Person[] = [];
+  pool: Person[] = [];
+  reserved: Person[] = [];
   patients: Person[] = [];
   clonedPatients: Person[] = [];
   clonedPatient: Person = new Person();
@@ -64,8 +67,7 @@ export class AppointmentsComponent implements OnInit {
      private route: ActivatedRoute,
      private router: Router,
      private socket: SocketService
-
-     ) { }
+  ) { }
 
    ngOnInit() {
       this.myDepartment = this.route.snapshot.url[0].path;
@@ -81,11 +83,26 @@ export class AppointmentsComponent implements OnInit {
                break;
           default:
               if (i !== -1 ) {
-                this.patients[i] = { ...update.patient, card: this.patients[i].card };
+                this.patients[i] = {
+                  ...update.patient,
+                   card: this.patients[i].card
+                  };
               }
               break;
         }
       });
+  }
+  onScroll() {
+    this.page = this.page + 1;
+    if(this.reserved.length) {
+      if(this.reserved.length >  12 ) {
+        this.patients = [...this.patients, ...this.reserved.slice(0, 12)];
+        this.reserved.splice(0,  12);
+      } else {
+        this.patients = [...this.patients, ...this.reserved];
+        this.reserved = [];
+      }
+    }
   }
    getDp(avatar: string) {
     return `${host}/api/dp/${avatar}`;
@@ -194,28 +211,38 @@ export class AppointmentsComponent implements OnInit {
     this.processing = false;
   });
 }
-   getPatients(type) {
-    this.loading = (this.page === 0) ? true : false;
-    this.dataService.getPatients(type, this.page).subscribe((patients: Person[]) => {
-      if (patients.length) {
-        patients.forEach(p => {
-          p.card = {menu: false, view: 'front'};
-        });
-        this.patients   = [...this.patients, ...patients.sort((m, n) => new Date(n.createdAt).getTime() - new Date(m.createdAt).getTime())];
-        this.clonedPatients  = [...this.clonedPatients, ...patients];
-        this.loading = false;
-        this.message = null;
-        ++this.page;
-      } else {
-          this.message = (this.page === 0) ? 'No Records So Far' : null;
-          this.loading = false;
-      }
-    }, (e) => {
+populate(patients) {
+  this.pool = patients;
+  this.clonedPatients  = cloneDeep(patients);
+  this.patients   = patients.slice(0, 12);
+  patients.splice(0, 12);
+  this.reserved = patients;
+}
+getPatients(type?: string) {
+  this.loading = (this.page === 0) ? true : false;
+  this.dataService.getPatients(type, this.page)
+  .subscribe((patients: Person[]) => {
+    if (patients.length) {
+      patients.forEach(p => {
+        p.card = {
+          menu: false,
+          view: 'front',
+          more: false
+        };
+      });
+      this.populate(patients);
       this.loading = false;
-      this.patients = [];
-      this.message = '...Network Error';
-    });
-  }
+      this.message = null;
+    } else {
+        this.message = (this.page === 0) ? 'No Records So Far' : null;
+        this.loading = false;
+    }
+  }, (e) => {
+    this.loading = false;
+    this.patients = [];
+    this.message = '...Network Error';
+  });
+}
    loadMore() {
   //   if(this.page > 0) {
   //     this.getPatients('Appointment');
@@ -279,17 +306,20 @@ export class AppointmentsComponent implements OnInit {
        this.view = 'details';
      }
    }
-   searchPatient(name:string) {
-    if(name!==''){
-     this.patients = this.patients.filter((patient) => {
-       const patern =  new RegExp('\^' + name
-       , 'i');
-       return patern.test(patient.info.personal.firstName);
-       });
-    } else {
-      this.patients = this.clonedPatients;
+   searchPatient(name: string) {
+    if (!this.temp.length) {
+      this.temp = cloneDeep(this.patients);
     }
+    if (name.length) {
+      this.patients = searchPatients(this.clonedPatients, name);
+      if(!this.patients.length) {
+        this.message = '...No record found';
+      }
+   } else {
+      this.patients = this.temp;
+      this.temp = [];
    }
+  }
    withoutCard() {
     return (this.patient.info.personal.firstName) &&
     (this.patient.info.personal.lastName) &&

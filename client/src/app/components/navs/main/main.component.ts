@@ -10,7 +10,7 @@ export class MainComponent implements OnInit {
   info = null;
   admin = null;
   seg2 = null;
-
+  menuOpened = false;
   constructor(
     private route: ActivatedRoute,
     private router: Router
@@ -28,8 +28,18 @@ export class MainComponent implements OnInit {
      !this.isWard() &&
      !this.isAdmin();
   }
+  toggleMainMenu() {
+    this.menuOpened = (this.menuOpened) ? false : true;
+    console.log(this.menuOpened);
+  }
+  getClass() {
+    return (this.menuOpened) ? 'opened' : 'closed';
+  }
   isAdmin() {
     return this.router.url.includes('admin');
+  }
+  isMessages() {
+    return this.router.url.includes('messages');
   }
   isInfo() {
     return this.router.url.includes('information');

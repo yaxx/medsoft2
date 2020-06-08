@@ -9,7 +9,7 @@ import { Person } from '../../models/person.model';
 import { Product, Item, Invoice} from '../../models/inventory.model';
 import { Client} from '../../models/client.model';
 import * as cloneDeep from 'lodash/cloneDeep';
-import sorter from '../../util/functions';
+import {sorter, searchPatients} from '../../util/functions';
 import {host, appName} from '../../util/url';
 
 
@@ -26,6 +26,7 @@ export class WardComponent implements OnInit {
   clonedPatients: Person[] = [];
   reserved: Person[] = [];
   pool: Person[] = [];
+  temp: Person[] = [];
   patient: Person = new Person();
   clonePatient: Person = new Person();
   products: Product[] = [];
@@ -107,17 +108,36 @@ export class WardComponent implements OnInit {
                this.message = ( this.patients.length) ? null : 'No Record So Far';
              }
             }  else if (update.patient.record.visits[0][0].dept === this.cookies.get('dpt')) {
-              this.patients.unshift({ ...update.patient, card: { view: 'front', menu: false, indicate: true } });
+              this.patients.unshift({
+                 ...update.patient,
+                 card: {
+                    view: 'front',
+                    menu: false,
+                    indicate: true,
+                    more: false
+                  }
+                });
             }
             break;
         case 'status update':
             if (i !== -1 ) {
-              this.patients[i] = { ...update.patient, card: { ...this.patients[i].card, indicate: true } };
+              this.patients[i] = {
+                ...update.patient,
+                card: {
+                  ...this.patients[i].card,
+                  indicate: true,
+                  more: false
+                }
+              };
             }
             break;
         default:
             if (i !== -1 ) {
-              this.patients[i] = { ...update.patient, card: this.patients[i].card };
+              this.patients[i] = {
+                ...update.patient,
+                card: this.patients[i].card,
+                more: false
+              };
             }
             break;
       }
@@ -165,16 +185,20 @@ export class WardComponent implements OnInit {
     }
 
   }
-   searchPatient(name: string) {
-   if (name !== '') {
-    this.patients = this.patients.filter((patient) => {
-      const patern =  new RegExp('\^' + name, 'i');
-      return patern.test(patient.info.personal.firstName);
-      });
-   } else {
-     this.patients = this.clonedPatients;
+  searchPatient(name: string) {
+    if (!this.temp.length) {
+      this.temp = cloneDeep(this.patients);
     }
+    if (name.length) {
+      this.patients = searchPatients(this.clonedPatients, name);
+      if(!this.patients.length) {
+        this.message = '...No record found';
+      }
+   } else {
+      this.patients = this.temp;
+      this.temp = [];
    }
+  }
    nextPage(pageNum: number) {
      this.pageCount = pageNum;
      if (pageNum === 2) {
@@ -210,6 +234,12 @@ export class WardComponent implements OnInit {
    }
    showSortMenu() {
     this.sortMenu = true;
+  }
+  showMoreIcon(i) {
+    this.patients[i].card.more = true;
+  }
+  hideMoreIcon(i) {
+    this.patients[i].card.more = false;
   }
   logOut() {
     this.dataService.logOut();
@@ -253,24 +283,35 @@ export class WardComponent implements OnInit {
   isWard() {
     return this.router.url.includes('ward');
   }
+
   toggleSortMenu() {
     this.sortMenu = !this.sortMenu;
   }
   populate(patients) {
     this.pool = patients;
-    this.clonedPatients  = patients;
+    this.clonedPatients  = cloneDeep(patients);
     this.patients   = patients.slice(0, 12);
     patients.splice(0, 12);
     this.reserved = patients;
   }
 
-  getPatients(type?:string) {
+  getPatients(type?: string) {
     this.loading = (this.page === 0) ? true : false;
     this.dataService.getPatients(type, this.page).subscribe((patients: Person[]) => {
       if (patients.length) {
         patients.forEach(p => {
-          p.card = {menu: false, indicate: false, view: 'front', name: null, processing: false, errorMsg: null, sucsMsg: null};
+          p.card = {
+            menu: false,
+            indicate: false,
+            view: 'front',
+            name: null,
+            processing: false,
+            errorMsg: null,
+            sucsMsg: null,
+            more: false
+          };
         });
+
         this.populate(patients);
         this.loading = false;
         this.message = null;
@@ -580,16 +621,5 @@ selectProduct(product: Product) {
   // this.temProducts = new Array<Product>();
 
 }
-
-// updateMedication() {
-//   this.dataService.updateMedication(this.medication).subscribe((medications: Medication[]) => {
-//     console.log(this.selected);
-//     console.log(medications);
-//    this.patients[this.selected].record.medications = medications;
-//    this.medication = new Medication(new Product(), new Priscription());
-//   });
-// }
-
-
 
 }

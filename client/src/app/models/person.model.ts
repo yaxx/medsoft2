@@ -1,7 +1,7 @@
 import {Record} from './record.model';
 import {Message} from './message.model';
 import {Meta} from './inventory.model';
-  export class Notification {
+export class Notification {
     constructor(
       public person: string = null,
       public noteType: string = null,
@@ -9,8 +9,8 @@ import {Meta} from './inventory.model';
       public sendOn: Date = new Date()
     ) {}
 
-  } 
-  export class Official {
+  }
+export class Official {
     constructor(
       public _id?: string,
       public hospital: any = null,
@@ -20,7 +20,7 @@ import {Meta} from './inventory.model';
       public dateCreated = new Date()
     ) {}
   }
-  export class Connection {
+export class Connection {
     constructor(
       public person: any = null,
       public following: boolean = false,
@@ -31,8 +31,8 @@ import {Meta} from './inventory.model';
       public messages: any[] = []
       ) {}
 
-  } 
- export class Connections {
+  }
+export class Connections {
     constructor(
       public _id?: string,
       public people: Connection[] = new Array<Connection>(),
@@ -96,7 +96,7 @@ export class Insurance {
     public groupNo: string = null,
     public subscriber: string = null,
     public employer: string = null,
-    public ssn: string = null 
+    public ssn: string = null
     ) {}
 }
 export class Info {
@@ -110,16 +110,22 @@ export class Info {
     public online: boolean = true
   ) {}
 }
-
+export class Colleque {
+  constructor(
+    public contactId: string = null,
+    public chats: any = []
+  ) {}
+}
 
 export class Person {
   constructor(
-    public _id?: string,
     public info: Info = new Info(),
+    public messages: any[] = [],
     public connections: any   = null,
-    public record: Record = new Record(), 
+    public record: Record = new Record(),
     public createdAt?: Date,
     public modifiedAt?: Date,
+    public _id?: string,
     public card?: any
     ) {}
 }

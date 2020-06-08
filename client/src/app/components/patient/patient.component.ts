@@ -12,7 +12,7 @@ import { Record,  Session} from '../../models/record.model';
 import * as cloneDeep from 'lodash/cloneDeep';
 import {PersonUtil} from '../../util/person.util';
 import {host, appName} from '../../util/url';
-import sorter from '../../util/functions';
+import {sorter, searchPatients} from '../../util/functions';
 
 const uri = `${host}/api/upload`;
 @Component({
@@ -24,6 +24,7 @@ export class PatientComponent implements OnInit {
   appName = appName;
   patients: Person[] = [];
   clonedPatients: Person[] = [];
+  temp: Person[] = [];
   pool: Person[] = [];
   reserved: Person[] = [];
   patient: Person = new Person();
@@ -122,20 +123,35 @@ export class PatientComponent implements OnInit {
   }
 
   searchPatient(name: string) {
-    if (name !== '') {
-     this.patients = this.patients.filter((patient) => {
-       const patern =  new RegExp('\^' + name  , 'i');
-       return patern.test(patient.info.personal.firstName);
-       });
-    } else {
-      this.patients = this.clonedPatients;
+    if (!this.temp.length) {
+      this.temp = cloneDeep(this.patients);
     }
-
+    if (name.length) {
+      this.patients = searchPatients(this.clonedPatients, name);
+      if(!this.patients.length) {
+        this.message = '...No record found';
+      }
+   } else {
+      this.patients = this.temp;
+      this.temp = [];
    }
+  }
+   onScroll() {
+    this.page = this.page + 1;
+    if (this.reserved.length) {
+      if (this.reserved.length >  12 ) {
+        this.patients = [...this.patients, ...this.reserved.slice(0, 12)];
+        this.reserved.splice(0,  12);
+      } else {
+        this.patients = [...this.patients, ...this.reserved];
+        this.reserved = [];
+      }
+    }
+  }
   sortPatients(order: string) {
     this.sortMenu = false;
     this.nowSorting = order;
-    this.patients = sorter(this.patients, order)
+    this.patients = sorter(this.patients, order);
   }
   getLgas() {
     return this.lgas[this.states.indexOf(this.patient.info.contact.me.state)];
@@ -354,18 +370,25 @@ viewOrders(i: number) {
   }
   populate(patients) {
     this.pool = patients;
-    this.clonedPatients  = patients;
+    this.clonedPatients  = cloneDeep(patients);
     this.patients   = patients.slice(0, 12);
     patients.splice(0, 12);
     this.reserved = patients;
   }
 
-  getPatients(type?:string) {
+  getPatients(type?: string) {
     this.loading = (this.page === 0) ? true : false;
-    this.dataService.getPatients(type, this.page).subscribe((patients: Person[]) => {
+    this.dataService.getPatients(type, this.page)
+    .subscribe((patients: Person[]) => {
       if (patients.length) {
         patients.forEach(p => {
-        p.card = {menu: false, view: 'front', btn: 'discharge', indicate: false};
+        p.card = {
+          menu: false,
+          view: 'front',
+          btn: 'discharge',
+          indicate: false,
+          more: false
+        };
       });
         this.populate(patients);
         this.loading = false;
@@ -380,19 +403,13 @@ viewOrders(i: number) {
       this.message = '...Network Error';
     });
   }
-  onScroll() {
-    this.page = this.page + 1;
-    if(this.reserved.length) {
-      if(this.reserved.length >  12 ) {
-        this.patients = [...this.patients, ...this.reserved.slice(0, 12)];
-        this.reserved.splice(0,  12);
-      } else {
-        this.patients = [...this.patients, ...this.reserved];
-        this.reserved = [];
-      }
-    }
-  }
 
+  showMoreIcon(i) {
+    this.patients[i].card.more = true;
+  }
+  hideMoreIcon(i) {
+    this.patients[i].card.more = false;
+  }
   clearError() {
     this.errorMsg = null;
   }

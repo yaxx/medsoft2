@@ -7,7 +7,7 @@ import {CookieService} from 'ngx-cookie-service';
 import {Product, Item, Invoice, Card, Meta, StockInfo} from '../../models/inventory.model';
 import {Priscription, Medication} from '../../models/record.model';
 import * as cloneDeep from 'lodash/cloneDeep';
-import sorter from '../../util/functions';
+import {sorter, searchPatients} from '../../util/functions';
 import { PrintDriver } from 'ng-thermal-print/lib/drivers/PrintDriver';
 import { PrintService, UsbDriver, WebPrintDriver } from 'ng-thermal-print';
 import { timeout } from 'q';
@@ -20,6 +20,9 @@ import {host, appName} from '../../util/url';
 })
 export class CashierComponent implements OnInit {
   appName = appName;
+  temp: Person[] = [];
+  pool: Person[] = [];
+  reserved: Person[] = [];
   patients: Person[] = [];
   clonedPatients: Person[] = [];
   patient: Person = new Person();
@@ -39,8 +42,6 @@ export class CashierComponent implements OnInit {
   editables: Invoice[] = [];
   inlinePatients = [];
   inlineProducts = [];
-  pool: Person[] = [];
-  reserved: Person[] = [];
   searchResults: Person[] = [];
   transMsg = null;
   successMsg = null;
@@ -92,12 +93,25 @@ export class CashierComponent implements OnInit {
           if (!this.router.url.includes('completed')) {
             if (i !== -1) {
               if (this.recordChanged(update.bills)) {
-                this.patients[i] = { ...update.patient, card: { ...this.patients[i].card, indicate: true } };
+                this.patients[i] = {
+                  ...update.patient, card: {
+                    ...this.patients[i].card, indicate: true
+                  }
+                };
               } else {
-                this.patients[i] = { ...update.patient, card: this.patients[i].card };
+                this.patients[i] = {
+                  ...update.patient,
+                  card: this.patients[i].card
+                };
               }
             } else {
-              this.patients.unshift({ ...update.patient, card: { menu: false, view: 'front', indicate: true } });
+              this.patients.unshift({
+                ...update.patient, card: {
+                  menu: false,
+                  view: 'front',
+                  indicate: true
+                }
+              });
             }
           } else if (i !== -1) {
             if (this.recordChanged(update.bills)) {
@@ -109,23 +123,47 @@ export class CashierComponent implements OnInit {
         case 'invoice update':
               if (!this.router.url.includes('completed')) {
                 if (i !== -1) {
-                  this.patients[i] = { ...update.patient, card: { ...this.patients[i].card, indicate: true } };
+                  this.patients[i] = {
+                    ...update.patient, card: {
+                      ...this.patients[i].card, indicate: true
+                    }
+                  };
                 } else {
-                  this.patients.unshift({ ...update.patient, card: { menu: false, view: 'front', indicate: true } });
+                  this.patients.unshift({
+                     ...update.patient, card: {
+                        menu: false,
+                        view: 'front',
+                        indicate: true
+                      }
+                    });
                 }
               }
               break;
         case 'payment':
           if (i !== -1 ) {
-            this.patients[i] = { ...update.patient, card: this.patients[i].card };
+            this.patients[i] = {
+              ...update.patient,
+              card: this.patients[i].card
+            };
           }
           break;
         case 'enroled':
           if (!this.router.url.includes('completed')) {
             if (i !== -1 ) {
-              this.patients[i] = { ...update.patient, card: { ...this.patients[i].card, indicate: true } };
+              this.patients[i] = {
+                ...update.patient, card: {
+                   ...this.patients[i].card,
+                   indicate: true
+                  }
+                };
             } else {
-              this.patients.unshift({ ...update.patient, card: { menu: false, view: 'front', indicate: true } });
+              this.patients.unshift({
+                ...update.patient, card: {
+                   menu: false,
+                   view: 'front',
+                   indicate: true
+                }
+              });
             }
           } else if (i !== -1 ) {
             this.patients.splice(i, 1);
@@ -134,7 +172,10 @@ export class CashierComponent implements OnInit {
           break;
         default:
             if (i !== -1 ) {
-              this.patients[i] = { ...update.patient, card: this.patients[i].card };
+              this.patients[i] = {
+                ...update.patient,
+                 card: this.patients[i].card
+              };
             }
             break;
       }
@@ -248,7 +289,7 @@ updateInvoices() {
           m[m.findIndex(i => i._id === invoice._id)] = {
             ...invoice,
             paid: true,
-            datePaid: new Date(),
+            datePaid: new Date().toLocaleDateString(),
             comfirmedBy: this.cookies.get('i')
           };
         });
@@ -312,7 +353,11 @@ runTransaction(type: string, patient) {
     this.processing = false;
     this.patients[this.curIndex].record = p.record;
     this.invoices = p.record.invoices;
-    this.socket.io.emit('record update', {action: 'payment', patient: p, cart: this.cart});
+    this.socket.io.emit('record update', {
+      action: 'payment',
+      patient: p,
+      cart: this.cart
+    });
     this.successMsg = (type === 'purchase') ? 'Payment successfully comfirmed' : 'Transaction successfully reversed';
     this.resetOrders();
   }, (e) => {
@@ -381,7 +426,7 @@ switchViews(view) {
         ...this.patient.record.invoices[0][0],
         paid: true,
         price: this.products[i].stockInfo.price,
-        datePaid: new Date(),
+        datePaid: new Date().toLocaleDateString(),
         comfirmedBy: this.cookies.get('i')
     };
         this.cart.push(this.products[i]);
@@ -487,16 +532,19 @@ switchViews(view) {
     this.logout = false;
   }
   searchPatient(name: string) {
-    if (name) {
-      this.searchResults = this.pool.filter((patient) => {
-       const patern =  new RegExp('\^' + name  , 'i');
-       return patern.test(patient.info.personal.firstName);
-       });
-    } else {
-       this.searchResults = [];
-       this.pool = this.clonedPatients;
+    if (!this.temp.length) {
+      this.temp = cloneDeep(this.patients);
     }
+    if (name.length) {
+      this.patients = searchPatients(this.clonedPatients, name);
+      if(!this.patients.length) {
+        this.message = '...No record found';
+      }
+   } else {
+      this.patients = this.temp;
+      this.temp = [];
    }
+  }
    composeInvoices() {
     // const invoices = cloneDeep([...this.session.invoices, ...this.session.medInvoices]);
     if (this.bills.length) {

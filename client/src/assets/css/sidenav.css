@@ -1,9 +1,9 @@
 .home.homemenu {
-  top:-38%;
+  /* top:-38%; */
 }
 
 .home.homemenu {
-  top:1.5%;
+  /* top:1.5%; */
 }
 
 /* .home:focus {
@@ -20,26 +20,74 @@ a:active, a:hover {
 }
 
 .sidenav {
-  position:absolute;
-  height:100%;
+  height:100vh;
   width:38px;
   background:#f9fafb;
   z-index:5;
   position:fixed;
   top:0%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.mlabel {
+  font-size: 14px;
+  position: relative;
+  left: 21px;
+  bottom: 4px;
+  color: gray;
+  text-decoration: none;
+}
+
+.home:hover {
+  text-decoration: none;
+  color: inherit;
+}
+
+.sidenav.closed {
+  width: 38px;
+  animation-duration: .1s;
+  animation-timing-function: ease-in;
+  animation-name: slide-close;
+}
+.sidenav.opened {
+  width: 250px;
+  animation-duration: .1s;
+  animation-timing-function: ease-in;
+  animation-name: slide-open;
+}
+@keyframes slide-open {
+  0% {
+      width: 38px;
+  }
+  100% {
+    width: 250px;
+  }
+}
+@keyframes slide-close {
+  0% {
+      width: 250px;
+  }
+  100% {
+    width: 38px;
+  }
 }
 
 .home {
   width:100%;
-  position:absolute;
+  position:relative;
   height:6%;
-  top:31%;
+  text-decoration: none;
+  color: lightgrey;
+  margin-bottom: 4px;
 }
 
 .homespan {
   margin:auto;
-  left:25%;
+  left:9px;
   position:relative;
+  text-decoration: none;
 }
 
 .homeicon {
@@ -56,25 +104,16 @@ a:active, a:hover {
 
 }
 
-.home.dashboard {
-  top:38%;
-}
+
 .router-link-active {
   background: whitesmoke;
 }
 
 
 
-.home.reviewmenu {
-  top:52%;
-}
-
-.home.patienmenu {
-  top:45%;
-}
 
 .home.settings {
-  top:94%;
+  /* top:94%; */
   border-radius:50%;
 }
 

@@ -7,4 +7,5 @@ export class Message {
       public read: boolean = false,
       public sendOn: Date = new Date()
     ) {}
-  }
+}
+

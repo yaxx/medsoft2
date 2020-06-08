@@ -56,6 +56,7 @@ export class HistoryComponent implements OnInit {
   ctx = null;
   showing = 'BP';
   unit = 'mmHg';
+  vit = null;
   sortMenu = false;
   histories = [];
   complains = [];
@@ -167,25 +168,25 @@ export class HistoryComponent implements OnInit {
       res.captures.forEach(capture => {
         switch (capture.category) {
           case 'complain':
-            this.complains.push(capture.name);
+            this.complains.unshift(capture.name);
             break;
           case 'condition':
-            this.conditions.push(capture.name);
+            this.conditions.unshift(capture.name);
             break;
           case 'history':
-            this.histories.push(capture.name);
+            this.histories.unshift(capture.name);
             break;
           case 'test':
-            this.tests.push(capture.name);
+            this.tests.unshift(capture.name);
             break;
           case 'scan':
-            this.scans.push(capture.name);
+            this.scans.unshift(capture.name);
             break;
           case 'surgery':
-            this.surgeries.push(capture.name);
+            this.surgeries.unshift(capture.name);
             break;
           case 'medication':
-            this.medications.push(capture.name);
+            this.medications.unshift(capture.name);
             break;
           default:
             break;
@@ -245,8 +246,8 @@ export class HistoryComponent implements OnInit {
     this.toggleSortMenu();
   }
   readMore(e: Event, i: number) {
-  e.preventDefault();
-  this.patient.record.notes[i].note = this.notes[i].note;
+    e.preventDefault();
+    this.patient.record.notes[i].note = this.notes[i].note;
 }
   getDocDp(avatar: string) {
       return `${host}/api/dp/${avatar}`;
@@ -320,19 +321,29 @@ export class HistoryComponent implements OnInit {
   getFlags(vital, name) {
     switch (name) {
       case 'bp':
-        return {color: vital.systolic >= 140 || vital.diastolic >= 90 ? 'red' : ''};
+        return {
+          color: vital.systolic >= 140 || vital.diastolic >= 90 ? 'red' : ''
+        };
         break;
       case 'temp':
-        return {color: vital.value >= 38 ? 'red' : ''};
+        return {
+          color: vital.value >= 38 ? 'red' : ''
+        };
         break;
       case 'p':
-        return {color: vital.value < 60 || vital.value > 100 ? 'red' : ''};
+        return {
+          color: vital.value < 60 || vital.value > 100 ? 'red' : ''
+        };
         break;
       case 'r':
-        return {color: vital.value < 12 || vital.value > 25 ? 'red' : ''};
+        return {
+          color: vital.value < 12 || vital.value > 25 ? 'red' : ''
+        };
         break;
       case 'w':
-        return {color: vital.value > 50 ? 'red' : ''};
+        return {
+          color: vital.value > 50 ? 'red' : ''
+        };
         break;
       default:
         break;
@@ -424,9 +435,11 @@ export class HistoryComponent implements OnInit {
     cloneDeep(this.patient.record.vitals.weight[0]) : new Weight();
     this.session.vitals.bloodGl = (this.patient.record.vitals.bloodGl.length) ?
     cloneDeep(this.patient.record.vitals.bloodGl[0]) : new Bg();
+    this.vit = 'in';
   }
   hideEdidt() {
     this.edit = false;
+    this.vit = 'out';
   }
 
   checkProfiles() {
@@ -459,7 +472,7 @@ export class HistoryComponent implements OnInit {
       setTimeout(() => {
         this.session.vitals = new Vitals();
         this.editing = null;
-        this.edit = false;
+        this.hideEdidt();
         this.captures = [];
       }, 3000);
     }, (e) => {
@@ -561,12 +574,12 @@ removeTest(i) {
  this.session.invoices.splice(i, 1);
 }
 searchTest() {
+  this.matches = [];
   if (!this.session.test.name) {
-    this.matches = [];
+     this.matches = [];
   } else {
       this.matches = this.tests.filter((name) => {
-      const patern =  new RegExp('\^' + this.session.test.name , 'i');
-      return patern.test(name);
+      return new RegExp('\^' + this.session.test.name , 'i').test(name);
     });
   }
 }
@@ -694,33 +707,33 @@ getClient() {
     this.products = res.client.inventory;
     res.client.inventory.forEach(p => {
       switch (p.item.category) {
-        case 'Test':
-          if(!this.tests.find(t => t === p.item.category)){
-            this.tests.push(p.item.name);
+        case 'test':
+          if (!this.tests.find(t => t === p.item.category)) {
+            this.tests.unshift(p.item.name);
           }
-
           break;
-        case 'Surgery':
-          if(!this.surgeries.find(s => s === p.item.category)){
-            this.surgeries.push(p.item.name);
+        case 'surgery':
+          if (!this.surgeries.find(s => s === p.item.category)) {
+            this.surgeries.unshift(p.item.name);
           }
-
           break;
-        case 'Scanning':
-          if(!this.scans.find(sc => sc === p.item.category)){
-            this.scans.push(p.item.name);
+        case 'scanning':
+          if  (!this.scans.find(sc => sc === p.item.category)) {
+            this.scans.unshift(p.item.name);
           }
-          this.scans.push(p.item.name);
+          this.scans.unshift(p.item.name);
           break;
-
         default:
           break;
       }
-    })
-    this.scans = res.client.inventory.filter(prod => prod.type === 'Services' &&
+    });
+    this.scans = res.client.inventory
+    .filter(prod => prod.type === 'Services' &&
     prod.item.category === 'Scanning').map(scan => scan.item.name);
-    this.medications = res.client.inventory.filter(prod => prod.type === 'Products').map(med => med.item.name);
-    this.cardTypes = res.client.inventory.filter(p => p.type === 'Cards');
+    this.medications = res.client.inventory
+    .filter(prod => prod.type === 'Products').map(med => med.item.name);
+    this.cardTypes = res.client.inventory
+    .filter(p => p.type === 'Cards');
 });
 }
 next() {
@@ -908,6 +921,7 @@ addInvoice(name: string, itemType: string) {
         price: p.stockInfo.price,
         processed: false,
         desc: itemType,
+        // tslint:disable-next-line:max-line-length
         kind: `${this.session.medication.priscription.intake}-${this.session.medication.priscription.freq}-${this.session.medication.priscription.piriod}`,
         meta: new Meta(this.cookies.get('i'), this.cookies.get('h'))
       });
@@ -927,6 +941,7 @@ addInvoice(name: string, itemType: string) {
         ...new Invoice(),
         name,
         desc: itemType,
+        // tslint:disable-next-line:max-line-length
         kind: `${this.session.medication.priscription.intake}-${this.session.medication.priscription.freq}-${this.session.medication.priscription.piriod}`,
         processed: false,
         meta: new Meta(this.cookies.get('i'), this.cookies.get('h'))
@@ -994,13 +1009,14 @@ addMedication() {
   } else {
   this.session.medications.unshift({
     ...this.session.medication,
-    meta: new Meta(this.cookies.get('i'), this.cookies.get('h'))
+    meta: new Meta(this.cookies.get('i'),
+    this.cookies.get('h')
+    )
   });
   this.addInvoice(this.session.medication.name, 'Medication');
   this.addCapture('medication');
   this.session.medication = new Medication();
 }
-
 }
 addTest() {
   if (this.invoiceExist(this.session.test.name)) {
@@ -1008,9 +1024,12 @@ addTest() {
   } else {
     this.session.tests.unshift({
       ...this.session.test,
-      meta: new Meta(this.cookies.get('i'), this.cookies.get('h'))
+      meta: new Meta(this.cookies.get('i'),
+      this.cookies.get('h')
+      )
     });
     this.addInvoice(this.session.test.name, 'Test');
+    this.addCapture('test');
     this.session.test = new Test();
   }
 }
@@ -1020,7 +1039,9 @@ addSurgery() {
   } else {
      this.session.surgeries.unshift({
       ...this.session.surgery,
-      meta: new Meta(this.cookies.get('i'), this.cookies.get('h'))
+      meta: new Meta(this.cookies.get('i'),
+      this.cookies.get('h')
+      )
   });
      this.addCapture('surgery');
      this.addInvoice(this.session.surgery.name, 'Surgery');
@@ -1086,37 +1107,58 @@ addCapture(capture: string) {
   switch (capture) {
     case 'complain':
       if (!this.complains.find(complain => complain === this.session.complain.complain) ) {
-        this.captures.unshift({category: capture, name: this.session.complain.complain});
+        this.captures.unshift({
+          category: capture,
+          name: this.session.complain.complain
+        });
       }
       break;
     case 'history':
       if (!this.histories.find(h => h.condition === this.session.history.condition) ) {
-        this.captures.unshift({category: capture, name: this.session.history.condition});
+        this.captures.unshift({
+          category: capture,
+          name: this.session.history.condition
+        });
       }
       break;
     case 'surgery':
       if ( !this.surgeries.find(name => name === this.session.surgery.name)) {
-        this.captures.unshift({category: capture, name: this.session.surgery.name});
+        this.captures.unshift({
+          category: capture,
+          name: this.session.surgery.name
+        });
       }
       break;
     case 'scan':
       if (!this.scans.find(name => name === this.session.scan.name)) {
-        this.captures.unshift({category: capture, name: this.session.scan.name});
+        this.captures.unshift({
+          category: capture,
+          name: this.session.scan.name
+        });
       }
       break;
     case 'test':
       if ( !this.tests.find(name => name === this.session.test.name)) {
-        this.captures.unshift({category: capture, name: this.session.test.name});
+        this.captures.unshift({
+          category: capture,
+          name: this.session.test.name
+        });
       }
       break;
     case 'condition':
       if (!this.conditions.find(condition => condition === this.session.condition.condition)) {
-        this.captures.unshift({category: capture, name: this.session.condition.condition});
+        this.captures.unshift({
+          category: capture,
+          name: this.session.condition.condition
+        });
       }
       break;
     case 'medication':
       if (!this.medications.find(name => name === this.session.medication.name)) {
-        this.captures.unshift({category: capture, name: this.session.medication.name});
+        this.captures.unshift({
+          category: capture,
+          name: this.session.medication.name
+        });
       }
       break;
     default:
@@ -1129,7 +1171,7 @@ refresh() {
   // this.getClient();
 }
  getPriscription(med) {
-   return med.desc.split('|')[1];
+   return med.kind;
  }
 addRequest() {
   switch (this.session.reqItem.category) {
@@ -1168,9 +1210,12 @@ if (invoice.desc === 'Test') {
   const i  = this.session.tests.findIndex(tst => tst.name === invoice.name);
   this.session.tests.splice(i, 1);
 } else if (invoice.desc === 'Surgery') {
-  this.session.surgeries.splice(this.session.surgeries.findIndex(sgr => sgr.name === invoice.name), 1);
+  this.session.surgeries.splice(
+    this.session.surgeries
+    .findIndex(sgr => sgr.name === invoice.name), 1);
 }
-this.session.scans.splice(this.session.scans.findIndex(scn => scn.name === invoice.name), 1);
+this.session.scans.splice(this.session.scans
+  .findIndex(scn => scn.name === invoice.name), 1);
 }
 removeRequest(i: number, invoice: Invoice) {
   this.session.reqItems.splice(i, 1);
@@ -1183,12 +1228,15 @@ checkScalars() {
   if (this.session.note.note) {
     this.patient.record.notes.unshift({
       ...this.session.note,
-      meta: new Meta(this.cookies.get('i'), this.cookies.get('h'))
+      meta: new Meta(this.cookies.get('i'),
+      this.cookies.get('h'))
     });
   } else {}
   if (this.session.allegies.allegy) {
-    this.patient.record.allegies.unshift({...this.session.allegies,
-      meta: new Meta(this.cookies.get('i'), this.cookies.get('h'))
+    this.patient.record.allegies.unshift({
+      ...this.session.allegies,
+      meta: new Meta(this.cookies.get('i'),
+      this.cookies.get('h'))
     });
   } else {}
 
@@ -1196,7 +1244,8 @@ checkScalars() {
 sendRecord() {
   this.errLine = null;
   this.processing = true;
-  this.dataService.updateHistory(this.patient, this.captures).subscribe((patient: Person) => {
+  this.dataService.updateHistory(this.patient, this.captures)
+  .subscribe((patient: Person) => {
     this.patient.record  = patient.record;
     this.socket.io.emit('record update', {action: 'encounter', bills: this.session.bills, patient});
     this.session = new Session();

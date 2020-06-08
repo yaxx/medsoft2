@@ -20,9 +20,9 @@ app.use('/graphql', graphQlHttp({
 }))
 
 
-app.use(cors({origin:"http://localhost:4200", credentials: true}))
-// app.use(cors({origin:"*", credentials: true}))
-// app.use(express.static(path.join(__dirname,'dist','client')))
+// app.use(cors({origin:"http://localhost:4200", credentials: true}))
+app.use(cors({origin:"*", credentials: true}))
+app.use(express.static(path.join(__dirname,'dist','client')))
 // app.use(history());
 app.use(require('morgan')('dev'))
 app.use(bodyParser.json())
@@ -38,7 +38,7 @@ io.sockets.on('connection', (socket) => {
     socket.broadcast.emit('online', data.ui)
   })
   socket.on('new message', (data) => {
-  //  api.updateMessages(data)
+    console.log(data)
    logins.forEach(function (user) {
     if (user.ui === data.reciever) {
       socket.to(user.si).emit('new message', data)
@@ -61,8 +61,8 @@ io.sockets.on('connection', (socket) => {
 })
 
 app.get('/', (req, res) => {
-    res.render('index')
-     // res.sendFile(path.join(__dirname,'dist','client','index.html'));
+    // res.render('index')
+     res.sendFile(path.join(__dirname,'dist','client','index.html'));
 })
 
 app.get('/api/client', api.getClient)  
@@ -70,6 +70,7 @@ app.get('/api/patients/:type', api.getPatients)
 app.get('/api/myaccount', api.getMyAccount)
 app.get('/api/explore', api.explore)
 app.get('/api/connections/:id', api.getConnections)
+app.get('/api/trans/:date', api.getTransactions)
 app.get('/api/dp/:id', api.getDp)
 app.get('/api/inpatients', api.getInPatients)
 app.get('/api/orders', api.getOrders)
@@ -77,6 +78,7 @@ app.get('/api/products', api.getProducts)
 app.get('/api/history/:id', api.getHistory)
 app.get('/api/notifications', api.getNotifications)
 app.post('/api/update-products', api.updateProducts)
+app.post('/api/update-msg', api.updateMessages)
 app.post('/api/delete-products', api.deleteProducts)
 app.post('/api/new-client', api.addClient)
 app.post('/api/new-patient', api.addPerson)

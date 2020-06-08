@@ -169,16 +169,15 @@
   padding-right:25%; */
 }
 
-.form-control.inputs {
+/* .form-control.inputs {
   width:100%;
-  /* text-align:center; */
   font-size:11px;
   box-shadow:none;
 }
 
 .form-control.inputs.patientdata.newpatient {
   font-size:13px;
-}
+} */
 
 .card.card-secondary.historycard.midlecard.profilecard {
   border-bottom-right-radius:0px;

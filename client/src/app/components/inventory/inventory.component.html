@@ -5,13 +5,19 @@
                 <div class="modal-body" style="padding: 0px;height:100%;">
                         <div class="card card-secondary historycard midlecard profilecard" style="margin:auto;height:100%;border-radius:0px;width:100%;position: absolute">
                             <div style='padding-left: 30px;border-top-right-radius:0px;border-top-left-radius:0px;border-bottom: 0px;height:40px;margin-bottom: 10px;' class="card-header profileheader small-header">
-                                <h6 *ngIf="tableView ==='Products'" style='font-size:11px;position:absolute;color:dodgerblue; font-weight:normal; top:18px; width:100%' class="patien-name small-name">ADD PRODUCTS<span style="left:87%;bottom:-4px; cursor:pointer;position:absolute;font-size:20px;"><i (click)='clearTemVariables()'  title="Close" class="icon ion-android-close" data-dismiss ='modal' style="font-size: 17px;"></i></span>
+                                <h6 *ngIf="tableView ==='Products'" class="patien-name small-name add">ADD PRODUCTS<span>
+                                  <i (click)='clearTemVariables()'  title="Close" class="icon ion-android-close" data-dismiss ='modal' style="font-size: 17px;"></i>
+                                </span>
                                 </h6>
-                                <h6 *ngIf="tableView ==='Services'" style='font-size:11px;position:absolute;color:dodgerblue; font-weight:normal; top:18px; width:100%' class="patien-name small-name">ADD SERVICES<span style="left:87%;bottom:-4px; cursor:pointer;position:absolute;font-size:20px;"><i (click)=clearTemVariables() title="Close" class="icon ion-android-close" data-dismiss ='modal' style="font-size: 17px;"></i></span>
+                                <h6 *ngIf="tableView ==='Services'"class="patien-name small-name add">ADD SERVICES
+                                  <span>
+                                    <i (click)=clearTemVariables() title="Close" class="icon ion-android-close" data-dismiss ='modal' style="font-size: 17px;">
+                                    </i>
+                                  </span>
                                 </h6>
-                                <h6 *ngIf="tableView ==='Cards'" style='font-size:11px;position:absolute;color:dodgerblue; font-weight:normal; top:18px; width:100%' class="patien-name small-name">ADD CARDS<span style="left:87%;bottom:-4px; cursor:pointer;position:absolute;font-size:20px;"><i (click)=clearTemVariables() title="Close" class="icon ion-android-close" data-dismiss ='modal' style="font-size: 17px;"></i></span>
+                                <h6 *ngIf="tableView ==='Cards'" class="patien-name small-name add">ADD CARDS<span ><i (click)=clearTemVariables() title="Close" class="icon ion-android-close" data-dismiss ='modal' style="font-size: 17px;"></i></span>
                                 </h6>
-                                <h6 *ngIf="tableView ==='Invoice'" style='font-size:11px;position:absolute;color:dodgerblue; font-weight:normal; top:18px; width:100%' class="patien-name small-name">ADD CARDS<span style="left:87%;bottom:-4px; cursor:pointer;position:absolute;font-size:20px;"><i (click)=clearTemVariables() title="Close" class="icon ion-android-close" data-dismiss ='modal' style="font-size: 17px;"></i></span>
+                                <h6 *ngIf="tableView ==='Invoice'"  class="patien-name small-name add">ADD CARDS<span ><i (click)=clearTemVariables() title="Close" class="icon ion-android-close" data-dismiss ='modal' style="font-size: 17px;"></i></span>
                                 </h6>
                             </div>
                             <div *ngIf="tableView ==='Products'"  class="card-body orderbody" style="width:85%;margin:auto;">
@@ -27,7 +33,7 @@
                                             </li>
                                         </ul>
                                     </div>
-                            </div>
+                                </div>
                             <div class="form-group vitals-section formGroup" style=" width:49%; margin-right: 5px">
                                 <label style='font-size:8px' for="dos" class="labelss complain">QTY</label>
                                 <input (focus)=clearFeedback() form-control [min]='1' [(ngModel)]="product.stockInfo.quantity" style="font-size:11px" type="number" name="dos" class="form-control patientdata inputs dataInfo">
@@ -473,23 +479,15 @@
         </a>
         <form class="top-searchform" target="_self">
             <div class="form-group">
-                    <input [(ngModel)]=searchTerm #search (keyup)='searchProducts(searchTerm)' autocomplete="off" style="border-radius:.999em;
-                    width:80%;display:inline-block;
-                    position: absolute;
-                    text-align: left;
-                    vertical-align: middle;
-                    top:11%;
-                    box-shadow:none;
-                    outline:none;
-                    background-color: rgba(233, 236, 239, 0.7);
-                    " class="form-control" type="search" name="search" id="search-field" placeholder="Search products">
-
-                <i style='font-size:20px; top:3px;left:83%;position:relative;display:inline' class="icon ion-ios-search " title="Search"></i>
-                <h6 style='font-size:12px;
-                left:98%;position:relative;display:inline-block;
-                color:grey;
-                font-weight:normal;'>View: <span style='cursor:pointer; color:#1da1f2;' (click)='toggleMenu()'>
-                  {{tableView}}</span>  <i  (click) ='toggleMenu()' class="icon ion-ios-arrow-down shevron"></i></h6>
+                    <input  [(ngModel)]=searchTerm #search (keyup)= searchStuff(searchTerm) autocomplete="off"
+                    class="form-control" type="search" name="search" id="search-field" placeholder="Search">
+                <div class="search-wrap">
+                  <i class="icon ion-ios-search search-icon " title="Search"></i>
+                </div>
+                <h6 class="view">View: <span style='cursor:pointer; color:#1da1f2;' (click)='toggleMenu()'>
+                  {{tableView}}</span>
+                  <i  (click) ='toggleMenu()' class="icon ion-ios-arrow-down shevron"></i>
+                </h6>
                 <div *ngIf=menuView style='position: absolute; left:120%; width:100px;top:6px; height:110px' class="menu">
                     <ul (mouseleave)=toggleMenu() class="actions primary">
                         <li (click)='toggleView("Products", 0)' class="action">Products</li>
@@ -498,6 +496,13 @@
                         <li (click)='toggleView("Transactions", 3)' class="action">Transactions</li>
                     </ul>
                 </div>
+              <div *ngIf="tableView ==='Transactions'" class="menu view">
+                 <form action="" class="dateSelector">
+                   <div class="form-group">
+                     <input (change)= getTransactions() class="date-picker" placeholder="curDate" [(ngModel)]="curDate" type="date" name="date-picker" id="">
+                   </div>
+                 </form>
+              </div>
             </div>
         </form>
     </div>
@@ -528,15 +533,9 @@
 
 
 <div style="padding-top:43px;height:100%" class=" col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
-    <!-- <div *ngIf='!curentItems.length||!patients.length' class='issue'>
-        <div *ngIf='loading' class="lds-css ng-scope">
 
-        </div>
-        <div (click)='refresh()' *ngIf='message' title='Refresh' class='refresh'><i class="icon ion-ios-reload "></i></div>
-        <h6 *ngIf=message||!curentItems.length style='font-size:13px;position:absolute;top:65%; width:100%; color:lightgrey;text-align: center'>{{message}}</h6>
-    </div> -->
 
-    <table *ngIf="tableView ==='Products'||tableView ==='Services' ||tableView ==='Cards'" cellspacing="0" class="data-table" summary="List of all items in store. ">
+  <table class="main-table" *ngIf="tableView ==='Products'||tableView ==='Services' ||tableView ==='Cards'" cellspacing="0" class="data-table" summary="List of all items in store. ">
         <thead>
             <tr>
                 <th class="checkhead"></th>
@@ -548,6 +547,13 @@
             </tr>
         </thead>
         <tbody *ngIf="tableView ==='Products'">
+          <div *ngIf='!curentItems.length' class='issue'>
+            <div *ngIf = loading  class="spinner main"></div>
+            <div style="left: 48%;" *ngIf=message title='Refresh' class='refresh'>
+              <i class="icon ion-ios-reload "></i>
+          </div>
+            <h6 *ngIf = message class="fbMsg" >NO PRODUCTS SO FAR</h6>
+          </div>
             <tr (click)=selectProduct(i) *ngFor="let product of curentItems; let i = index" class="odd" [class.selection]=product.selected>
                 <td class="check-box"></td>
                 <td>{{product.item.name}}&nbsp;<span class="predata"></span></td>
@@ -559,10 +565,18 @@
                 <td>{{product.stockInfo.sold||0}}</td>
                 <td>{{product.dateCreated|date:'dd-MM-y'}}</td>
                 <td style='text-decoration:none' [class.expired]=expired(product.stockInfo.expiry)>
-                    {{product.stockInfo.expiry|date:'dd-MM-y'||'---'}}</td>
+                    {{product.stockInfo.expiry|date:'dd-MM-y'||'---'}}
+                </td>
             </tr>
         </tbody>
         <tbody *ngIf="tableView ==='Services'">
+          <div *ngIf='!curentItems.length' class='issue'>
+            <div *ngIf = loading  class="spinner main"></div>
+            <div style="left: 48%;" *ngIf=message title='Refresh' class='refresh'>
+              <i class="icon ion-ios-reload "></i>
+          </div>
+            <h6 *ngIf = message class="fbMsg" >NO SERVICES SO FAR</h6>
+          </div>
             <tr (click)=selectProduct(i) *ngFor="let product of curentItems; let i = index" class="odd" [class.selection]=product.selected>
                 <td class="check-box"> </td>
                 <td>{{product.item.name}}&nbsp;<span class="predata"></span></td>
@@ -573,6 +587,13 @@
             </tr>
         </tbody>
         <tbody *ngIf="tableView ==='Cards'">
+          <div *ngIf='!curentItems.length' class='issue'>
+            <div *ngIf = loading  class="spinner main"></div>
+            <div style="left: 48%;" *ngIf=message title='Refresh' class='refresh'>
+              <i class="icon ion-ios-reload "></i>
+          </div>
+            <h6 *ngIf = message class="fbMsg" >NO CARDS SO FAR</h6>
+          </div>
             <tr (click)=selectProduct(i) *ngFor="let product of curentItems; let i = index" class="odd" [class.selection]=product.selected>
                 <td class="check-box"></td>
                 <td>{{product.item.name}}&nbsp;<span class="predata"></span></td>
@@ -582,7 +603,6 @@
                 <td style='text-align:center'>{{product.dateCreated|date:'dd-MM-y'}}</td>
             </tr>
         </tbody>
-        
     </table>
     <table *ngIf="tableView === 'Transactions'" cellspacing="0" class="data-table" summary="List of all items in store. ">
         <thead>
@@ -616,13 +636,20 @@
             </tr>
         </thead>
         <tbody >
-            <tr  *ngFor="let patient of patients; let i = index" class="odd" >
+          <div *ngIf='!patients.length' class='issue'>
+            <div *ngIf = loading  class="spinner main"></div>
+            <div style="left: 48%;" *ngIf=message title='Refresh' class='refresh'>
+              <i class="icon ion-ios-reload "></i>
+          </div>
+            <h6 *ngIf = message class="fbMsg" >{{message}}</h6>
+          </div>
+              <tr  *ngFor="let patient of patients; let i = index" class="odd" >
                 <td class="check-box"></td>
                 <td>{{patient.info.personal.firstName+' '+ patient.info.personal.lastName}}&nbsp;<span class="predata"></span></td>
-                <td>{{patient.record.invoices[0][0]}}</td>
-                <td>{{patient.record.invoices[0][1]}}</td>
-                <td style="font-size: 10.5px;">{{patient.record.invoices[0][2]}}</td>
-                <td style = 'text-align: right; padding-right:35px' >{{getTotalExpenses(patient.record.invoices[0])}}</td>
+                <td>{{patient.record.invoices[0]}}</td>
+                <td>{{patient.record.invoices[1]}}</td>
+                <td >{{patient.record.invoices[2]}}</td>
+                <td style = 'text-align: right; padding-right:35px' >{{getTotalExpenses(patient.record.invoices)}}</td>
             </tr>
         </tbody>
     </table>
@@ -630,5 +657,11 @@
         <i data-target="#deleteModal" data-toggle="modal" title="Delete" class="optionIcon icon ion-ios-trash-outline"></i>
         <i (click)='pickSelection()' title="Edit" class="optionIcon editIcon icon ion-edit" data-target="#editModal" data-toggle="modal"></i>
         <i title="Select all" class="material-icons optionIcon cancelIcon">select_all</i>
+    </div>
+    <div *ngIf="tableView === 'Transactions'" class="options trans-summary" >
+        <p>MEDICATIONS: <span>{{getSubTotals()[0]}}</span></p>
+        <p>LAB: <span>{{getSubTotals()[1]}}</span></p>
+        <p>OTHERS: <span>{{getSubTotals()[2]}}</span></p>
+        <p style=margin-left:50px>TOTAL: <span>{{getOveralTotal()}}</span></p>
     </div>
 </div>

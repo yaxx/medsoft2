@@ -7,8 +7,8 @@ import {CookieService} from 'ngx-cookie-service';
 import {Product, Item, StockInfo,Invoice} from '../../models/inventory.model';
 import {Priscription, Medication} from '../../models/record.model';
 import * as cloneDeep from 'lodash/cloneDeep';
-import sorter from '../../util/functions';
-import {host,appName} from '../../util/url';
+import {sorter, searchPatients} from '../../util/functions';
+import {host, appName} from '../../util/url';
 
 @Component({
   selector: 'app-pharmacy',
@@ -21,6 +21,7 @@ export class PharmacyComponent implements OnInit {
   clonedPatients: Person[] = [];
   reserved: Person[] = [];
   pool: Person[] = [];
+  temp: Person[] = [];
   patient: Person = new Person();
   products: Product[] = [];
   clonedStore: Product[] = [];
@@ -130,12 +131,12 @@ export class PharmacyComponent implements OnInit {
 
   populate(patients) {
     this.pool = patients;
-    this.clonedPatients  = patients;
+    this.clonedPatients  = cloneDeep(patients);
     this.patients   = patients.slice(0, 12);
     patients.splice(0, 12);
     this.reserved = patients;
   }
-  getPatients(type?:string) {
+  getPatients(type?: string) {
     this.loading = (this.page === 0) ? true : false;
     this.dataService.getPatients(type, this.page).subscribe((patients: Person[]) => {
       if (patients.length) {
@@ -155,18 +156,7 @@ export class PharmacyComponent implements OnInit {
       this.message = '...Network Error';
     });
   }
-  onScroll() {
-    this.page = this.page + 1;
-    if(this.reserved.length) {
-      if(this.reserved.length >  12 ) {
-        this.patients = [...this.patients, ...this.reserved.slice(0, 12)];
-        this.reserved.splice(0,  12);
-      } else {
-        this.patients = [...this.patients, ...this.reserved];
-        this.reserved = [];
-      }
-    }
-  }
+  
   recordChanged(bills: string[]) : boolean {
     return (bills.length && bills.some(bill => bill === 'Medication')) ? true : false;
   }
@@ -345,17 +335,32 @@ updatePrices() {
   hideLogOut() {
     this.logout = false;
   }
- searchPatient(name: string) {
-   if (name) {
-    this.patients = this.patients.filter((patient) => {
-      const patern =  new RegExp('\^' + name
-      , 'i');
-      return patern.test(patient.info.personal.firstName);
-      });
+  searchPatient(name: string) {
+    if (!this.temp.length) {
+      this.temp = cloneDeep(this.patients);
+    }
+    if (name.length) {
+      this.patients = searchPatients(this.clonedPatients, name);
+      if(!this.patients.length) {
+        this.message = '...No record found';
+      }
    } else {
-     this.patients = this.clonedPatients;
+      this.patients = this.temp;
+      this.temp = [];
    }
- }
+  }
+  onScroll() {
+    this.page = this.page + 1;
+    if (this.reserved.length) {
+      if (this.reserved.length >  12 ) {
+        this.patients = [...this.patients, ...this.reserved.slice(0, 12)];
+        this.reserved.splice(0,  12);
+      } else {
+        this.patients = [...this.patients, ...this.reserved];
+        this.reserved = [];
+      }
+    }
+  }
 
 
 
