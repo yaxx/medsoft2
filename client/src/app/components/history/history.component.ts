@@ -54,6 +54,9 @@ export class HistoryComponent implements OnInit {
   surgeries = Surgeries;
   conditions = Conditions;
   ctx = null;
+  imgCount = 0;
+  step = null;
+  btn = null;
   showing = 'BP';
   unit = 'mmHg';
   vit = null;
@@ -222,9 +225,7 @@ export class HistoryComponent implements OnInit {
     this.images = (item === 'test') ? this.patient.record.tests[i][j]
     .report.attachments : this.patient.record.scans[i][j].report.attachments;
   }
-  getImage(fileName: string) {
-    return `${host}/api/dp/${fileName}`;
-  }
+
   getLabs() {
     return this.client.departments.filter(dept => dept.category === 'Lab');
   }
@@ -1275,6 +1276,62 @@ updateRecord() {
   this.checkScalars();
   this.sendRecord();
 }
-
+nextImg() {
+    this.btn = 'next';
+    if (this.imgCount < this.images.length - 1) {
+      this.imgCount += 1;
+    }
+}
+  nextStep() {
+    this.step = 'finish';
+  }
+  prevImg() {
+    this.btn = 'prev';
+    if (this.imgCount > 0) {
+      this.imgCount -= 1;
+    }
+  }
+  prevStep() {
+    this.step = 'start';
+  }
+  reset() {
+    this.images = [];
+    this.imgCount = 0;
+    this.btn = null;
+  }
+  getClass(i: number): string {
+    if (this.imgCount > i && this.btn === 'next') {
+      return 'img-wrap rightOut';
+    } else if (this.imgCount === i && this.btn === 'prev') {
+      return 'img-wrap rightIn';
+    } else if (this.imgCount < i && this.btn === 'prev') {
+      return 'img-wrap leftOut';
+    } else if (this.imgCount === i && this.btn === 'next') {
+      return 'img-wrap leftIn';
+    } else if (this.imgCount === i && !this.btn) {
+      return 'img-wrap start';
+    }
+  }
+  getPhoto(avatar: string) {
+    return `${host}/api/dp/${avatar}`;
+  }
+  getInlineStyle(album) {
+    const url = this.getPhoto(this.images[0]);
+    return {
+      background: `url(${url})`,
+      backgroundSize: 'cover',
+      backgroundRepeat: 'no-repeat',
+      backgroundPosition: 'center'
+    };
+  }
+  getBackgrounds(name) {
+    const url = this.getPhoto(name);
+    return {
+      backgroundImage: `url(${url})`,
+    };
+  }
+  getImage(name) {
+    return `${host}/api/dp/${name}`;
+  }
 }
 

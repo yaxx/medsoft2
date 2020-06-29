@@ -79,77 +79,104 @@
                                 </button>
                             </form>
                         </div>
-                        <div *ngIf = 'pageCount === 1' class="card-body orderbody" style="width:55%;margin:auto;">
-                            <form style="top:15%;" class=" staffsform">
-                                    <div style=" margin-top:2px;" class="form-group vitals-section formGroup">
-                                            <label style='font-size:8px;left: 25px;top:-15%;' for="title" class="labelss complain">SELECT VITALS
-                                            </label>
-                                            <select name="vital" [(ngModel)] = vital autocomplete="off" class=" patientdata status inputs dataInfo " name="bedno">
-                                                <option>Blood Presure</option>
-                                                <option>Tempreture</option>
-                                                <option>Pulse Rate</option>
-                                                <option>Respiratory Rate</option>
-                                            </select>
+                        <div *ngIf = 'pageCount === 1' class="card-body orderbody" style="width:100%;">
+                            <form style="top:25%;" class=" staffsform">
+                                    <div class="form-group ">
+                                        <label style='font-size:8px;left: 25px;top:-15%;' for="title" class="labelss complain">SELECT VITALS
+                                        </label>
+                                        <select name="vital" [(ngModel)] = vital autocomplete="off" class=" patientdata status inputs dataInfo " name="bedno">
+                                            <option>Blood Presure</option>
+                                            <option>Tempreture</option>
+                                            <option>Pulse Rate</option>
+                                            <option>Respiratory Rate</option>
+                                        </select>
+                                      </div>
+                                      <div class="group-wrap">
+                                        <div *ngIf="vital==='Blood Presure'"  class="form-group" >
+                                          <label style="font-size:8px" for="dos" class="labelss complain">SYSTOLIC</label>
+                                          <input (keyup)="clearVital('Blood Presure')"
+                                          [(ngModel)]="session.vitals.bp.systolic"
+                                          placeholder="mm Hg"   [min]='1'
+                                          type="number" name="systolic"
+                                          class="form-control input first ">
                                         </div>
-                                        <div *ngIf="vital==='Blood Presure'"  class="form-group vitals-section formGroup" style=" width:47%;margin-right: 5px;">
-                                            <label style="font-size:8px" for="dos" class="labelss complain">SYSTOLIC</label>
-                                            <input (keyup)="clearVital('Blood Presure')" [(ngModel)]="session.vitals.bp.systolic"  placeholder="mm Hg" [min]='1' type="number" name="systolic" class="form-control patientdata inputs dataInfo">
-                                        </div>
-                                        <div *ngIf="vital==='Blood Presure'" class="form-group vitals-section formGroup" style=" width:44%;">
+                                        <div *ngIf="vital==='Blood Presure'"
+                                            class="form-group submit-group" >
                                             <label style="font-size:8px" for="piriod" class="labelss complain">DIASTOLIC</label>
-                                            <input (keyup)="clearVital('Blood Presure')" [(ngModel)]="session.vitals.bp.diastolic" type="number" [min]='1' name="dystolic" class="form-control patientdata inputs dataInfo" placeholder="mm Hg">
-                                            <div id='moreBtn'>
-                                                <i style="left: 13%; top:-29%;" (click)="addVital()" class="icon ion-ios-plus-empty arrow "></i>
-                                            </div>
+                                            <input  (keyup)="clearVital('Blood Presure')"
+                                            [(ngModel)]="session.vitals.bp.diastolic"
+                                            type="number" [min]='1' name="dystolic"
+                                            class="form-control input last" placeholder="mm Hg">
+                                            <button class="btn btn-outline-primary">
+                                              <i title = "Add Vital" (click)= addVital()
+                                              class="icon ion-ios-plus-empty arrow "></i>
+                                            </button>
                                         </div>
-                                        <div *ngIf="vital === 'Tempreture'" style="width: 93%;"  class="form-group vitals-section formGroup">
-                                            <label style="font-size:8px" for="piriod" class="labelss complain">TEMPRETURE</label>
-                                            <input (keyup)="clearVital('Tempreture')"  [(ngModel)]="session.vitals.tempreture.value" type="number" [min]='1' name="temp" class="form-control patientdata inputs dataInfo" placeholder="Degree Fahrenheit">
-                                            <div id='moreBtn'>
-                                                <i style="left: 13%; top: -29%;" (click)="addVital()" class="icon ion-ios-plus-empty arrow "></i>
-                                            </div>
-                                        </div>
-                                        <div *ngIf="vital === 'Pulse Rate'" style="width: 93%;"  class="form-group vitals-section formGroup">
-                                            <label style="font-size:8px" for="piriod" class="labelss complain">PULSE RATE</label>
-                                            <input (keyup)="clearVital('Pulse Rate')"  [(ngModel)]="session.vitals.pulse.value" type="number" [min]='1' name="pulse" class="form-control patientdata inputs dataInfo" placeholder="bpm">
-                                            <div id='moreBtn'>
-                                                <i style="left: 13%; top: -29%;" (click)="addVital()" class="icon ion-ios-plus-empty arrow "></i>
-                                            </div>
-                                        </div>
-                                        <div *ngIf="vital === 'Respiratory Rate'" style="width: 93%;"  class="form-group vitals-section formGroup">
-                                            <label style="font-size:8px" for="piriod" class="labelss complain">
-                                                RESPIRATORY RATE
-                                            </label>
-                                            <input (keyup)="clearVital('Respiratory Rate')"  [(ngModel)]="session.vitals.resp.value" type="number" [min]='1' name="resp" class="form-control patientdata inputs dataInfo" placeholder="bpm">
-                                            <div id='moreBtn'>
-                                                <i style="left: 13%; top: -29%;" (click)= addVital() class="icon ion-ios-plus-empty arrow "></i>
-                                            </div>
-                                        </div>
-                                        <div *ngIf='vitals.length && pageCount === 1' class="form-group vitals-section setGroup">
-                                            <table cellspacing="0" class="data-table drugs-table" style="width:100%;left:0%;" summary="List of all items in store. ">
-                                            <thead class='productHead'>
-                                                <tr class="patient-th">
-                                                    <th style='padding: 4px;font-size:10px;color: #6c757d;font-weight:bold' class="headlbl patient-th">VITAL SIGN</th>
-                                                    <th style='padding: 4px;font-size:10px;text-align: right; color: #6c757d;font-weight:bold' class="headlbl patient-th">VALUE</th>
-                                                    <th style='padding: 4px;font-size:10px;color: #6c757d;' class="headlbl patient-th"></th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <tr style="border-bottom: 1px solid #f8f9fa;" *ngFor='let sign of vitals; let i = index; let odd = odd' class="ro patient-row">
-                                                    <td style="padding:0px;padding-left:4px;" class="data">
-                                                        {{sign.name}}
-                                                    </td>
-                                                    <td style="padding:0px;text-align: right;padding-left:4px;" class="data">
-                                                        {{sign.val}} </td>
-                                                    <td style='padding:0px; padding-left:3px;text-align: center' class="data">
-                                                        <i (click)=removeVital(i,sign) class="icon ion-ios-trash-outline tableicon" title="Discard" style="font-size:15px; cursor: pointer;"></i>
-                                                    </td>
-                                                </tr>
-                                            </tbody>
+                                      </div>
+                                      <div *ngIf="vital === 'Tempreture'" class="form-group submit-group">
+                                        <label style="font-size:8px" for="piriod" class="labelss complain">TEMPRETURE</label>
+                                        <input
+                                            class="form-control input first"
+                                            (keyup)="clearVital('Tempreture')"
+                                            [(ngModel)]="session.vitals.tempreture.value"
+                                            type="number" [min]='1'
+                                            name="temp"
+                                            placeholder="Degree Fahrenheit">
+                                            <button class="btn btn-outline-primary">
+                                              <i title = "Add Vital" (click)= addVital()
+                                              class="icon ion-ios-plus-empty arrow "></i>
+                                            </button>
+                                      </div>
+                                      <div *ngIf="vital === 'Pulse Rate'" class="form-group submit-group">
+                                        <label style="font-size:8px" for="piriod" class="labelss complain">PULSE RATE</label>
+                                        <input
+                                          (keyup)="clearVital('Pulse Rate')"
+                                          [(ngModel)]="session.vitals.pulse.value"
+                                          type="number" [min]='1' name="pulse"
+                                          class="form-control input first" placeholder="bpm">
+                                        <button class="btn btn-outline-primary">
+                                          <i title = "Add Vital" (click)= addVital()
+                                          class="icon ion-ios-plus-empty arrow "></i>
+                                        </button>
+                                    </div>
+                                    <div *ngIf="vital === 'Respiratory Rate'" class="form-group submit-group">
+                                      <label style="font-size:8px" for="piriod" class="labelss complain">RESPIRATORY RATE</label>
+                                      <input  type="number" [min]='1'
+                                        (keyup)="clearVital('Respiratory Rate')"
+                                        [(ngModel)]="session.vitals.resp.value"
+                                        name="resp"
+                                        class="form-control input first"
+                                        placeholder="bpm">
+                                      <button class="btn btn-outline-primary">
+                                        <i title = "Add Vital" (click)= addVital()
+                                        class="icon ion-ios-plus-empty arrow "></i>
+                                      </button>
+                                    </div>
+                                    <div *ngIf='vitals.length && pageCount === 1' class="form-group vitals-section setGroup">
+                                      <table cellspacing="0" class="data-table drugs-table" style="width:100%;left:0%;" summary="List of all items in store. ">
+                                        <thead class='productHead'>
+                                            <tr class="patient-th">
+                                                <th style='padding: 4px;font-size:10px;color: #6c757d;font-weight:bold' class="headlbl patient-th">VITAL SIGN</th>
+                                                <th style='padding: 4px;font-size:10px;text-align: right; color: #6c757d;font-weight:bold' class="headlbl patient-th">VALUE</th>
+                                                <th style='padding: 4px;font-size:10px;color: #6c757d;' class="headlbl patient-th"></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                          <tr style="border-bottom: 1px solid #f8f9fa;" *ngFor='let sign of vitals; let i = index; let odd = odd' class="ro patient-row">
+                                              <td style="padding:0px;padding-left:4px;" class="data">
+                                                  {{sign.name}}
+                                              </td>
+                                              <td style="padding:0px;text-align: right;padding-left:4px;" class="data">
+                                                  {{sign.val}} </td>
+                                              <td style='padding:0px; padding-left:3px;text-align: center' class="data">
+                                                  <i (click)=removeVital(i,sign) class="icon ion-ios-trash-outline tableicon" title="Discard" style="font-size:15px; cursor: pointer;"></i>
+                                              </td>
+                                          </tr>
+                                          </tbody>
                                         </table>
                                     </div>
-                                    <button [disabled] = 'processing || !vitals.length' (click) = updateVitals() style=" width: 170px;font-size: 10px; height:27px;left:28%; bottom:24%;" class="btn btn-sm btn-outline-primary mainbtn">UPDATE VITALS
-                                        <span style="position: absolute; bottom: -7%;left: 80%;">
+                                    <button [disabled] = 'processing || !vitals.length' (click) = updateVitals() style=" width: 170px;font-size: 10px; height:27px;left:19%; bottom:-100%;" class="btn btn-sm btn-outline-primary mainbtn">UPDATE VITALS
+                                        <span style="position: absolute; bottom: -100%;left: 19%;">
                                         <i *ngIf="processing" class="fa fa-circle-o-notch fa-spin fa-10x slow-spin " style="position:absolute;bottom:5px;left:5px;font-size:19px;color: #1da1f2;"> </i>
                                         </span>
                                     </button>
@@ -230,19 +257,124 @@
                             </p>
                             <h6 style='font-size:11px; font-weight:bold; position:absolute;color:dodgerblue;top:5%;left:70%' class="patien-name small-name">VITALS</h6>
                         </div>
-
                     <div class="card-body orderbody" style="width:55%;margin:auto;">
-                        <form style="top:15%;" class=" staffsform">
-                                <div style=" margin-top:2px;" class="form-group vitals-section formGroup">
-                                        <label style='font-size:8px;left: 25px;top:-15%;' for="title" class="labelss complain">SELECT VITALS
-                                        </label>
-                                        <select name="vital" [(ngModel)] = vital autocomplete="off" class=" patientdata status inputs dataInfo " name="bedno">
-                                            <option>Blood Presure</option>
-                                            <option>Tempreture</option>
-                                            <option>Pulse Rate</option>
-                                            <option>Respiratory Rate</option>
-                                        </select>
-                                    </div>
+                      <form *ngIf="count === 2"  style="top: 3%; height: 100%;width:60%;margin:auto;position: relative;" class=" ">
+                        <div class="form-group">
+                            <label style="font-size:8px" for="request" class="labelss">VITAL</label>
+                            <select name="vital" id=select
+                            [(ngModel)] = vital autocomplete="off"
+                            class="form-control input">
+                                <option>Blood Presure</option>
+                                <option>Tempreture</option>
+                                <option>Pulse Rate</option>
+                                <option>Respiratory Rate</option>
+                            </select>
+                        </div>
+
+                        <div class="group-wrap">
+                          <div *ngIf="vital==='Blood Presure'"  class="form-group" >
+                            <label style="font-size:8px" for="dos" class="labelss complain">SYSTOLIC</label>
+                            <input (keyup)="clearVital('Blood Presure')"
+                            [(ngModel)]="session.vitals.bp.systolic"
+                            placeholder="mm Hg"   [min]='1'
+                            type="number" name="systolic"
+                            class="form-control input first ">
+                          </div>
+                          <div *ngIf="vital==='Blood Presure'"
+                            class="form-group submit-group" >
+                            <label style="font-size:8px" for="piriod" class="labelss complain">DIASTOLIC</label>
+                            <input  (keyup)="clearVital('Blood Presure')"
+                            [(ngModel)]="session.vitals.bp.diastolic"
+                            type="number" [min]='1' name="dystolic"
+                            class="form-control input last" placeholder="mm Hg">
+                            <button class="btn btn-outline-primary">
+                              <i title = "Add Vital" (click)= addVital()
+                              class="icon ion-ios-plus-empty arrow "></i>
+                            </button>
+                          </div>
+                        </div>
+                        <div *ngIf="vital === 'Tempreture'" class="form-group submit-group">
+                          <label style="font-size:8px" for="piriod" class="labelss complain">TEMPRETURE</label>
+                          <input
+                              class="form-control input first"
+                              (keyup)="clearVital('Tempreture')"
+                              [(ngModel)]="session.vitals.tempreture.value"
+                              type="number" [min]='1'
+                              name="temp"
+                              placeholder="Degree Fahrenheit">
+                              <button class="btn btn-outline-primary">
+                                <i title = "Add Vital" (click)= addVital()
+                                class="icon ion-ios-plus-empty arrow "></i>
+                              </button>
+                        </div>
+
+                        <div *ngIf="vital === 'Pulse Rate'" class="form-group submit-group">
+                              <label style="font-size:8px" for="piriod" class="labelss complain">PULSE RATE</label>
+                              <input
+                                (keyup)="clearVital('Pulse Rate')"
+                                [(ngModel)]="session.vitals.pulse.value"
+                                type="number" [min]='1' name="pulse"
+                                class="form-control input first" placeholder="bpm">
+                              <button class="btn btn-outline-primary">
+                                <i title = "Add Vital" (click)= addVital()
+                                class="icon ion-ios-plus-empty arrow "></i>
+                              </button>
+                        </div>
+                        <div *ngIf="vital === 'Respiratory Rate'" class="form-group submit-group">
+                            <label style="font-size:8px" for="piriod" class="labelss complain">RESPIRATORY RATE</label>
+                            <input  type="number" [min]='1'
+                              (keyup)="clearVital('Respiratory Rate')"
+                              [(ngModel)]="session.vitals.resp.value"
+                              name="resp"
+                              class="form-control input first"
+                              placeholder="bpm">
+                            <button class="btn btn-outline-primary">
+                              <i title = "Add Vital" (click)= addVital()
+                              class="icon ion-ios-plus-empty arrow "></i>
+                            </button>
+                        </div>
+                        <div *ngIf='vitals.length' class="form-group vitals-section setGroup">
+                              <table cellspacing="0" class="data-table drugs-table" style="width:100%;left:0%;" summary="List of all items in store. ">
+                                  <thead class='productHead'>
+                                      <tr class="patient-th">
+                                          <th class="headlbl patient-th items-head">VITAL SIGN</th>
+                                          <th class="headlbl patient-th items-head">VALUE</th>
+                                          <th class="headlbl patient-th items-head"></th>
+                                      </tr>
+                                  </thead>
+                                  <tbody>
+                                      <tr style="border-bottom: 1px solid #f8f9fa;" *ngFor='let sign of vitals; let i = index; let odd = odd' class="ro patient-row">
+                                          <td style="padding:0px;padding-left:4px;" class="data">
+                                              {{sign.name}}
+                                          </td>
+                                          <td style="padding:0px;text-align: right;padding-left:4px;" class="data">
+                                              {{sign.val}} </td>
+                                          <td style='padding:0px; padding-left:3px;text-align: center' class="data">
+                                              <i (click)=removeVital(i,sign) class="icon ion-ios-trash-outline tableicon" title="Discard" style="font-size:15px; cursor: pointer;"></i>
+                                          </td>
+                                      </tr>
+                                  </tbody>
+                              </table>
+                          </div>
+                            <button [disabled] = 'processing || !vitals.length' (click) = updateVitals() style=" width: 170px;font-size: 10px; height:27px;left:28%; bottom:24%;" class="btn btn-sm btn-outline-primary mainbtn">UPDATE VITALS
+                                    <span style="position: absolute; bottom: -7%;left: 80%;">
+                                    <i *ngIf="processing" class="fa fa-circle-o-notch fa-spin fa-10x slow-spin " style="position:absolute;bottom:5px;left:5px;font-size:19px;color: #1da1f2;"> </i>
+                                    </span>
+                                </button>
+                    </form>
+                        <!-- <form style="top:15%;" class=" staffsform">
+                          <div class="group-wrap">
+                            <div class="form-group ">
+                              <label style='font-size:8px;left: 25px;top:-15%;' for="title" class="labelss complain">SELECT VITALS</label>
+                              <select name="vital" [(ngModel)] = vital autocomplete="off" class=" patientdata status inputs dataInfo " name="bedno">
+                                  <option>Blood Presure</option>
+                                  <option>Tempreture</option>
+                                  <option>Pulse Rate</option>
+                                  <option>Respiratory Rate</option>
+                              </select>
+                            </div>
+                          </div>
+
                                     <div *ngIf="vital==='Blood Presure'"  class="form-group vitals-section formGroup" style=" width:47%;margin-right: 5px;">
                                         <label style="font-size:8px" for="dos" class="labelss complain">SYSTOLIC</label>
                                         <input (keyup)="clearVital('Blood Presure')" [(ngModel)]="session.vitals.bp.systolic"  placeholder="mm Hg" [min]='1' type="number" name="systolic" class="form-control patientdata inputs dataInfo">
@@ -305,7 +437,7 @@
                                     <i *ngIf="processing" class="fa fa-circle-o-notch fa-spin fa-10x slow-spin " style="position:absolute;bottom:5px;left:5px;font-size:19px;color: #1da1f2;"> </i>
                                     </span>
                                 </button>
-                            </form>
+                            </form> -->
                         </div>
                         <!-- <div *ngIf='cardView.editing' style="left:7%; top:45%;position: absolute;
                             width: 7%;" class="btn-group disposition">
@@ -350,7 +482,7 @@
             position: absolute;text-align: left;vertical-align: middle;top:11%; box-shadow:none;
            outline:none; background-color: rgba(233, 236, 239, 0.7);
             " class="form-control" type="search" name="search" id="search-field" placeholder="Search patient">
-                <i style='font-size:20px; top:3px;left:83%;position:relative;display:inline' class="icon ion-ios-search " title="Search"></i>
+                <i style='font-size:20px;left:83%;position: absolute;display:inline' class="icon ion-ios-search " title="Search"></i>
                 <h6 style='font-size:12px;left:98%;position:relative;display:inline-block;
                  color:grey; font-weight:normal;'>Sort:&nbsp;<span style='cursor:pointer; color:#1da1f2;'  (click)
                        ='toggleSortMenu()'>{{nowSorting}}</span><i  (click) ='toggleSortMenu()' class="icon ion-ios-arrow-down shevron"></i></h6>

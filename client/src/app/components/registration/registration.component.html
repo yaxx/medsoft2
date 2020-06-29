@@ -246,6 +246,64 @@
     </div>
 
 
+    <div  class="modal fade" role="dialog" tabindex="-1" id="staffModal" style="border-radius:32px;max-width:841px;margin: auto;padding-top: 35px">
+      <div style="max-width: 615px;border-radius:32px;" class="modal-dialog" role="document">
+          <div class="modal-content" style="width:100%; height:280px; border-radius:32px;padding-left:0px;padding-right: 0px;">
+              <div class="modal-body" style="border-radius:32px;padding: 0px;">
+          </div>
+          <div  class="card card-secondary historycard midlecard profilecard" style="margin:auto;min-height:240px;border-radius:12px;border-bottom:none;">
+              <div data-dismiss="modal" style="height: 25px; width:25px; left: 104%; top:3%; cursor: pointer;  color: white(248, 248, 248); background:rgba(193, 193, 224, 0.2)" class="close-comment">
+                  <i title="close" class="icon ion-ios-close-empty"></i>
+              </div>
+              <div style='width:100%;padding-left: 30px;position:absolute;top:-11%; border-top-right-radius:12px;border-top-left-radius:12px; border-bottom:0px' class="card-header profileheader small-header">
+                  <h6 style='font-size:11px;position:absolute; top:12px;left:-4%;color:#1da1f2;' class="patien-name small-name">PATIENT DETAILS</h6>
+                  <i  class="icon ion-android-more-vertical headericon moreicon actions-icon"></i>
+              </div>
+              <div style='margin-left:0px;padding-top: 22px;' class="card-body orderbody">
+                  <form style="top:15%; width:56%;margin:auto;" class=" staffsform">
+                      <div class="carditem noteitem writeup" style="display:inline-block;">
+                          <div title='Details' data-toggle=modal data-target='#editModal' class="timeline noter patientdp staffdp" style="border-radius:4px;width:130px; height:130px; position:absolute">
+                              <img style='height:100%; width:100%; object-fit:cover; border-radius:4px;border:none' [src]=getDp(patients[2].info.personal.avatar)/>
+                          </div>
+                          <div style='position:absolute;left:50%;width:80%'>
+                              <h1 class="dept previnfo noterinfo">
+                                  Mohammed Ibrahim
+                              </h1>
+                              <h1 class="dept previnfo ">
+                                  Gender:&nbsp;
+                                  <span class="predata">Male</span>
+                              </h1>
+                              <h1 class="dept previnfo">
+                                  Age:&nbsp;<span class="predata">45</span>
+                              </h1>
+                              <h1 class="dept previnfo">
+                                  Marital Status:&nbsp;<span class="predata">Married</span>
+                              </h1>
+                              <h1 class="dept previnfo">Address:&nbsp;
+                                  <span class="predata">No.44 Somet St Lagos</span>
+                              </h1>
+                              <h1 class="dept previnfo">
+                                  Religion&nbsp;<span class="predata">Islam</span>
+                              </h1>
+                              <h1 class="dept previnfo">Occupation:&nbsp;
+                                  <span class="predata">Civil Servant</span>
+                              </h1>
+                              <h1 class="dept previnfo">Blood Group:&nbsp;
+                                  <span class="predata">O+&nbsp;</span>
+                                  <span class="predata"></span>
+                              </h1>
+                              <h1 class="dept previnfo">Date Created:&nbsp;
+                                  <span class="predata">June 11, 2019&nbsp;</span>
+                                  <!-- <span class="predata">{{staff.createdAt|date:'hh:mma'|lowercase}} </span> -->
+                              </h1>
+                          </div>
+                      </div>
+                  </form>
+              </div>
+          </div>
+     </div>
+    </div>
+</div>
 
 
 
@@ -256,16 +314,15 @@
 
 
 
-
-<nav class="navbar fixed-top navbar-light navbar-expand-md navigation-clean-search" style="padding:0px; margin-bottom:0px;">
+<nav  class="navbar fixed-top navbar-light navbar-expand-md navigation-clean-search" style="padding:0px; margin-bottom:0px;">
     <div class="container">
-        <a class="navbar-brand" href="#">
+        <a data-toggle="modal" data-target="#staffModal" #test class="navbar-brand" href="#">
             <em>{{appName}}</em>
         </a>
-        <div class="collapse navbar-collapse" id="navcol-1">
+        <div  class="collapse navbar-collapse" id="navcol-1">
           <form class="top-searchform" target="_self">
             <div class="form-group">
-                <input [(ngModel)] = searchTerm #search (keyup)='searchPatient(searchTerm)' autocomplete="off" style="border-radius:.999em; width:85.5%;display:inline-block;
+                <input [(ngModel)] = searchTerm #search (change) = 'test.click()' autocomplete="off" style="border-radius:.999em; width:85.5%;display:inline-block;
                 position: absolute;text-align: left; vertical-align: middle;top:11%;color:darkgrey;background-color: rgba(233, 236, 239, .9);box-shadow:none;outline:none;
                 "class="form-control" type="search" name="search" id="search-field" placeholder="Search patient">
                 <div class="searh-icon-wrap">
@@ -343,7 +400,7 @@
                 <i   class="icon ion-android-more-vertical"></i>
               </div>
             </div>
-            <div *ngIf="patient.card.view!=='front'" class="card-header profileheader small-header s-header">
+            <div  *ngIf="patient.card.view!=='front'" class="card-header profileheader small-header s-header">
                 <i (click)="switchCardView(i,'front')" style='position:absolute;  left:3%;top:4px; cursor:pointer;
                 display: inline-block;
                 color:#1da1f2;' title="Back" class="icon ion-android-arrow-back">
@@ -356,7 +413,7 @@
                 </p>
             </div>
             <div [class.ap]='cardCount' [class.front]='patient.card.view === "front"' style="position: absolute; width:100%;height: 87%;top:13%" class="card-body mainbody">
-                <div style="position: relative;margin-bottom: 0px;top:0px" class="timeline lastdoc priscriber headerdp">
+                <div  style="position: relative;margin-bottom: 0px;top:0px" class="timeline lastdoc priscriber headerdp">
                 <img  [src]='getDp(patient.info.personal.avatar)'/>
                 </div>
                 <p *ngIf="isInfo() || isWard()"  style='margin-bottom:2px;position:relative;top:3px' class="patien-name display-name">

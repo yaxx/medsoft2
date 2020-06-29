@@ -3,43 +3,49 @@
             <div style="max-width: 615px;border-radius:32px;" class="modal-dialog" role="document">
                 <div class="modal-content" style="width:100%; height:280px; border-radius:32px;padding-left:0px;padding-right: 0px;">
                     <div class="modal-body" style="border-radius:32px;padding: 0px;">
-                        <div *ngIf='staffMode === "edit"||staffMode === "new"'  class="card card-secondary historycard midlecard profilecard" style="margin:auto;min-height:240px;border-bottom:none; border-radius:32px;width:100%;position: absolute">
+                      <div *ngIf='staffMode === "edit"||staffMode === "new"'  class="card card-secondary historycard midlecard profilecard" style="margin:auto;min-height:240px;border-bottom:none; border-radius:32px;width:100%;position: absolute">
                             <div data-dismiss="modal" style="height: 25px; width:25px; left: 93%; top:3%; cursor: pointer;  color: white(248, 248, 248); background:rgba(193, 193, 224, 0.2)" class="close-comment">
                                 <i title="close" class="icon ion-ios-close-empty"></i>
                             </div>
                             <div style='padding-left: 30px;border-top-right-radius:32px;border-top-left-radius:32px;border-bottom: 0px;height:40px;' class="card-header profileheader small-header">
-                                <h6 *ngIf='staffMode === "new"' style='font-size:11px;position:absolute;color:dodgerblue; font-weight: normal; top:12px;left:5%' class="patien-name small-name">NEW STAFF</h6>
-                                <h6 *ngIf='staffMode === "edit"' style='font-size:11px;position:absolute;color:dodgerblue; font-weight: normal; top:12px;left:5%' class="patien-name small-name"><span> <i title="Back" *ngIf='staffMode === "edit"' (click)="switchView('view')" style='position:relative;top:2px; font-size: 17px;right: 21px;cursor:pointer; display: inline-block; color:#1da1f2;' title="Back" class="icon ion-android-arrow-back "> </i></span> EDIT STAFF INFO
-                                </h6>
+                              <h6 *ngIf='staffMode === "new"' style='font-size:11px;position:absolute;color:dodgerblue; font-weight: normal; top:12px;left:5%' class="patien-name small-name">NEW STAFF</h6>
+                              <h6 *ngIf='staffMode === "edit"' style='font-size:11px;position:absolute;color:dodgerblue; font-weight: normal; top:12px;left:5%' class="patien-name small-name"><span> <i title="Back" *ngIf='staffMode === "edit"' (click)="switchView('view')" style='position:relative;top:2px; font-size: 17px;right: 21px;cursor:pointer; display: inline-block; color:#1da1f2;' title="Back" class="icon ion-android-arrow-back "> </i></span> EDIT STAFF INFO
+                              </h6>
                             </div>
                             <div style='margin-left:0px;padding-top:5px ' class="card-body orderbody">
-                                <form  style="top: 2%; height:100%;width:45%;position: relative;margin:auto;padding-top: 22px;" class=" staffsform">
-                                <div class="form-group vitals-section formGroup" style=" width:49%; margin-right: 4px">
+                            <form class=" staffsform">
+                                <div class="group-wrap">
+                                  <div class="form-group">
                                     <label style='font-size:8px' for="firstName" class="labelss complain">FIRST NAME</label>
                                     <input [(ngModel)]="staff.info.personal.firstName" name="firstName" class="form-control patientdata inputs dataInfo">
-                                </div>
-                                <div class="form-group vitals-section formGroup" style=" width:49%; ">
+                                  </div>
+                                  <div class="form-group submit-group">
                                     <label style='font-size:8px' for="lastName" class="labelss complain">LAST NAME</label>
                                     <input [(ngModel)]="staff.info.personal.lastName" class="form-control patientdata status inputs dataInfo " name="lastName">
+                                  </div>
                                 </div>
-                                <div class="form-group vitals-section formGroup" style=" width:49%; margin-right: 4px">
+
+                                <div class="group-wrap">
+                                  <div class="form-group">
                                     <label style='font-size:8px' for="gender" class="labelss complain">GENDER</label>
                                     <select [(ngModel)]="staff.info.personal.gender" class="patientdata inputs dataInfo newpatient" name="gender">
                                         <option>Male</option>
                                         <option>Female</option>
                                     </select>
+                                  </div>
+                                  <div class="form-group submit-group">
+                                      <label style='font-size:8px' for="mobile" class="labelss complain">MOBILE</label>
+                                      <input [(ngModel)]="staff.info.contact.me.mobile" class="form-control patientdata status inputs dataInfo " name="mobile">
+                                  </div>
                                 </div>
-                                <div class="form-group vitals-section formGroup" style=" width:49%; ">
-                                    <label style='font-size:8px' for="mobile" class="labelss complain">MOBILE</label>
-                                    <input [(ngModel)]="staff.info.contact.me.mobile" class=" form-control patientdata status inputs dataInfo " name="mobile">
-                                </div>
-                                <div class="form-group vitals-section formGroup" style=" width:49%; margin-right: 4px">
+                                <div class="group-wrap">
+                                <div class="form-group">
                                     <label style='font-size:8px' for="drug" class="labelss">DEPARTMENT</label>
                                     <select  [(ngModel)]="staff.info.official.department" style='font-size:11px' class="patientdata inputs dataInfo newpatient" name="department">
                                         <option *ngFor="let d of client.departments">{{d.name}}</option>
                                     </select>
                                 </div>
-                                <div class="form-group vitals-section formGroup" style=" width:49%; ">
+                                <div class="form-group submit-group">
                                     <label style='font-size:8px' for="role" class="labelss">ROLE</label>
                                     <select [(ngModel)]="staff.info.official.role" class="patientdata inputs dataInfo newpatient" name="role">
                                         <option>Cashier</option>
@@ -50,14 +56,15 @@
                                         <option>Lab Scientist</option>
                                     </select>
                                 </div>
+                              </div>
                             </form>
                         </div>
-                </div>
-                <div *ngIf='staffMode === "view"' class="card card-secondary historycard midlecard profilecard" style="margin:auto;min-height:240px;border-radius:12px;border-bottom:none;">
-                    <div data-dismiss="modal" style="height: 25px; width:25px; left: 104%; top:3%; cursor: pointer;  color: white(248, 248, 248); background:rgba(193, 193, 224, 0.2)" class="close-comment">
-                        <i title="close" class="icon ion-ios-close-empty"></i>
                     </div>
-                    <div style='padding-left: 30px;border-top-right-radius:12px;border-top-left-radius:12px; border-bottom:0px' class="card-header profileheader small-header">
+                    <div *ngIf='staffMode === "view"' class="card card-secondary historycard midlecard profilecard" style="margin:auto;min-height:240px;border-radius:12px;border-bottom:none;">
+                      <div data-dismiss="modal" style="height: 25px; width:25px; left: 104%; top:3%; cursor: pointer;  color: white(248, 248, 248); background:rgba(193, 193, 224, 0.2)" class="close-comment">
+                          <i title="close" class="icon ion-ios-close-empty"></i>
+                      </div>
+                      <div style='padding-left: 30px;border-top-right-radius:12px;border-top-left-radius:12px; border-bottom:0px' class="card-header profileheader small-header">
                         <h6 style='font-size:11px;position:absolute; top:12px;left:-4%;color:#1da1f2;' class="patien-name small-name">STAFF DETAILS</h6>
                         <i (click)='showMenu("menu")' class="icon ion-android-more-vertical headericon moreicon actions-icon"></i>
                         <div *ngIf="menu === 'menu'" style="width:25%;height:65px" class="menu">
@@ -274,7 +281,7 @@
                                 </div>
                             </div>
                             <button style=" width: 80px; left:81px; width: 90%; left: 11px;top:80%;font-size: 10px;height: 27px;
-                            box-shadow: none; " type="submit" class="btn btn-sm btn-outline-primary mainbtn">SAVE CHANGES<span *ngIf='processing'> <i class="fa fa-circle-o-notch editicon continue blocked-icon fa-spin" style="font-size:18px;position: absolute;left:77%"></i></span> 
+                            box-shadow: none; " type="submit" class="btn btn-sm btn-outline-primary mainbtn">SAVE CHANGES<span *ngIf='processing'> <i class="fa fa-circle-o-notch editicon continue blocked-icon fa-spin" style="font-size:18px;position: absolute;left:77%"></i></span>
                             </button>
                         </form>
                     </div>
@@ -370,16 +377,16 @@
                             </div>
                             <div *ngIf='deptHasWard()' class="form-group  vitals-section address">
                                 <label style='font-size:8px' for="email" class="labelss">#ROOMS</label>
-                                <input [(ngModel)]="numOfRooms" type="number" [min]="1" style='font-size:11px;' 
+                                <input [(ngModel)]="numOfRooms" type="number" [min]="1" style='font-size:11px;'
                                 class=" form-control patientdata inputs dataInfo newpatient" name="department">
                             </div>
                             <button [disabled]='inComplete()' (click) = addDepartment() style=" width: 90px; left:81px; width: 70%; left: 28px;top:55%;font-size: 10px;height: 27px;
                             box-shadow: none;"  class="btn btn-sm btn-outline-primary  mainbtn"><span><i style="font-size:16px; position:absolute; left:10%; bottom:4%;font-weight: bolder" class="icon ion-ios-plus-empty"></i>
                             </span> ADD DEPARTMENT<span *ngIf='processing'>
                                 <i class="fa fa-circle-o-notch editicon continue blocked-icon fa-spin" style="font-size:18px;position: absolute;left:77%"></i>
-                            </span> 
+                            </span>
                             </button>
-                        </form>   
+                        </form>
                     </div>
                 </div>
                 <div style="width:214px;left:2px;height:33%;position:relative" class="card card-secondary historycard rightcard allegies">

@@ -8,6 +8,6 @@ import {NgForm} from '@angular/forms';
 })
 export class AppComponent {
   form: NgForm;
-  title = 'oxides';
+  title = 'Foldr';
   sample: string;
 }

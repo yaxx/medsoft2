@@ -37,7 +37,7 @@
 
 .card.card-secondary.historycard.midlecard {
     width: 470px;
-    min-height: 205px;
+    min-height: 220px;
 }
 
 .card.card-secondary.historycard.leftcard {
@@ -183,6 +183,7 @@
     font-weight: 500;
     color: #333333;
     font-size: 13px;
+    padding-left: 5px;
 }
 
 .dept.previnfo.sec-info {
@@ -422,6 +423,7 @@ p {
   border-bottom: 1px solid ghostwhite;
   padding-bottom: 15px;
   padding-top: 2px;
+  padding-left: 5px;
 }
 
 
@@ -521,6 +523,14 @@ p {
     margin: auto;
     position: relative;
     height: 100%;
+}
+.staffsform {
+  top: 2%;
+  height:100%;
+  width:45%;
+  position: relative;
+  margin:auto;
+  padding-top: 22px;
 }
 
 .staffsform, .card-body.mainbody, .depts {
@@ -678,4 +688,110 @@ p {
 }
 .curent-step {
   border-color: #4285f4;
+}
+.media-container {
+  width: 900px;
+  margin: auto;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: start;
+}
+.media-wrap {
+  position: relative;
+  display: inline-block;
+  height: 265px;
+  width: 30.333%;
+  margin: 10px;
+}
+
+.media-wrap img {
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+  border-radius: 0%;
+}
+.media-item {
+  height: 270px;
+}
+.img-desc {
+  position: absolute;
+  width: 100%;
+  color: white;
+  bottom: -22px;
+  background-color: rgba(0, 0, 0, .9);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 20px;
+}
+.img-desc p {
+  width: 100%;
+  text-align: center;
+  color: white;
+  margin-bottom: 0px;
+  font-size: .7rem;
+}
+.img-wrap.leftIn,
+.img-wrap.leftOut,
+.img-wrap.rightIn,
+.photo_group.leftIn,
+.photo_group.rightOut,
+.photo_group.rightIn,
+.photo_group.finish.rightOut,
+.photo_group.finish.leftIn,
+.img-wrap.rightOut {
+  animation-duration: .6s;
+  animation-timing-function: ease;
+}
+.img-wrap.leftIn,.photo_group.finish.leftIn {
+  left: 0%;
+  animation-name: left-in;
+}
+.img-wrap.leftOut {
+  left: -100%;
+  animation-name: left-out;
+}
+.img-wrap.rightIn,.photo_group.rightIn {
+  left: 0%;
+  animation-name: right-in;
+}
+.img-wrap.rightOut,.photo_group.rightOut {
+  left: 100%;
+  animation-name: right-out;
+}
+@keyframes left-in {
+  0% {
+      left: -100%;
+
+  }
+  100% {
+      left: 0%;
+      opacity:1
+  }
+}
+@keyframes left-out {
+  0% {
+      left: 0%;
+  }
+  100% {
+      left: -100%;
+  }
+}
+@keyframes right-out {
+  0% {
+      left: 0%;
+  }
+  100% {
+      left: 100%;
+  }
+}
+@keyframes right-in {
+  0% {
+      left: 100%;
+  }
+  100% {
+      left: 0%;
+      opacity:1
+  }
 }

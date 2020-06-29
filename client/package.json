@@ -1,6 +1,6 @@
 {
   "name": "client",
-  "productName": "oxengine",
+  "productName": "Foldr",
   "main": "main.js",
   "version": "1.2.5",
   "scripts": {
@@ -18,7 +18,7 @@
     "license": "LICENSE"
   },
   "build": {
-    "appId": "com.oxengine.app",
+    "appId": "com.foldr.app",
     "productName": "oxengine",
     "target": "NSIS",
     "files": [

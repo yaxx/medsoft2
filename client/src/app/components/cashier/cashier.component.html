@@ -160,7 +160,6 @@
                                   </span>
                               </button>
                           </form>
-
                       </div>
                     <div *ngIf='cardView.editing || cardView.reversing' style="left:7%; top:45%;position: absolute;
                         width: 7%;" class="btn-group disposition">
@@ -208,7 +207,7 @@
                 <input [(ngModel)]='searchTerm' #search (keyup)='searchPatient(searchTerm)' autocomplete="off" style="border-radius:.999em; width:85.5%;display:inline-block;
                 position: absolute;text-align: left; vertical-align: middle;top:11%;color:darkgrey;background-color: rgba(233, 236, 239, .9);box-shadow:none;outline:none;
                 "class="form-control" type="search" name="search" id="search-field" placeholder="Search patient">
-                <i style='font-size:20px; top:3px;left:83%;position:relative;display:inline' class="icon ion-ios-search " title="Search"></i>
+                <i style='font-size:20px; left:83%;position:absolute;display:inline' class="icon ion-ios-search " title="Search"></i>
                 <div *ngIf='searchResults.length' style="position: absolute;height: 300px;border: none;border-radius:10px;"  class="options prisOption edit">
                   <ul data-simplebar class="itemsList searchList" style=" border-radius:10px; height: 300px;background-color: white;">
                      <li (click)='selectResult(person)' *ngFor='let person of searchResults' style="margin-bottom: -5px;">

@@ -19,10 +19,12 @@ app.use('/graphql', graphQlHttp({
   graphiql: true
 }))
 
-
-// app.use(cors({origin:"http://localhost:4200", credentials: true}))
-app.use(cors({origin:"*", credentials: true}))
-app.use(express.static(path.join(__dirname,'dist','client')))
+app.use(cors({origin:"http://localhost:4200", credentials: true}))
+// app.use(cors({
+//   origin:"*",
+//   credentials: true
+// }))
+// app.use(express.static(path.join(__dirname,'dist','client')))
 // app.use(history());
 app.use(require('morgan')('dev'))
 app.use(bodyParser.json())
@@ -38,7 +40,6 @@ io.sockets.on('connection', (socket) => {
     socket.broadcast.emit('online', data.ui)
   })
   socket.on('new message', (data) => {
-    console.log(data)
    logins.forEach(function (user) {
     if (user.ui === data.reciever) {
       socket.to(user.si).emit('new message', data)
@@ -61,8 +62,8 @@ io.sockets.on('connection', (socket) => {
 })
 
 app.get('/', (req, res) => {
-    // res.render('index')
-     res.sendFile(path.join(__dirname,'dist','client','index.html'));
+    res.render('index')
+    //  res.sendFile(path.join(__dirname,'dist','client','index.html'));
 })
 
 app.get('/api/client', api.getClient)  

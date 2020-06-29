@@ -61,7 +61,7 @@
   display:inline-block;
   width:100%;
   position:relative;
-  margin-bottom:2px;
+  margin-bottom:8px;
   display: flex;
   flex-direction: column;
 }

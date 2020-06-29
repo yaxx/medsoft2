@@ -74,9 +74,8 @@
 }
 .search-icon {
   font-size:20px;
-  top:3px;
   left:83%;
-  position:relative;
+  position:absolute;
   display:inline
 }
 .date-picker {
@@ -123,25 +122,28 @@
   align-content: center;
 }
 .options.trans-summary p {
-  font-size: 12px;
+  font-size: 11px;
   margin-right: 20px;
-  color: lightgrey;
+  color: black;
   margin-bottom: 0px;
+  font-weight: bold
 }
 .options.trans-summary p span {
   color: #a0a0a0;
+  font-weight: normal;
+  font-size: 12px;
 }
 .small-name.add {
   font-size:11px;
   position:absolute;
-  color:dodgerblue; 
-  font-weight:normal; 
-  top:18px; 
+  color:dodgerblue;
+  font-weight:normal;
+  top:18px;
   width:100%;
 }
 .small-name.add span {
   left:87%;
-  bottom:-4px; 
+  bottom:-4px;
   cursor:pointer;
   position:absolute;
   font-size:20px;
