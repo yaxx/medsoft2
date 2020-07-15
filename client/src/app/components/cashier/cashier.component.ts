@@ -135,7 +135,7 @@ export class CashierComponent implements OnInit {
                         view: 'front',
                         indicate: true
                       }
-                    });
+                  });
                 }
               }
               break;
@@ -530,6 +530,12 @@ switchViews(view) {
   }
   hideLogOut() {
     this.logout = false;
+  }
+  getBackgrounds() {
+    const url = this.getMyDp();
+    return {
+      backgroundImage: `url(${url})`,
+    };
   }
   searchPatient(name: string) {
     if (!this.temp.length) {

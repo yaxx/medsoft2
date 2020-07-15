@@ -167,9 +167,9 @@ max-width:100%;">
                                     </span>
                                 </div>
                             </div>
-                            <form *ngIf="count === 0"  style="top: 3%; height:100%;width:60%;position: relative;margin:auto;" class=" staffsform">
-                                <div class="form-group vitals-section address" style='font-size:11px;resize:none;min-height: 26px'>
-                                    <label style="font-size:8px" for="piriod" class="labelss complain">CHIEF COMPLAIN</label>
+                            <form *ngIf="count === 0"  style="width:60%" class="staffsform">
+                                <div class="form-group">
+                                    <label for="piriod" class="labelss">CHIEF COMPLAIN</label>
                                     <input (focus)="showSuggestions('complains')" (keyup)='searchComplains()' autocomplete="off" [(ngModel)]="session.complain.complain" style=" font-size:11px;" name="piriod" class="form-control patientdata inputs dataInfo">
                                     <div  *ngIf="matches.length"  class="prisOption slideIn">
                                         <ul data-simplebar class="itemsList" >
@@ -180,17 +180,30 @@ max-width:100%;">
                                         </ul>
                                     </div>
                                 </div>
-                                <div class="form-group submit-group">
-                                  <label for=weight >DURATION</label>
-                                  <input
-                                  [(ngModel)]="session.complain.duration"
-                                  type=number autocomplete="off" [min]=1
-                                  autocomplete=off
-                                  name = piriod class='form-control input first'>
-                                  <button  (click)="addComplain()" class="btn btn-outline-primary">
-                                    <i  title="Update"  class="icon ion-ios-plus-empty arrow "> </i>
-                                  </button>
+                                <div class="group-wrap">
+                                  <div class="form-group">
+                                    <label class = labelss for=weight >PIRIOD</label>
+                                    <input
+                                      [(ngModel)]="session.complain.duration"
+                                      type=number autocomplete="off" [min]=1
+                                      autocomplete=off
+                                      name = piriod class='form-control input first'>
+                                  </div>
+                                  <div class="form-group submit-group">
+                                    <label class = labelss for=weight >DURATION</label>
+                                    <select [(ngModel)]="session.history.bearer"  (focus) = clearMsg()
+                                    name='bearer'
+                                    autocomplete="off" class=" form-control input last select">
+                                        <option >d</option>
+                                        <option >w</option>
+                                        <option >m</option>
+                                    </select>
+                                    <button  (click)="addComplain()" class="btn btn-outline-primary">
+                                      <i  title="Update"  class="icon ion-ios-plus-empty arrow "> </i>
+                                    </button>
+                                  </div>
                                 </div>
+
                                 <div *ngIf='session.complains.length' class="form-group vitals-section setGroup">
                                     <table cellspacing="0" class="data-table drugs-table" style="width:100%;left:0%;" summary="List of all items in store. ">
                                         <thead class='productHead'>
@@ -216,44 +229,54 @@ max-width:100%;">
                                     </table>
                                 </div>
                             </form>
-                            <form *ngIf="count===1"  style="top:3%;height:100%;width:60%;position:relative;margin:auto;" class=" staffsform">
-                                <div style="width:100%; display:inline-block" class="form-group vitals-section">
-                                    <label style="font-size:8px" for="allegy" class="labelss">ALLEGIES<span style='font-size:11px; color:red;'>*</span> </label>
-                                    <input  [(ngModel)]="session.allegies.allegy" name="allegy" class="form-control input" />
+                            <form *ngIf="count===1"  style="width:60%;" class=" staffsform">
+                                <div class="form-group">
+                                    <label for="allegy" class="labelss">ALLEGIES<span style='font-size:11px; color:red;'>*</span> </label>
+                                    <input 
+                                        autocomplete = off
+                                        (focus) = "showSuggestions('allegy')"
+                                        (keyup) = searchAllegies()
+                                        [(ngModel)]="session.allegies.allegy" 
+                                        name="allegy" 
+                                        class="form-control input"/>
+                                    <div  *ngIf="matches.length && elm === 'allegy'" class="prisOption slideIn">
+                                      <ul data-simplebar class="itemsList" >
+                                          <li *ngFor="let match of matches">
+                                              <p (click)=selectAllegy(match) class="drugItem">{{match}}<span class="lastdept timetaken "></span>
+                                              </p>
+                                          </li>
+                                      </ul>
+                                  </div>
                                 </div>
                                 <div class="form-group">
-                                    <label style="font-size:8px" for="famhistory" class="labelss">
-                                        HISTORY
-                                    </label>
+                                    <label for="famhistory" class="labelss"> HISTORY</label>
                                     <input
                                         (focus) = "showSuggestions('history')"
                                         (keyup) = searchHistory()
                                         autocomplete="off"
                                         [(ngModel)]="session.history.condition"
                                         name="history"
-                                        class=" form-control patientdata dystolic inputs dataInfo"/>
-                                        <div *ngIf="matches.length"  class="prisOption slideIn">
-                                            <ul data-simplebar class="itemsList" >
-                                                <li *ngFor="let match of matches">
-                                                    <p (click)=selectHistory(match) class="drugItem" >{{match}}<span class="lastdept timetaken "></span>
-                                                    </p>
-                                                </li>
-                                            </ul>
-                                        </div>
+                                        class=" form-control input"/>
+                                    <div *ngIf="matches.length && elm === 'history'"  class="prisOption slideIn">
+                                        <ul data-simplebar class="itemsList" >
+                                            <li *ngFor="let match of matches">
+                                                <p (click)=selectHistory(match) class="drugItem" >{{match}}<span class="lastdept timetaken "></span>
+                                                </p>
+                                            </li>
+                                        </ul>
+                                    </div>
                                 </div>
                                 <div class="group-wrap">
                                   <div class="form-group">
-                                    <label style="font-size:8px" for="history" class="labelss">
-                                        DURATION
-                                    </label>
+                                    <label for="history" class="labelss"> DURATION</label>
                                     <input type = 'number'
                                         [(ngModel)]="session.history.duration"
                                         name="hist-duration"
                                         placeholder = 'in days'
                                         class=" form-control input first"/>
-                                </div>
-                                  <div  class="form-group submit-group">
-                                    <label style="font-size:8px" for="piriod" class="labelss complain">BEARER</label>
+                                  </div>
+                                  <div class="form-group submit-group">
+                                    <label for="piriod" class="labelss">BEARER</label>
                                     <select [(ngModel)]="session.history.bearer"  (focus) = clearMsg()
                                     name='bearer'
                                     autocomplete="off" class=" form-control input last select">
@@ -294,21 +317,21 @@ max-width:100%;">
                                     </table>
                                 </div>
                             </form>
-                            <form *ngIf="count===3"  style="top: 3%; height: 100%;width:60%;margin:auto;position: relative;" class=" ">
+                            <form *ngIf="count===3" style="width:60%;" class="staffsform">
                                 <div class="form-group">
-                                    <label style="font-size:8px" for="request" class="labelss">REQ. TYPE</label>
+                                    <label   for="request" class="labelss">REQ. TYPE</label>
                                     <select id=select (focus) = clearMsg()
                                     (change)=getDescriptions() name='cat'
                                     [(ngModel)]="session.reqItem.category" autocomplete="off"
                                     class="form-control input select">
-                                        <option>Scanning</option>
+                                        <option>Scan</option>
                                         <option>Surgery</option>
                                         <option>Test</option>
                                     </select>
                                 </div>
                                 <div class="group-wrap">
                                   <div *ngIf="session.reqItem.category==='Test'"  class="form-group">
-                                    <label style="font-size:8px" for="dos" class="labelss complain">TEST</label>
+                                    <label   for="dos" class="labelss complain">TEST</label>
                                     <input (focus) = "showSuggestions('tests')" autocomplete="off"
                                     [(ngModel)]="session.test.name" (keyup) = searchTest() name="test" class="form-control input first"
                                     placeholder="Alpha-feto protein PB">
@@ -322,7 +345,7 @@ max-width:100%;">
                                     </div>
                                 </div>
                                 <div *ngIf="session.reqItem.category==='Test'" class="form-group submit-group" >
-                                    <label style="font-size:8px" for="piriod" class="labelss complain">DEPARTMENT</label>
+                                    <label   for="piriod" class="labelss complain">DEPARTMENT</label>
                                     <select [(ngModel)]="session.test.dept"
                                     (focus) = clearMsg()  name='dept'
                                     autocomplete="off" class="form-control input last select">
@@ -330,20 +353,20 @@ max-width:100%;">
                                     </select>
                                     <button class="btn btn-outline-primary" type="submit">
                                       <i *ngIf="session.test.name && session.test.dept" title = "Add Request"
-                                      click)="addRequest()"
+                                      (click)="addRequest()"
                                       class="icon ion-ios-plus-empty arrow "> </i>
                                     </button>
                                 </div>
                                 </div>
                                 <div class="group-wrap">
-                                  <div *ngIf="session.reqItem.category==='Scanning'"  class="form-group ">
-                                    <label style="font-size:8px" for="dos" class="labelss complain">SCAN</label>
+                                  <div *ngIf="session.reqItem.category==='Scan'"  class="form-group ">
+                                    <label   for="dos" class="labelss complain">SCAN</label>
                                     <input autocomplete="off" [(ngModel)]="session.scan.name"
                                     (focus) = "showSuggestions('scans')"
                                     (keyup) = searchScans()  name="scan"
                                     class="form-control input first"
                                     placeholder="e.g Chest X-ray">
-                                    <div  *ngIf="matches.length" class="prisOption edit">
+                                    <div  *ngIf="matches.length" class="prisOption slideIn">
                                         <ul data-simplebar class="itemsList" >
                                             <li *ngFor="let match of matches">
                                                 <p (click)=selectScan(match) class="drugItem"
@@ -353,8 +376,8 @@ max-width:100%;">
                                         </ul>
                                     </div>
                                   </div>
-                                  <div *ngIf="session.reqItem.category==='Scanning'" class="form-group submit-group">
-                                      <label style="font-size:8px" for="piriod" class="labelss complain">DEPARTMENT</label>
+                                  <div *ngIf="session.reqItem.category==='Scan'" class="form-group submit-group">
+                                      <label   for="piriod" class="labelss complain">DEPARTMENT</label>
                                       <select [(ngModel)]="session.scan.dept" (focus) = clearMsg()  name='dept'
                                       autocomplete="off" class="form-control input last select">
                                           <option *ngFor="let dept of getLabs()">{{dept.name}}</option>
@@ -368,7 +391,7 @@ max-width:100%;">
                                   </div>
                                   <div class="group-wrap">
                                     <div *ngIf="session.reqItem.category==='Surgery'"  class="form-group" >
-                                      <label style="font-size:8px" for="surgery" class="labelss complain">SURGERY</label>
+                                      <label   for="surgery" class="labelss complain">SURGERY</label>
                                       <input autocomplete="off"
                                       [(ngModel)]="session.surgery.name"
                                       (focus) = "showSuggestions('surgeries')"
@@ -386,7 +409,7 @@ max-width:100%;">
                                       </div>
                                   </div>
                                   <div *ngIf="session.reqItem.category==='Surgery'" class="form-group submit-group">
-                                      <label style="font-size:8px" for="piriod" class="labelss complain">DEPARTMENT</label>
+                                      <label   for="piriod" class="labelss complain">DEPARTMENT</label>
                                       <select [(ngModel)]="session.surgery.dept" (focus) = clearMsg()
                                           name='dept'  autocomplete="off" class="form-control input last select">
                                           <option *ngFor="let dept of getDepts()">{{dept.name}}</option>
@@ -425,9 +448,9 @@ max-width:100%;">
                                 </div>
                             </form>
 
-                            <form *ngIf="count === 2"  style="top: 3%; height: 100%;width:60%;margin:auto;position: relative;" class=" ">
+                            <form *ngIf="count === 2"  style="width:60%;" class="staffsform">
                                 <div class="form-group">
-                                    <label style="font-size:8px" for="request" class="labelss">VITAL</label>
+                                    <label   for="request" class="labelss">VITAL</label>
                                     <select name="vital" id=select
                                     [(ngModel)] = vital autocomplete="off"
                                     class="form-control input">
@@ -440,7 +463,7 @@ max-width:100%;">
 
                                 <div class="group-wrap">
                                   <div *ngIf="vital==='Blood Presure'"  class="form-group" >
-                                    <label style="font-size:8px" for="dos" class="labelss complain">SYSTOLIC</label>
+                                    <label   for="dos" class="labelss complain">SYSTOLIC</label>
                                     <input (keyup)="clearVital('Blood Presure')"
                                     [(ngModel)]="session.vitals.bp.systolic"
                                     placeholder="mm Hg"   [min]='1'
@@ -449,7 +472,7 @@ max-width:100%;">
                                   </div>
                                   <div *ngIf="vital==='Blood Presure'"
                                       class="form-group submit-group" >
-                                      <label style="font-size:8px" for="piriod" class="labelss complain">DIASTOLIC</label>
+                                      <label   for="piriod" class="labelss complain">DIASTOLIC</label>
                                       <input  (keyup)="clearVital('Blood Presure')"
                                       [(ngModel)]="session.vitals.bp.diastolic"
                                       type="number" [min]='1' name="dystolic"
@@ -461,7 +484,7 @@ max-width:100%;">
                                   </div>
                                 </div>
                                 <div *ngIf="vital === 'Tempreture'" class="form-group submit-group">
-                                  <label style="font-size:8px" for="piriod" class="labelss complain">TEMPRETURE</label>
+                                  <label   for="piriod" class="labelss complain">TEMPRETURE</label>
                                   <input
                                       class="form-control input first"
                                       (keyup)="clearVital('Tempreture')"
@@ -476,7 +499,7 @@ max-width:100%;">
                                 </div>
 
                                 <div *ngIf="vital === 'Pulse Rate'" class="form-group submit-group">
-                                      <label style="font-size:8px" for="piriod" class="labelss complain">PULSE RATE</label>
+                                      <label   for="piriod" class="labelss complain">PULSE RATE</label>
                                       <input
                                         (keyup)="clearVital('Pulse Rate')"
                                         [(ngModel)]="session.vitals.pulse.value"
@@ -488,7 +511,7 @@ max-width:100%;">
                                       </button>
                                 </div>
                                 <div *ngIf="vital === 'Respiratory Rate'" class="form-group submit-group">
-                                    <label style="font-size:8px" for="piriod" class="labelss complain">RESPIRATORY RATE</label>
+                                    <label   for="piriod" class="labelss complain">RESPIRATORY RATE</label>
                                     <input  type="number" [min]='1'
                                       (keyup)="clearVital('Respiratory Rate')"
                                       [(ngModel)]="session.vitals.resp.value"
@@ -524,9 +547,9 @@ max-width:100%;">
                                       </table>
                                   </div>
                             </form>
-                            <form *ngIf="count === 4"  style="top: 3%; height: 100%;width:60%;margin:auto;position: relative;" class=" ">
+                            <form *ngIf="count === 4"  style="width:60%;" class="staffsform">
                                 <div class="form-group submit-group">
-                                    <label style="font-size:8px" for="request" class="labelss">CONDITION</label>
+                                    <label   for="request" class="labelss">CONDITION</label>
                                     <input autocomplete="off"
                                     [(ngModel)]="session.condition.condition"
                                     (focus) = "showSuggestions('conditions')"
@@ -561,16 +584,16 @@ max-width:100%;">
                                                     {{cond.condition}}
                                                 </td>
                                                 <td style='padding:0px; padding-left:3px;text-align: center' class="data">
-                                                    <i (click)=removeCondition(cond.condition,1) class="icon ion-ios-trash-outline tableicon" title="Discard" style="font-size:15px; cursor: pointer;"></i>
+                                                    <i (click)=removeCondition(cond.condition,i) class="icon ion-ios-trash-outline tableicon" title="Discard" style="font-size:15px; cursor: pointer;"></i>
                                                 </td>
                                             </tr>
                                         </tbody>
                                     </table>
                                 </div>
                             </form>
-                            <form *ngIf="count===5"  style="top: 3%; width:60%;margin:auto;position: relative;" class=" ">
+                            <form *ngIf="count===5"  style="width:60%;" class="staffsform">
                                 <div class="form-group">
-                                    <label style="font-size:8px" for="drug" class="labelss">PRODUCT</label>
+                                    <label   for="drug" class="labelss">PRODUCT</label>
                                     <input  (focus) = "showSuggestions('medications')"
                                     (keyup)= searchMedications()
                                     [(ngModel)]=session.medication.name
@@ -590,13 +613,13 @@ max-width:100%;">
                                 </div>
                                 <div class="group-wrap">
                                   <div class="form-group">
-                                    <label style="font-size:8px" for="dos" class="labelss complain">INTAE</label>
+                                    <label   for="dos" class="labelss complain">INTAE</label>
                                     <input [(ngModel)]="session.medication.priscription.intake"
                                      [min]='0.5' type="number" step='0.5' name="dos"
                                      class="form-control input first">
                                   </div>
                                   <div class="form-group" >
-                                      <label style="font-size:8px" for="freq" class="labelss complain">FREQ</label>
+                                      <label   for="freq" class="labelss complain">FREQ</label>
                                       <select id=select (focus) = clearMsg()
                                       [(ngModel)]="session.medication.priscription.freq"
                                       class="form-control input mid  " name="freq">
@@ -607,7 +630,7 @@ max-width:100%;">
                                       </select>
                                   </div>
                                   <div class="form-group submit-group">
-                                      <label style="font-size:8px" for="piriod" class="labelss complain">DAYS</label>
+                                      <label   for="piriod" class="labelss complain">DAYS</label>
                                       <input  name='days' [(ngModel)]="session.medication.priscription.piriod"
                                       type="number" [min]='1' name="piriod" class="form-control input last">
                                       <button class="btn btn-outline-primary">

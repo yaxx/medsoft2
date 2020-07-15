@@ -1,14 +1,11 @@
 
 <router-outlet></router-outlet>
-<div [ngClass]= getClass() style="background: white;z-index:1035" class="sidenav">
-
-  <div (click)=toggleMainMenu() class="handbuger"><span></span></div>
-
-<a  *ngIf="isBillable()"    href="#"
+<div  style="background: white;z-index:1035" class="sidenav">
+  <!-- <div (click)=toggleMainMenu() class="handbuger"><span></span></div> -->
+<a  *ngIf="isBillable()"  href="#"
   [routerLink]="['./']"
   [routerLinkActiveOptions]={exact:true}  routerLinkActive="router-link-active"  class="home reviewmenu" title="Pending Orders"><span class="homespan">
 <i class="icon ion-ios-people-outline homeicon"></i></span>
-
 </a>
 
 <a *ngIf = isPharmacy()   href="#"
@@ -17,7 +14,7 @@
   <span class="homespan">
       <i  style ='font-size: 26px;position:relative;' class="icon ion-android-apps homeicon"></i>
   </span>
-  <span [ngClass]="{'no-display':!menuOpened}" class="mlabel">Pharmacy</span>
+  <!-- <span [ngClass]="{'no-display':!menuOpened}" class="mlabel">Pharmacy</span> -->
 </a>
 
 <a *ngIf = isInfo()   href="#"
@@ -26,7 +23,7 @@
   <span class="homespan">
       <i  style ='font-size: 26px;position:relative;' class="icon ion-android-apps homeicon"></i>
   </span>
-  <span [ngClass]="{'no-display':!menuOpened}" class="mlabel">Billings</span>
+  <!-- <span [ngClass]="{'no-display':!menuOpened}" class="mlabel">Billings</span> -->
 </a>
 
 
@@ -37,7 +34,7 @@
     <span class="homespan">
         <i  style ='font-size: 26px;position:relative; ' class="icon ion-ios-checkmark-outline homeicon"></i>
     </span>
-    <span [ngClass]="{'no-display':!menuOpened}" class="mlabel">Discharged</span>
+    <!-- <span [ngClass]="{'no-display':!menuOpened}" class="mlabel">Discharged</span> -->
 </a>
 
 <a *ngIf='isConsult()'  href="#"
@@ -46,7 +43,7 @@
     <span class="homespan">
         <i  style ='font-size: 26px;position:relative; ' class="icon ion-ios-checkmark-outline homeicon"></i>
     </span>
-    <span [ngClass]="{'no-display':!menuOpened}" class="mlabel">Discharged</span>
+    <!-- <span [ngClass]="{'no-display':!menuOpened}" class="mlabel">Discharged</span> -->
 </a>
 
 
@@ -58,7 +55,7 @@
   <span class="homespan">
       <i class="icon ion-ios-people-outline homeicon"></i>
   </span>
-  <span [ngClass]="{'no-display':!menuOpened}" class="mlabel">Consultations</span>
+  <!-- <span [ngClass]="{'no-display':!menuOpened}" class="mlabel">Consultations</span> -->
 </a>
 
 <a *ngIf='isAdmin() || isInfo() ' href="#"
@@ -67,7 +64,7 @@
   <span class="homespan">
       <i class="icon ion-ios-people-outline homeicon"></i>
   </span>
-  <span [ngClass]="{'no-display':!menuOpened}" class="mlabel">Consultations</span>
+  <!-- <span [ngClass]="{'no-display':!menuOpened}" class="mlabel">Consultations</span> -->
 </a>
 
 
@@ -78,7 +75,7 @@
     <span class="homespan">
       <i class="homeicon wardicon" style ='font-size: 26px; color: rgb(158, 158, 158); position: relative; ' class="icon ion-ios-help-outline fa-2x fa-fw"></i>
     </span>
-    <span [ngClass]="{'no-display':!menuOpened}" class="mlabel">Admisions</span>
+    <!-- <span [ngClass]="{'no-display':!menuOpened}" class="mlabel">Admisions</span> -->
 </a>
 
 <a *ngIf='isAdmin() || isInfo() || isConsult()' href="#"
@@ -87,7 +84,7 @@
   <span class="homespan">
       <i class="icon ion-ios-calendar-outline homeicon"></i>
   </span>
-  <span [ngClass]="{'no-display':!menuOpened}" class="mlabel">Apppointments</span>
+  <!-- <span [ngClass]="{'no-display':!menuOpened}" class="mlabel">Apppointments</span> -->
 </a>
 
 <a  *ngIf='isConsult() || isInfo() || isWard() || isAdmin()' href="#"
@@ -96,7 +93,7 @@
     <span class="homespan">
         <i  style ='font-size: 26px;position:relative; ' class="icon ion-ios-close-outline homeicon"></i>
     </span>
-    <span [ngClass]="{'no-display':!menuOpened}" class="mlabel">Deceased</span>
+    <!-- <span [ngClass]="{'no-display':!menuOpened}" class="mlabel">Deceased</span> -->
 </a>
 
 
@@ -107,7 +104,7 @@
     <span class="homespan">
         <i  style ='font-size: 26px;position:relative;' class="icon ion-android-apps homeicon"></i>
     </span>
-    <span [ngClass]="{'no-display':!menuOpened}" class="mlabel">Inventory</span>
+    <!-- <span [ngClass]="{'no-display':!menuOpened}" class="mlabel">Inventory</span> -->
 </a>
 
 
@@ -117,7 +114,7 @@ routerLinkActive="router-link-active"  class="home reviewmenu" title="Notificati
     <span class="homespan">
         <i  style ='position:relative;' class="icon ion-stats-bars homeicon"></i>
     </span>
-    <span [ngClass]="{'no-display':!menuOpened}" class="mlabel">Dashbord</span>
+    <!-- <span [ngClass]="{'no-display':!menuOpened}" class="mlabel">Dashbord</span> -->
 </a>
 
 
@@ -129,7 +126,7 @@ routerLinkActive="router-link-active"  class="home reviewmenu" title="Notificati
   <span class="homespan">
     <i style='font-size: 26px;' class="icon ion-ios-chatbubble-outline fa-2x fa-fw"></i>
   </span>
-  <span [ngClass]="{'no-display':!menuOpened}" class="mlabel">Messages</span>
+  <!-- <span [ngClass]="{'no-display':!menuOpened}" class="mlabel">Messages</span> -->
 </a>
 
 <a  href="#"
@@ -138,14 +135,14 @@ routerLinkActive="router-link-active"  class="home reviewmenu" title="Notificati
     <span class="homespan">
         <i  style ='font-size: 26px;position:relative;' class="icon ion-android-notifications-none homeicon"></i>
     </span>
-    <span [ngClass]="{'no-display':!menuOpened}" class="mlabel">Notifications</span>
+    <!-- <span [ngClass]="{'no-display':!menuOpened}" class="mlabel">Notifications</span> -->
 </a>
 
 <a style='position:absolute; bottom:2px' href="#" *ngIf='admin==="admin"'  [routerLink]="['./settings']" routerLinkActive="router-link-active" class="home settings" title="Settings">
   <span class="homespan">
     <i class="icon ion-ios-gear-outline homeicon"></i>
   </span>
-  <span [ngClass]="{'no-display':!menuOpened}" class="mlabel">Settings</span>
+  <!-- <span [ngClass]="{'no-display':!menuOpened}" class="mlabel">Settings</span> -->
 </a>
 
 </div>

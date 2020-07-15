@@ -100,13 +100,13 @@ a:active, a:hover {
 
 .home:hover {
   /* border-right:2px solid #0798f1; */
-  background: whitesmoke;
+ background: rgba(33, 150, 243, 0.0784313725490196);
 
 }
 
 
-.router-link-active {
-  background: whitesmoke;
+.router-link-active i{
+  color: rgba(15, 143, 248, 0.49);
 }
 
 

@@ -581,10 +581,8 @@ option {
 .form-group label {
   position: absolute;
   font-size: 8px;
-  color: lightgray;
   background: white;
   bottom: 72%;
-  left: 11%;
 }
 .submit-group {
   flex-direction: row;

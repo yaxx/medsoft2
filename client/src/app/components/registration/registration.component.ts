@@ -96,7 +96,14 @@ export class RegistrationComponent implements OnInit {
           break;
         case 'disposition':
           if (update.patient.record.visits[0][0].status === 'out' ) {
-            this.patients.unshift({ ...update.patient, card: { menu: false, view: 'front', indicate: true } });
+            this.patients.unshift({
+              ...update.patient,
+              card: {
+                menu: false,
+                view: 'front',
+                indicate: true
+              }
+            });
           }
           break;
         default:
@@ -137,6 +144,12 @@ export class RegistrationComponent implements OnInit {
   }
   getMyDp() {
     return this.getDp(this.cookies.get('d'));
+  }
+  getBackgrounds() {
+    const url = this.getMyDp();
+    return {
+      backgroundImage: `url(${url})`,
+    };
   }
   logOut() {
     this.dataService.logOut();
@@ -258,7 +271,8 @@ export class RegistrationComponent implements OnInit {
       ]);
       } else {
         this.patient.record.visits.unshift([{
-          ...this.visit, status: 'queued'
+          ...this.visit,
+          status: 'queued'
         }]);
       }
       this.dataService.updateRecord(this.patient).subscribe((patient) => {
@@ -276,8 +290,8 @@ export class RegistrationComponent implements OnInit {
      this.errorMsg = 'Unable to Enroled Patient';
    });
   } else {
-    this.errorMsg = 'Invalid Card Number';
-  }
+      this.errorMsg = 'Invalid Card Number';
+    }
   }
   clearError() {
     this.errorMsg = null;
@@ -288,6 +302,25 @@ export class RegistrationComponent implements OnInit {
       );
     this.patient.record.visits = [[new Visit()]];
   }
+  returnFolder(i) {
+    this.patient.record.visits[0][0].status = 'queued';
+    this.dataService.updateRecord(this.patient).subscribe((patient) => {
+      this.successMsg = 'Folder successfully returned';
+      this.processing = false;
+      this.socket.io.emit('record update', {action: 'return', patient});
+      setTimeout(() => {
+        this.successMsg = null;
+        this.switchCardView(i, 'front');
+      }, 3000);
+      setTimeout(() => {
+        this.patients.splice(i, 1);
+      }, 6000);
+    }, (e) => {
+     this.processing = false;
+     this.errorMsg = 'Unable to return folder';
+   });
+  }
+
   addRecord() {
     if (!this.errorMsg) {
         this.addDefaults();

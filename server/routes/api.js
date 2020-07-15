@@ -2,7 +2,7 @@
 const mongoose = require ('mongoose')
 const Person = require('../models/schemas/person')
 const Client = require ('../models/schemas/client')
-const Capture = require ('../models/schemas/capture')
+const Suggestion = require ('../models/schemas/suggestions')
 const Department = require ('../models/schemas/department')
 const multer = require ('multer')
 const path = require('path');
@@ -133,7 +133,7 @@ catch (e) {
 getPatients: async (req, res) => {
   try {
     const {info: {official}} = await Person.findById(req.cookies.i).select('info');
-    let patients = await Person.find()
+    let patients = await Person.find().sort({'updatedAt':-1});
     patients = Array.from(patients)
     .filter(person => person.info.official.department === null);
     //record transformation
@@ -234,7 +234,7 @@ getPatients: async (req, res) => {
     //   patients = patients.slice(Number(req.params.page) * 9);
     // }
   //  console.log(patients.length)
-    res.send(patients.reverse())
+    res.send(patients)
   }
   catch(e){
     throw e
@@ -377,11 +377,11 @@ runTransaction: async (req, res) => {
       let totalSpace = nameSpace + ammountSapce
       totalAmount += r.price
       let s = '';
-      for(let i = 0; i<totalSpace; i++) {
+      for(let i = 0; i < totalSpace; i++) {
         s = s.concat(' ');
       }
       reciepts.push({
-        text:r.name + s + r.price, align:"LEFT", width:0.65
+        text: r.name + s + r.price, align:"LEFT", width:0.65
       })
     })
     // device.open(function(error) {
@@ -522,8 +522,8 @@ updateInfo: async (req, res) => {
 },
 updateRecord: async (req, res) => {
   try {
-    console.log(req.body)
-    await Capture.insertMany(req.body.items);
+    console.log(req.body.item)
+    await Suggestion.insertMany(req.body.items);
     const person = await Person.findByIdAndUpdate(
       req.body.patient._id, {
         record: req.body.patient.record
@@ -595,7 +595,7 @@ addCard: async (req, res) => {
 },
 getHistory: async (req, res) => {
   try {
-    const captures = await Capture.find()
+    const suggestions = await Suggestion.find()
     const patient = await Person.findById(req.params.id)
     .populate({
       path:'record.notes.meta.addedBy', select:'info'
@@ -608,7 +608,7 @@ getHistory: async (req, res) => {
       populate: {path: 'report.meta.addedBy', select: 'info'}
     })
     .exec()
-    res.send({patient, captures}) 
+    res.send({patient, suggestions}) 
   }
   catch(e){
     throw e
@@ -617,9 +617,7 @@ getHistory: async (req, res) => {
 },
 updateHistory: async(req, res) => {
   try {
-     console.log(req.body)
-   const c = await Capture.insertMany(req.body.captures);
-   console.log(c)
+   const c = await Suggestion.insertMany(req.body.suggestions);
     const person = await Person.findByIdAndUpdate(
       req.body.patient._id, {
         record: req.body.patient.record
@@ -697,7 +695,14 @@ updateMedication: async (req, res) => {
 
 addProduct: async (req, res) => {
   try {
-    const client = await Client.findByIdAndUpdate(req.cookies.h, { $push: {inventory: { $each: req.body.products}}}, {new: true} )
+    const client = await Client.findByIdAndUpdate(req.cookies.h, { 
+      $push: {
+        inventory: {
+          $each: req.body.products
+        }
+      }
+    }, {new: true} 
+    )
     let cart = client.inventory.splice(client.inventory.length - req.body.products.length, req.body.products.length)
     res.send(cart)
 }
@@ -806,7 +811,6 @@ getMessages: function (req, res) {
 getProfile: function (req, res) {
   User.find({username: req.cookies.username}, (err, prof) => {
     if (!err) {
-  
       res.send(prof)
     } else { console.log(err) }
   })
@@ -817,7 +821,6 @@ comments: function (req, res) {
 getPeople: function (req, res) {
   User.find({}, 'name username dp address _id', (err, ppl) => {
     if (!err) {
-      // console.log(ppl)
       res.send(ppl)
     } else {
        console.log(err)
@@ -831,6 +834,6 @@ index: function (req, res) {
 
   }
   res.redirect(304, 'login')
-}
+ }
 
 }

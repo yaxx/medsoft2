@@ -475,7 +475,7 @@
 </div>
 
 
-<nav class="navbar fixed-top navbar-light navbar-expand-md navigation-clean-search" style="padding:0px; margin-bottom:0px;">
+<!-- <nav class="navbar fixed-top navbar-light navbar-expand-md navigation-clean-search" style="padding:0px; margin-bottom:0px;">
     <div class="container">
         <a class="navbar-brand" href="#">
             <em>{{appName}}</em>
@@ -513,31 +513,21 @@
     <i *ngIf="tableView ==='Products'" style="left:75%;" class="icon ion-ios-plus-empty arrow buble" id="add" title="Add Product" data-target="#productModal" data-toggle="modal"></i>
     <i *ngIf="tableView === 'Services'" style="left:75%;" class="icon ion-ios-plus-empty arrow buble" id="add" title="Add Service" data-target="#productModal" data-toggle="modal"></i>
     <i *ngIf="tableView === 'Cards'" style="left:75%;" class="icon ion-ios-plus-empty arrow buble" id="add" title="Add Card" data-target="#productModal" data-toggle="modal"></i>
+</nav> -->
 
-    <!-- <div (mouseleave) = hideLogOut() class="timeline lastdoc priscriber headerdp small-dp user-dp" style="left:90%;position:absolute;height:87px;width:90px;top:5px; margin-bottom:0px;background:inherit">
-        <div  class="timeline lastdoc priscriber headerdp small-dp user-dp" style="position:absolute;height:30px;width:30px;top:5px; margin-bottom:0px;">
-            <img (click) = showLogOut() style='height:100%; width:100%; object-fit:cover; cursor: pointer;' [src]=getMyDp()/>
-            <span *ngIf="logout">
-                <div style='position: absolute;width: 100px;top: 33px;height: 34px; padding-left: 0px;left: -95%;' class="menu">
-                    <ul  class="actions primary">
-                        <li style="text-align: center;padding-left: 0px;" (click)=logOut() class="action">
-                            Log out
-                        </li>
-                    </ul>
-                </div>
-            </span>
-            <i style="top: -26px;left: 31px;" (click) ='showLogOut()' class="icon ion-ios-arrow-down shevron"></i>
-        </div>
-    </div> -->
-</nav>
-
-
+<header class="header-main">
+  <nav>
+    <div class="logo-box">
+      <a href="/" ><h1 class="logo">S.</h1></a>
+    </div>
+    <div class="search-box"></div>
+    <div class="view-box"></div>
+  </nav>
+</header>
 
 
 
 <div style="padding-top:43px;height:100%" class=" col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
-
-
   <table class="main-table" *ngIf="tableView ==='Products'||tableView ==='Services' ||tableView ==='Cards'" cellspacing="0" class="data-table" summary="List of all items in store. ">
         <thead>
             <tr>

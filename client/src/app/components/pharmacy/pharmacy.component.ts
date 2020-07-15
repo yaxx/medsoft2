@@ -156,7 +156,7 @@ export class PharmacyComponent implements OnInit {
       this.message = '...Network Error';
     });
   }
-  
+
   recordChanged(bills: string[]) : boolean {
     return (bills.length && bills.some(bill => bill === 'Medication')) ? true : false;
   }
@@ -204,7 +204,12 @@ export class PharmacyComponent implements OnInit {
     this.nowSorting = order;
     this.patients = sorter(this.patients, order)
   }
-
+  getBackgrounds() {
+    const url = this.getMyDp();
+    return {
+      backgroundImage: `url(${url})`,
+    };
+  }
   selectItem(i: number, j: number) {
    this.invoices[i][j].meta.selected = !this.invoices[i][j].meta.selected;
   }

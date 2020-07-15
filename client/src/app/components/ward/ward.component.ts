@@ -183,7 +183,12 @@ export class WardComponent implements OnInit {
         this.url = ev.target.result;
       };
     }
-
+  }
+  getBackgrounds() {
+    const url = this.getMyDp();
+    return {
+      backgroundImage: `url(${url})`,
+    };
   }
   searchPatient(name: string) {
     if (!this.temp.length) {

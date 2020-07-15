@@ -104,56 +104,48 @@
 
 
 
-<nav class="navbar fixed-top navbar-light navbar-expand-md navigation-clean-search" style="padding:0px; margin-bottom:1px solid whitesmoke;">
-    <div class="container">
-        <a class="navbar-brand" href="#">
-            <em>{{appName}}</em>
-        </a>
-        <button class="navbar-toggler" data-toggle="collapse" data-target="#navcol-1">
-          <span class="sr-only">Toggle navigation</span>
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navcol-1">
-            <ul class="nav navbar-nav"></ul>
-            <form class="top-searchform" target="_self">
-                <div class="form-group">
-                    <input [(ngModel)]=searchTerm #search (keyup)="searchPatient(searchTerm)" autocomplete="off" style="border-radius:.999em;   width:80%;display:inline-block;
-                position: absolute;text-align: left;vertical-align: middle;top:11%; box-shadow:none;
-               outline:none; background-color: rgba(233, 236, 239, 0.7);
-                " class="form-control" type="search" name="search" id="search-field" placeholder="Search patient">
-                    <i style='font-size:20px; top:3px;left:83%;position:relative;display:inline' class="icon ion-ios-search " title="Search"></i>
-                    <h6 style='font-size:12px;left:98%;position:relative;display:inline-block;
-                     color:grey; font-weight:normal;'>Sort:&nbsp;<span style='cursor:pointer; color:#1da1f2;'  (click)
-                           ='toggleSortMenu()'>{{nowSorting}}</span><i  (click) ='toggleSortMenu()' class="icon ion-ios-arrow-down shevron"></i></h6>
-                    <div *ngIf=sortMenu style='position: absolute;left:120%; width:100px;top:6px;height:110px' class="menu">
-                        <ul (mouseleave)='toggleSortMenu()' class="actions primary">
-                            <li (click)='sortPatients("A-Z")' class="action">A-Z</li>
-                            <li (click)='sortPatients("Age")' class="action">Age</li>
-                            <li (click)='sortPatients("Gender")' class="action">Gender</li>
-                            <li (click)='sortPatients("Date")' class="action">Date</li>
-                        </ul>
-                    </div>
-                </div>
-            </form>
-        </div>
+<header class="header-main">
+  <nav>
+    <div class="logo-box">
+      <a href="/"><h1 class="logo">O</h1></a>
     </div>
-
-    <div (mouseleave) = hideLogOut() class="timeline lastdoc priscriber headerdp small-dp user-dp" style="left:90%;position:absolute;height:87px;width:90px;top:5px; margin-bottom:0px;background:inherit">
-        <div  class="timeline lastdoc priscriber headerdp small-dp user-dp" style="position:absolute;height:30px;width:30px;top:5px; margin-bottom:0px;">
-            <img (click) = showLogOut() style='height:100%; width:100%; object-fit:cover; cursor: pointer;' [src]=getMyDp()/>
-            <span *ngIf="logout">
-                <div style='position: absolute;width: 100px;top: 33px;height: 34px; padding-left: 0px;left: -95%;' class="menu">
-                    <ul  class="actions primary">
-                        <li style="text-align: center;padding-left: 0px;" (click)=logOut() class="action">
-                            Log out
-                        </li>
-                    </ul>
-                </div>
-            </span>
-            <i style="top: -26px;left: 31px;" (click) ='showLogOut()' class="icon ion-ios-arrow-down shevron"></i>
-        </div>
+    <div class="search-box">
+      <form class='search__form'>
+        <svg viewBox="0 0 24 24" class="search__icon">
+          <g><path d="M21.53 20.47l-3.66-3.66C19.195 15.24 20 13.214 20 11c0-4.97-4.03-9-9-9s-9 4.03-9 9 4.03 9 9 9c2.215 0 4.24-.804 5.808-2.13l3.66 3.66c.147.146.34.22.53.22s.385-.073.53-.22c.295-.293.295-.767.002-1.06zM3.5 11c0-4.135 3.365-7.5 7.5-7.5s7.5 3.365 7.5 7.5-3.365 7.5-7.5 7.5-7.5-3.365-7.5-7.5z"></path></g>
+        </svg>
+        <input type="search" name="search" autocomplete="off" placeholder='Search Patient' class='form-control input search'>
+      </form>
     </div>
-</nav>
+    <div class="view-box">
+      <div *ngIf=sortMenu  class="sort__options">
+        <ul class='list__options' (mouseleave)='toggleSortMenu()'>
+          <li (click)='sortPatients("A-Z")' class="action">A-Z</li>
+          <li (click)='sortPatients("Age")' class="action">Age</li>
+          <li (click)='sortPatients("Gender")' class="action">Gender</li>
+          <li (click)='sortPatients("Date")' class="action">Date</li>
+      </ul>
+      </div>
+      <h6>Sort:
+        <span style='cursor:pointer' (click) ='toggleSortMenu()'>{{nowSorting}}</span>
+      </h6>
+      <div *ngIf='isInfo()' class="add__patient__box">
+        <i (click) = clearPatient() style="left:75%;" class="icon ion-ios-plus-empty" title="Add Patient" data-target="#addModal" data-toggle="modal"></i>
+      </div>
+    </div>
+  </nav>
+  <div (mouseleave) = hideLogOut() class="log__box">
+    <div (click) ='showLogOut()' [ngStyle] = getBackgrounds() class="dp__box"></div>
+    <div *ngIf="logout" class="log__out">
+      <ul class='list__options'>
+        <li (click)=logOut()>
+            Log out
+        </li>
+    </ul>
+    </div>
+    <i (click) ='showLogOut()' class="icon ion-ios-arrow-down"></i>
+  </div>
+</header>
 <div  style="padding-top:60px" class="container">
     <div style=position:absolute id="more" (click) = onScroll() ></div>
     <div class="row">

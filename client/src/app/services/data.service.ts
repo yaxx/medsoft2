@@ -120,9 +120,9 @@ export class DataService {
     return this.http.post(
       `${this.uri}/add-card`, {patient, card, invoice, entry} , {withCredentials: true});
  }
-  updateHistory(patient, captures = []) {
+  updateHistory(patient, suggestions = []) {
     return this.http.post(
-      `${this.uri}/update-history`, {patient, captures} , {withCredentials: true});
+      `${this.uri}/update-history`, {patient, suggestions} , {withCredentials: true});
  }
   updateInfo(info, id) {
     return this.http.post(

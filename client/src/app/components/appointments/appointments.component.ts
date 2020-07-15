@@ -273,7 +273,12 @@ getPatients(type?: string) {
       p.card.menu =  false;
     });
   }
-
+  getBackgrounds() {
+    const url = this.getMyDp();
+    return {
+      backgroundImage: `url(${url})`,
+    };
+  }
    switchCardView(i , view) {
     this.patients[this.curIndex].card.view = 'front';
     this.curIndex = i;

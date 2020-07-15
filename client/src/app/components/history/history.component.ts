@@ -23,6 +23,7 @@ import {
 import {Chart} from 'chart.js';
 import {saveAs} from 'file-saver';
 import {host} from '../../util/url';
+
 // import { truncateSync } from 'fs';
 
 
@@ -33,12 +34,13 @@ import {host} from '../../util/url';
 })
 export class HistoryComponent implements OnInit {
   products: Product[] = [];
-  captures = [];
+  suggestions = [];
   clonedPatient: Person = new Person();
   clonedPatients: Person[] = [];
   department: Department = new Department();
   session: Session = new Session();
   vaccins: any[] = Vaccins;
+  allegies = [];
   feedback = null;
   currentImage = 0;
   count = 0;
@@ -48,6 +50,7 @@ export class HistoryComponent implements OnInit {
   clonedTest = [];
   images = [];
   editing = null;
+  elm = null;
   logout = false;
   tests = Tests;
   scannings = Scannings;
@@ -168,28 +171,31 @@ export class HistoryComponent implements OnInit {
     this.loading = true;
     this.dataService.getHistory(this.route.snapshot.params.id).subscribe((res: any) => {
       this.loading = false;
-      res.captures.forEach(capture => {
-        switch (capture.category) {
+      res.suggestions.forEach(suggestion => {
+        switch (suggestion.category) {
           case 'complain':
-            this.complains.unshift(capture.name);
+            this.complains.unshift(suggestion.name);
             break;
           case 'condition':
-            this.conditions.unshift(capture.name);
+            this.conditions.unshift(suggestion.name);
             break;
           case 'history':
-            this.histories.unshift(capture.name);
+            this.histories.unshift(suggestion.name);
             break;
           case 'test':
-            this.tests.unshift(capture.name);
+            this.tests.unshift(suggestion.name);
             break;
           case 'scan':
-            this.scans.unshift(capture.name);
+            this.scans.unshift(suggestion.name);
             break;
           case 'surgery':
-            this.surgeries.unshift(capture.name);
+            this.surgeries.unshift(suggestion.name);
             break;
           case 'medication':
-            this.medications.unshift(capture.name);
+            this.medications.unshift(suggestion.name);
+            break;
+          case 'allegy':
+            this.allegies.unshift(suggestion.name);
             break;
           default:
             break;
@@ -474,7 +480,7 @@ export class HistoryComponent implements OnInit {
         this.session.vitals = new Vitals();
         this.editing = null;
         this.hideEdidt();
-        this.captures = [];
+        this.suggestions = [];
       }, 3000);
     }, (e) => {
       this.errLine = 'Unable to update record';
@@ -538,7 +544,7 @@ getDescriptions() {
     this.session.desc = this.surgeries;
     this.clearSuggestions();
     break;
-  case 'Scanning':
+  case 'Scan':
     this.session.desc  = this.scannings;
     this.clearSuggestions();
     break;
@@ -550,21 +556,22 @@ getDescriptions() {
     break;
   }
 }
+
 removeMedication(i: number) {
   this.session.medications.splice(i, 1);
   this.session.invoices.splice(i, 1);
 }
 removeComplain(complain: string, i: number) {
   this.session.complains.splice(i, 1);
-  this.captures.splice(this.captures.findIndex(c => c.name ===  complain), 1);
+  this.suggestions.splice(this.suggestions.findIndex(c => c.name ===  complain), 1);
 }
 removeHistory(complain: string, i: number) {
   this.session.histories.splice(i, 1);
-  this.captures.splice(this.captures.findIndex(c => c.name ===  complain), 1);
+  this.suggestions.splice(this.suggestions.findIndex(c => c.name ===  complain), 1);
 }
 removeCondition(condition: string, i: number) {
   this.session.conditions.splice(i, 1);
-  this.captures.splice(this.captures.findIndex(c => c.name ===  condition), 1);
+  this.suggestions.splice(this.suggestions.findIndex(c => c.name ===  condition), 1);
 }
 removePriscription(i: number) {
   this.session.medications.splice(i, 1);
@@ -573,6 +580,16 @@ removePriscription(i: number) {
 removeTest(i) {
  this.tests.splice(i, 1);
  this.session.invoices.splice(i, 1);
+}
+searchAllegies() {
+  this.matches = [];
+  if (!this.session.allegies.allegy) {
+     this.matches = [];
+  } else {
+      this.matches = this.allegies.filter((name) => {
+      return new RegExp('\^' + this.session.allegies.allegy, 'i').test(name);
+    });
+  }
 }
 searchTest() {
   this.matches = [];
@@ -643,6 +660,10 @@ searchMedications() {
       return patern.test(name);
     });
   }
+}
+selectAllegy(match) {
+  this.session.allegies.allegy = match;
+  this.matches = [];
 }
 selectMedic(match) {
   this.session.medication.name = match;
@@ -961,40 +982,38 @@ addInvoice(name: string, itemType: string) {
 clearSuggestions() {
   this.matches = [];
 }
-showSuggestions(field) {
+showSuggestions(field){
+  this.elm = (field==='history'||field==='allegy') ? field : null;
+  this.errLine = null;
   switch (field) {
     case 'tests':
       this.matches = this.tests.slice(0, 50);
-      this.errLine = null;
       break;
     case 'complains':
       this.matches = this.complains.slice(0, 50);
-      this.errLine = null;
       break;
     case 'history':
       this.matches = this.histories.slice(0, 50);
-      this.errLine = null;
       break;
     case 'conditions':
       this.matches = this.conditions.slice(0, 50);
-      this.errLine = null;
       break;
     case 'surgeries':
       this.matches = this.surgeries.slice(0, 50);
-      this.errLine = null;
       break;
     case 'scans':
       this.matches = this.scans.slice(0, 50);
-      this.errLine = null;
       break;
     case 'medications':
       this.matches = this.medications.slice(0, 50);
-      console.log(this.matches);
-      this.errLine = null;
+      break;
+    case 'allegy':
+      this.matches = this.allegies.slice(0, 50);
       break;
       default:
       break;
   }
+  console.log(this.matches)
 }
 invoiceExist(name) {
   return this.session.invoices.some(invoice => invoice.name === name);
@@ -1015,7 +1034,7 @@ addMedication() {
     )
   });
   this.addInvoice(this.session.medication.name, 'Medication');
-  this.addCapture('medication');
+  this.addSuggestion('medication');
   this.session.medication = new Medication();
 }
 }
@@ -1030,7 +1049,7 @@ addTest() {
       )
     });
     this.addInvoice(this.session.test.name, 'Test');
-    this.addCapture('test');
+    this.addSuggestion('test');
     this.session.test = new Test();
   }
 }
@@ -1044,7 +1063,7 @@ addSurgery() {
       this.cookies.get('h')
       )
   });
-     this.addCapture('surgery');
+     this.addSuggestion('surgery');
      this.addInvoice(this.session.surgery.name, 'Surgery');
      this.session.surgery = new Surgery();
   }
@@ -1057,7 +1076,7 @@ addScanning() {
     ...this.session.scan,
     meta: new Meta(this.cookies.get('i'), this.cookies.get('h'))
   });
-     this.addCapture('scan');
+     this.addSuggestion('scan');
      this.addInvoice(this.session.scan.name, 'Scan');
      this.session.scan = new Scan();
   }
@@ -1074,7 +1093,7 @@ addComplain() {
      ...this.session.complain,
      meta: new Meta(this.cookies.get('i'), this.cookies.get('h'))
    });
-     this.addCapture('complain');
+     this.addSuggestion('complain');
      this.session.complain = new Complain();
   } else {
     this.errLine = 'Complain already added';
@@ -1086,79 +1105,88 @@ addHistory() {
      ...this.session.history,
      meta: new Meta(this.cookies.get('i'), this.cookies.get('h'))
    });
-     this.addCapture('history');
+     this.addSuggestion('history');
      this.session.history = new History();
   } else {
     this.errLine = 'History already added';
   }
  }
  addCondition() {
-  if (!this.session.conditions.some(c => c.condition === this.session.condition.condition)) {
+  if (!this.session.conditions
+    .some(c => c.condition === this.session.condition.condition)
+    ) {
      this.session.conditions.unshift({
      ...this.session.condition,
      meta: new Meta(this.cookies.get('i'), this.cookies.get('h'))
      });
-     this.addCapture('condition');
+     this.addSuggestion('condition');
      this.session.condition = new Condition();
   } else {
     this.errLine = 'Condition already added';
   }
  }
-addCapture(capture: string) {
-  switch (capture) {
+addSuggestion(suggestion: string) {
+  switch (suggestion) {
     case 'complain':
       if (!this.complains.find(complain => complain === this.session.complain.complain) ) {
-        this.captures.unshift({
-          category: capture,
+        this.suggestions.unshift({
+          category: suggestion,
           name: this.session.complain.complain
         });
       }
       break;
     case 'history':
       if (!this.histories.find(h => h.condition === this.session.history.condition) ) {
-        this.captures.unshift({
-          category: capture,
+        this.suggestions.unshift({
+          category: suggestion,
           name: this.session.history.condition
         });
       }
       break;
     case 'surgery':
       if ( !this.surgeries.find(name => name === this.session.surgery.name)) {
-        this.captures.unshift({
-          category: capture,
+        this.suggestions.unshift({
+          category: suggestion,
           name: this.session.surgery.name
         });
       }
       break;
     case 'scan':
       if (!this.scans.find(name => name === this.session.scan.name)) {
-        this.captures.unshift({
-          category: capture,
+        this.suggestions.unshift({
+          category: suggestion,
           name: this.session.scan.name
         });
       }
       break;
     case 'test':
       if ( !this.tests.find(name => name === this.session.test.name)) {
-        this.captures.unshift({
-          category: capture,
+        this.suggestions.unshift({
+          category: suggestion,
           name: this.session.test.name
         });
       }
       break;
     case 'condition':
       if (!this.conditions.find(condition => condition === this.session.condition.condition)) {
-        this.captures.unshift({
-          category: capture,
+        this.suggestions.unshift({
+          category: suggestion,
           name: this.session.condition.condition
         });
       }
       break;
     case 'medication':
-      if (!this.medications.find(name => name === this.session.medication.name)) {
-        this.captures.unshift({
-          category: capture,
+      if(!this.medications.find(name => name === this.session.medication.name)) {
+        this.suggestions.unshift({
+          category: suggestion,
           name: this.session.medication.name
+        });
+      }
+    case 'allegy':
+      if (!this.allegies.find(name => name === this.session.allegies.allegy)) {
+        this.suggestions.unshift({
+          category: 'allegy',
+          name: this.session.allegies.allegy
         });
       }
       break;
@@ -1181,7 +1209,7 @@ addRequest() {
     this.session.reqItem = new Item();
     this.session.desc = [];
     break;
-  case 'Scanning':
+  case 'Scan':
     this.addScanning();
     this.session.reqItem = new Item();
     this.session.desc = [];
@@ -1225,7 +1253,6 @@ removeRequest(i: number, invoice: Invoice) {
 }
 
 checkScalars() {
-
   if (this.session.note.note) {
     this.patient.record.notes.unshift({
       ...this.session.note,
@@ -1239,20 +1266,26 @@ checkScalars() {
       meta: new Meta(this.cookies.get('i'),
       this.cookies.get('h'))
     });
-  } else {}
+    this.addSuggestion('allegy');
+    console.log(this.suggestions)
+  }
 
 }
 sendRecord() {
   this.errLine = null;
   this.processing = true;
-  this.dataService.updateHistory(this.patient, this.captures)
+  this.dataService.updateHistory(this.patient, this.suggestions)
   .subscribe((patient: Person) => {
     this.patient.record  = patient.record;
-    this.socket.io.emit('record update', {action: 'encounter', bills: this.session.bills, patient});
+    this.socket.io.emit('record update', {
+      action: 'encounter',
+      bills: this.session.bills,
+      patient
+    });
     this.session = new Session();
     this.feedback = 'Record successfully updated';
     this.processing = false;
-    this.captures = [];
+    this.suggestions = [];
     setTimeout(() => {
       this.feedback = null;
     }, 5000);
@@ -1263,7 +1296,6 @@ sendRecord() {
 }
 
 updateRecord() {
-  this.processing = true;
   this.composeVitals();
   this.composeTests();
   this.composeScans();

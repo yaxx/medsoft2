@@ -35,12 +35,12 @@
 
 .labelss {
   position:absolute;
-  font-size:x-small;
+  font-size: 8px;
   bottom:73%;
   background-color:white;
   left:15px;
   margin:0px;
-  color: #dee2e6;;
+  color: #2196F3;
 }
 
 .datainfo {
@@ -53,17 +53,13 @@
   border-radius:4px;
   text-align:center;
 }
-
-.form-group.half-group {
-}
-
-.form-group {
-  display:inline-block;
-  width:100%;
-  position:relative;
-  margin-bottom:8px;
-  display: flex;
-  flex-direction: column;
+.reg-form {
+  top: 26px;
+  height:100%;
+  width:60%;
+  position: relative;
+  margin:auto;
+  padding-top: 10px;
 }
 
 .card-body.edit {

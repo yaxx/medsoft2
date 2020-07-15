@@ -558,11 +558,25 @@ html {
     text-align: center;
     width: 100%;
 }
-
+.form-group {
+  display:inline-block;
+  width:100%;
+  position:relative;
+  margin-bottom:8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.group-wrap .form-group {
+  width: 95%;
+}
+.group-wrap .form-group:last-child {
+  justify-content: end;
+}
 .inputs {
   width: 100%;
   text-align: center;
-  font-size: 11px;
+  font-size: 13px;
   box-shadow: none;
   border-radius: 4px;
   border: none;
@@ -578,10 +592,16 @@ html {
   outline: none;
   padding: 0px;
   padding: 2px 7px;
-  font-size: .8rem;
+  font-size: 13px;
   height: 26px;
+  text-align:center;
   border: 1px solid whitesmoke;
+  width: 100%;
 }
+.group-wrap .form-group .input {
+  width: 98%;
+}
+
 .input:focus {
   box-shadow: none;
   outline: none;
@@ -593,7 +613,10 @@ html {
 
 .group-wrap {
   display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
+
 .input.first.select, .input.last.select {
   height: 26px;
 }
@@ -603,16 +626,16 @@ html {
 }
 
 .mainbtn {
-    font-size: 13px;
-    text-align: center;
-    border-radius: 999em;
-    font-weight: bold;
-    position: absolute;
+  font-size: 13px;
+  text-align: center;
+  border-radius: 999em;
+  font-weight: bold;
+  position: absolute;
 }
 
 .mainbtn:focus {
-    outline: none;
-    box-shadow: none;
+  outline: none;
+  box-shadow: none;
 }
 
 .material-icons.homeicon.wardicon {
@@ -620,10 +643,6 @@ html {
     position: relative;
     font-size: 27px;
     right: 5px;
-}
-
-.home.wardmenu {
-    /* top: 59%; */
 }
 
 .placeholder {
@@ -700,13 +719,7 @@ html {
     padding-top: 5px;
 }
 
-.action {
-    padding-left: 10px;
-    cursor: pointer;
-    width: 100%;
-    height: 20px;
-    padding-top: 2px;
-}
+
 
 .action:hover {
     background: #1da1f2;
@@ -893,7 +906,9 @@ option {
 .webcam-wrapper.video.mirrored {
     border-radius: 12px;
 }
-
+.new__edit {
+  width: 57%;
+}
 .staffname {
     width: 125px;
     left: 52px;

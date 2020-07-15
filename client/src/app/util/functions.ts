@@ -15,7 +15,7 @@
         break;
       case 'Date':
         return patients.sort((m, n) =>
-         new Date(n.createdAt).getTime() - new Date(m.createdAt).getTime());
+         new Date(n.createdAt).getTime() - new Date(m.updatedAt).getTime());
         break;
         default:
         break;

@@ -19,7 +19,10 @@ app.use('/graphql', graphQlHttp({
   graphiql: true
 }))
 
-app.use(cors({origin:"http://localhost:4200", credentials: true}))
+app.use(cors({
+  origin:"http://localhost:4200", 
+  credentials: true
+}))
 // app.use(cors({
 //   origin:"*",
 //   credentials: true
@@ -43,7 +46,7 @@ io.sockets.on('connection', (socket) => {
    logins.forEach(function (user) {
     if (user.ui === data.reciever) {
       socket.to(user.si).emit('new message', data)
-    }
+      }
     })
   })
   socket.on('record update', (update) => {

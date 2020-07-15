@@ -43,6 +43,7 @@ export class SettingsComponent implements OnInit {
   bed: Bed = new Bed();
   loading = false;
   processing = false;
+  logout = false;
   numbOfBeds = null;
   staffMode = 'view';
   clientMode = null;
@@ -56,7 +57,7 @@ export class SettingsComponent implements OnInit {
   menu = null;
   transMsg = null;
   errLine = null;
- 
+
   constructor(
     private dataService: DataService,
     private cookies: CookieService,
@@ -65,7 +66,7 @@ export class SettingsComponent implements OnInit {
   ngOnInit() {
     this.getSettings();
   }
-  
+
   getSettings() {
     this.loading = true;
     this.dataService.getClient().subscribe((res: any) => {
@@ -83,12 +84,26 @@ export class SettingsComponent implements OnInit {
       this.loading = false;
     });
   }
-  getDp(avatar: String) {
+  getDp(avatar: string) {
     return `${host}/api/dp/${avatar}`;
   }
-
+  showLogOut() {
+    this.logout = true;
+  }
+  hideLogOut() {
+    this.logout = false;
+  }
+  logOut() {
+    this.dataService.logOut();
+  }
   getMyDp() {
     return this.getDp(this.cookies.get('d'));
+  }
+  getBackgrounds() {
+    const url = this.getMyDp();
+    return {
+      backgroundImage: `url(${url})`,
+    };
   }
   showMenu(menu: string) {
     this.menu =  menu;
@@ -144,7 +159,7 @@ export class SettingsComponent implements OnInit {
   refresh() {
     this.getSettings();
  }
-  
+
   deptHasWard() {
     const d = departments.find(dept => dept.name === this.department.name)
     return (d) ? d.hasWard : false;
@@ -155,10 +170,10 @@ export class SettingsComponent implements OnInit {
       this.staff.info.official.department = dept.name;
       return  dept.hasWard;
     } else {
-      return false; 
+      return false;
     }
   }
- 
+
   switchRightCard(view) {
     this.deptMode = view;
   }
@@ -206,7 +221,7 @@ export class SettingsComponent implements OnInit {
       this.processing = false;
     });
   }
- 
+
   switchView(view: string) {
     this.staffMode = view;
   }
@@ -232,14 +247,14 @@ export class SettingsComponent implements OnInit {
     this.roomNumb = 1;
     this.numOfRooms = null;
     this.transMsg = null;
-  } 
+  }
   addDepartment() {
     this.processing = true;
     this.setDepartmet();
     let copy = cloneDeep(this.client);
     copy.departments.unshift(this.department);
     this.dataService.updateClient(copy).subscribe((res: Client) => {
-      this.client.departments.unshift(this.department); 
+      this.client.departments.unshift(this.department);
       this.processing = false;
       this.transMsg = 'Department added successfully';
       setTimeout(() => {

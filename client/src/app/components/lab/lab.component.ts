@@ -133,6 +133,12 @@ export class LabComponent implements OnInit {
       }
     }
   }
+  getBackgrounds() {
+    const url = this.getMyDp();
+    return {
+      backgroundImage: `url(${url})`,
+    };
+  }
   clear() {
     this.sucssMsg = null;
     this.errMsg = null;

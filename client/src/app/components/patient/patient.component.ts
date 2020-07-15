@@ -423,6 +423,12 @@ viewOrders(i: number) {
  isInfo() {
     return this.router.url.includes('information');
   }
+  getBackgrounds() {
+    const url = this.getMyDp();
+    return {
+      backgroundImage: `url(${url})`,
+    };
+  }
   isConsult() {
     return !this.router.url.includes('information') &&
     !this.router.url.includes('pharmacy') &&

@@ -93,15 +93,43 @@ export class ConsultationComponent implements OnInit {
     switch (update.action) {
       case 'payment':
         if (i !== -1 ) {
-          this.patients[i] =  {...update.patient, card: this.patients[i].card };
+          this.patients[i] =  {
+            ...update.patient,
+            card: this.patients[i].card
+          };
         } else if (update.cart.some(prod => (prod.type === 'Cards' || prod.item.category === 'Consultation')
          && update.patient.record.visits[0][0].dept === this.cookies.get('dpt')) ) {
-          this.patients.unshift({ ...update.patient, card: {menu: false, view: 'front', btn: 'discharge', indicate: true} });
+          this.patients.unshift({
+             ...update.patient,
+             card: {
+               menu: false,
+               view: 'front',
+               btn: 'discharge',
+               indicate: true
+              }
+            });
         }
+        break;
+      case 'return':
+        this.patients.unshift({
+          ...update.patient,
+          card: {
+            menu: false,
+            view: 'front',
+            btn: 'discharge',
+            indicate: true
+           }
+         });
         break;
       case 'new report':
         if (i !== -1 ) {
-          this.patients[i] =  { ...update.patient, card: { ...this.patients[i].card, indicate: true }};
+          this.patients[i] =  {
+            ...update.patient,
+            card: {
+               ...this.patients[i].card,
+               indicate: true
+              }
+            };
         }
         break;
       case 'disposition':
@@ -112,7 +140,10 @@ export class ConsultationComponent implements OnInit {
         break;
       default:
           if (i !== -1 ) {
-            this.patients[i] = { ...update.patient, card: this.patients[i].card };
+            this.patients[i] = {
+              ...update.patient,
+              card: this.patients[i].card
+            };
           }
           break;
     }
@@ -394,6 +425,12 @@ getPatients(type?: string) {
     this.patients = [];
     this.message = '...Network Error';
   });
+}
+getBackgrounds() {
+  const url = this.getMyDp();
+  return {
+    backgroundImage: `url(${url})`,
+  };
 }
 onScroll() {
   this.page = this.page + 1;

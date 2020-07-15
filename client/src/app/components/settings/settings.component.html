@@ -13,7 +13,7 @@
                               </h6>
                             </div>
                             <div style='margin-left:0px;padding-top:5px ' class="card-body orderbody">
-                            <form class=" staffsform">
+                            <form class=" staffsform new__edit">
                                 <div class="group-wrap">
                                   <div class="form-group">
                                     <label style='font-size:8px' for="firstName" class="labelss complain">FIRST NAME</label>
@@ -76,7 +76,7 @@
                         </div>
                     </div>
                     <div style='margin-left:0px;padding-top: 22px;' class="card-body orderbody">
-                        <form style="top:15%; width:56%;margin:auto;" class=" staffsform">
+                        <form style="top:15%; width:56%;margin:auto;" class=" staffsform  new__edit">
                             <div class="carditem noteitem writeup" style="display:inline-block;">
                                 <div title='Details' data-toggle=modal data-target='#editModal' class="timeline noter patientdp staffdp" style="border-radius:4px;width:130px; height:130px; position:absolute">
                                     <img style='height:100%; width:100%; object-fit:cover; border-radius:4px;border:none' [src]=getDp(staff.info.personal.avatar)/>
@@ -117,7 +117,7 @@
                         </form>
                     </div>
                 </div>
-                <div *ngIf='staffMode ==="edit"' style="left:26%;top:178px;position:relative;width:53%" class="btn-group disposition">
+                <div *ngIf='staffMode ==="edit"' style="left:26%;top:200px;position:relative;width:53%" class="btn-group disposition">
                     <button [disabled] = !isValidStaff() (click)=updateAccount()  style=" width: 170px;font-size: 10px; border-radius: 30px; height:27px;left:15%; bottom:10%;" class="btn btn-sm btn-outline-primary  mainbtn">
                         UPDATE ACCOUNT
                         <span *ngIf=processing style="position: absolute; bottom: -7%;left: 10%;">
@@ -139,8 +139,27 @@
         </div>
     </div>
 </div>
-
-<div  style="padding-top:0px; height:100%" class="container history-container">
+<header class="header-main">
+  <nav>
+    <div class="logo-box">
+      <a href="/"><h1 class="logo">i.</h1></a>
+    </div>
+    <div class="search-box"> </div>
+    <div class="view-box"></div>
+  </nav>
+  <div (mouseleave) = hideLogOut() class="log__box">
+    <div (click) ='showLogOut()' [ngStyle] = getBackgrounds() class="dp__box"></div>
+    <div *ngIf="logout" class="log__out">
+      <ul class='list__options'>
+        <li (click) = logOut()>
+            Log out
+        </li>
+    </ul>
+    </div>
+    <i (click) ='showLogOut()' class="icon ion-ios-arrow-down"></i>
+  </div>
+</header>
+<div  style="padding-top:45px; height:100%" class="container history-container">
     <div class="row history-row" style='height:800px'>
         <div style='position:absolute; top:40%;left:42%' *ngIf='!client._id' class='issue'>
             <div *ngIf='loading' class="lds-css ng-scope">

@@ -124,7 +124,7 @@ export class Person {
     public connections: any   = null,
     public record: Record = new Record(),
     public createdAt?: Date,
-    public modifiedAt?: Date,
+    public updatedAt?: Date,
     public _id?: string,
     public card?: any
     ) {}
