@@ -6,7 +6,7 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {Person} from '../../models/person.model';
 import {sorter, searchPatients} from '../../util/functions';
 import {CookieService} from 'ngx-cookie-service';
-import {Meta} from '../../models/inventory.model';
+import {Stamp} from '../../models/inventory.model';
 import {Report} from '../../models/record.model';
 import * as cloneDeep from 'lodash/cloneDeep';
 import { timeout } from 'q';
@@ -133,6 +133,9 @@ export class LabComponent implements OnInit {
       }
     }
   }
+  isInfo() {
+    return this.router.url.includes('information');
+  }
   getBackgrounds() {
     const url = this.getMyDp();
     return {
@@ -177,19 +180,19 @@ export class LabComponent implements OnInit {
     };
     this.requests.forEach(request => {
       request.forEach(r => {
-        r.meta.selected = (r.meta.selected) ?  false : false;
+        r.stamp.selected = (r.stamp.selected) ?  false : false;
       });
     });
-    this.requests[i][j].meta.selected =  true;
+    this.requests[i][j].stamp.selected =  true;
    }
    deSelectItem(i, j) {
     this.testIndex = {
       i: 0, j: 0
     };
-    this.requests[i][j].meta.selected = false;
+    this.requests[i][j].stamp.selected = false;
    }
   itemSelected() {
-    return this.requests.some(request => request.some(r => r.meta.selected));
+    return this.requests.some(request => request.some(r => r.stamp.selected));
   }
    openRequests(i) {
      this.curIndex = i;
@@ -272,7 +275,7 @@ export class LabComponent implements OnInit {
     for (const file of res) {
       this.report.attachments.push(file.filename);
     }
-    this.report.meta = new Meta(this.cookies.get('i'));
+    this.report.stamp = new Stamp(this.cookies.get('i'));
     this.patient.record.tests = this.patient.record.tests.map(tests => tests.map(t =>
        (t._id === this.requests[this.testIndex.i][this.testIndex.j]._id) ? ({
          ...t, report: this.report, treated: true}) : t

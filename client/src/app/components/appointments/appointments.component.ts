@@ -188,28 +188,28 @@ export class AppointmentsComponent implements OnInit {
      }
    }
   comfirmDesposition(i: number) {
-    this.processing = true;
-    this.patients[i].record.visits[0][0].dept = (this.patients[i].record.visits[0][0].status !== 'queued')
-       ? this.dept : this.patients[i].record.visits[0][0].dept;
-    this.patients[i].record.visits[0][0].dischargedOn = new Date();
-    this.dataService.updateRecord(this.patients[i], this.session.newItems).subscribe((p: Person) => {
-    this.processing = false;
-    this.socket.io.emit('record update', {action: 'disposition', patient: this.patients[i]});
-    this.successMsg = 'Success';
-    setTimeout(() => {
-      this.successMsg = null;
-    }, 5000);
-    setTimeout(() => {
-      this.switchCards(i, 'front');
-    }, 8000);
-    setTimeout(() => {
-      this.patients.splice(i, 1);
-      this.message = ( this.patients.length) ? null : 'No Record So Far';
-    }, 10000);
-  }, (e) => {
-    this.errorMsg = '...Network Error';
-    this.processing = false;
-  });
+  //   this.processing = true;
+  //   this.patients[i].record.visits[0][0].dept = (this.patients[i].record.visits[0][0].status !== 'queued')
+  //      ? this.dept : this.patients[i].record.visits[0][0].dept;
+  //   this.patients[i].record.visits[0][0].dischargedOn = new Date();
+  //   this.dataService.updateRecord(this.patients[i], this.session.newStocks).subscribe((p: Person) => {
+  //   this.processing = false;
+  //   this.socket.io.emit('record update', {action: 'disposition', patient: this.patients[i]});
+  //   this.successMsg = 'Success';
+  //   setTimeout(() => {
+  //     this.successMsg = null;
+  //   }, 5000);
+  //   setTimeout(() => {
+  //     this.switchCards(i, 'front');
+  //   }, 8000);
+  //   setTimeout(() => {
+  //     this.patients.splice(i, 1);
+  //     this.message = ( this.patients.length) ? null : 'No Record So Far';
+  //   }, 10000);
+  // }, (e) => {
+  //   this.errorMsg = '...Network Error';
+  //   this.processing = false;
+  // });
 }
 populate(patients) {
   this.pool = patients;

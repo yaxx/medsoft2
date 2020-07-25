@@ -4,7 +4,7 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {SocketService} from '../../services/socket.service';
 import {DataService} from '../../services/data.service';
 import * as cloneDeep from 'lodash/cloneDeep';
-import {Meta} from '../../models/inventory.model';
+import {Stamp} from '../../models/inventory.model';
 import {CookieService } from 'ngx-cookie-service';
 @Component({
   selector: 'app-notifications',
@@ -53,7 +53,7 @@ addNotifications() {
   this.processing = true;
   this.notification = {
     ...this.notification, 
-    meta: new Meta(this.cookies.get('i'), this.cookies.get('h'))
+    stamp: new Stamp(this.cookies.get('i'), this.cookies.get('h'))
   };
   this.dataService.addNotifications(this.notification).subscribe((notification: Note) => {
     this.processing = false;

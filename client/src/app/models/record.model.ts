@@ -1,10 +1,10 @@
-import {Product, StockInfo, Item, Invoice, Meta, Card} from './inventory.model';
+import {Stock, StockItem, StockInfo, Service, Suggestion, Invoice, Stamp, Card} from './inventory.model';
 
 
 
 
 
-  export class Priscription {
+export class Priscription {
   constructor(
     public intake = null,
     public freq: string= null,
@@ -13,29 +13,29 @@ import {Product, StockInfo, Item, Invoice, Meta, Card} from './inventory.model';
   ) {}
 }
 
- export class Bed {
-    constructor(
-      public _id?: string,
-      public number: number = null,
-      public status: Boolean = false
-      ) {}
+export class Bed {
+  constructor(
+    public _id?: string,
+    public bedNumber: number = null,
+    public status: boolean = false
+    ) {}
 }
 export class Medication {
   constructor(
-     public name: string = null,
-     public meta: Meta = new Meta(),
+     public product = new StockItem(),
      public priscription: Priscription = new Priscription(),
      public paused: boolean = false,
      public pausedOn: Date = null,
      public lastTaken: Date = null,
+     public stamp: Stamp = new Stamp(),
      public _id?: string
      ) {}
 }
 export class Complain {
   constructor(
     public complain: string = null,
-    public meta: Meta = new Meta(),
-    public duration: number = null
+    public duration: number = null,
+    public stamp: Stamp = new Stamp()
      ) {}
   }
 export class History {
@@ -43,7 +43,7 @@ export class History {
     public condition: string = null,
     public duration: number = null,
     public bearer: string = 'Self',
-    public meta: Meta = new Meta()
+    public stamp: Stamp = new Stamp()
      ) {}
   }
 export class Note {
@@ -51,7 +51,7 @@ export class Note {
     public _id?: string,
     public type?: string,
     public note: string = null,
-    public meta: Meta = new Meta()
+    public stamp: Stamp = new Stamp()
      ) {}
   }
 
@@ -59,48 +59,49 @@ export class Bp {
   constructor(
     public systolic: number = null,
     public diastolic: number = null,
-    public meta: Meta = new Meta()
+    public stamp: Stamp = new Stamp()
     ) {}
 }
 export class Resp {
   constructor(
     public value: number = null,
-    public meta: Meta = new Meta()
+    public stamp: Stamp = new Stamp()
     ) {}
 }
 export class Pulse {
   constructor(
     public value: number = null,
-    public meta: Meta = new Meta()
+    public stamp: Stamp = new Stamp()
     ) {}
 }
 export class Temp {
   constructor(
     public value: number = null,
-    public meta: Meta = new Meta()) {}
+    public stamp: Stamp = new Stamp()
+    ) {}
 }
 export class Bg {
   constructor(
     public value: string = null,
-    public meta: Meta = new Meta()
+    public stamp: Stamp = new Stamp()
     ) {}
 }
 export class Height {
   constructor(
     public value: number = null,
-    public meta: Meta = new Meta()
+    public stamp: Stamp = new Stamp()
     ) {}
 }
 export class Weight {
   constructor(
     public value: number = null,
-    public meta: Meta = new Meta()
+    public stamp: Stamp = new Stamp()
    ) {}
 }
 export class Vaccin {
   constructor(
     public name: string = null,
-    public meta: Meta = new Meta()
+    public stamp: Stamp = new Stamp()
    ) {}
 }
 export class Immunization {
@@ -110,7 +111,7 @@ export class Immunization {
    ) {}
 }
 
-export class VitalItems {
+export class VitalStocks {
   constructor(
     public bp: Bp= new Bp(),
     public resp: Resp = new Resp(),
@@ -135,19 +136,19 @@ export class Vital {
 export class Condition {
   constructor(
     public condition: string = null,
-    public meta: Meta = new Meta()
+    public stamp: Stamp = new Stamp()
      ) {}
   }
 export class Allegy {
   constructor(
     public allegy: string = null,
-    public meta: Meta = new Meta()
+    public stamp: Stamp = new Stamp()
      ) {}
   }
 export class Device {
   constructor(
     public device: string = null,
-    public meta: Meta = new Meta()
+    public stamp: Stamp = new Stamp()
      ) {}
   }
 export class Visit {
@@ -166,7 +167,7 @@ export class Visit {
   export class Report {
     constructor(
       public comment: string = null,
-      public meta: Meta = new Meta(),
+      public stamp: Stamp = new Stamp(),
       public attachments: string[] = [],
     ) {}
   }
@@ -174,7 +175,7 @@ export class Test {
   constructor(
     public name: string = null,
     public dept: string = null,
-    public meta: Meta = new Meta(),
+    public stamp: Stamp = new Stamp(),
     public treated: boolean = false,
     public report: Report = new Report()
      ) {}
@@ -183,7 +184,7 @@ export class Test {
     constructor(
       public name: string = null,
       public dept: string = null,
-      public meta: Meta = new Meta(),
+      public stamp: Stamp = new Stamp(),
       public report: Report = new Report()
     ) {}
 }
@@ -191,7 +192,7 @@ export class Surgery {
   constructor(
     public name: string = null,
     public dept: string = null,
-    public meta: Meta = new Meta(),
+    public stamp: Stamp = new Stamp(),
     public report: Report = new Report()
      ) {}
   }
@@ -227,7 +228,7 @@ export class Appointment {
     public time: string = null,
     public date: string = null,
     public attended: boolean = false,
-    public meta: Meta = new Meta()
+    public stamp: Stamp = new Stamp()
  ) {}
 
 }
@@ -242,17 +243,17 @@ export class Session {
     public surgery: Surgery = new Surgery(),
     public scan: Scan = new Scan(),
     public test: Test = new Test(),
-    public vitals: VitalItems = new VitalItems(),
+    public vitals: VitalStocks = new VitalStocks(),
     public allegies: Allegy = new Allegy(),
     public devices: Device = new Device(),
     public visits: Visit = new Visit(),
-    public reqItem: Item = new Item(null, null, 'Test'),
-    public reqItems: any = [],
-    public newItems: any = [],
+    public service: Service = new Service(),
+    public stock: Stock = new Stock(),
+    public newServices: Service[] = [],
     public conditions: Condition[] = [],
     public complains: Complain[] = [],
     public histories: History[] = [],
-    public items: Item[] = [],
+    public items: Stock[] = [],
     public medications: Medication[] = [],
     public tests: Test[] = [],
     public desc: string[] = [],

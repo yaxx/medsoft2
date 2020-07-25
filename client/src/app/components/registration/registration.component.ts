@@ -8,7 +8,7 @@ import * as cloneDeep from 'lodash/cloneDeep';
 import {Person, Info} from '../../models/person.model';
 import {PersonUtil} from '../../util/person.util';
 import {states, lgas } from '../../data/states';
-import { Item, StockInfo, Product, Card, Invoice, Meta} from '../../models/inventory.model';
+import {Inventory, Suggestion, StockInfo, Stock, Card, Invoice, Stamp} from '../../models/inventory.model';
 import {Visit, Session} from '../../models/record.model';
 import {Client, Department} from '../../models/client.model';
 import {sorter, searchPatients} from '../../util/functions';
@@ -27,7 +27,8 @@ export class RegistrationComponent implements OnInit {
   clonedPatients: Person[] = [];
   clonedPatient: Person = new Person();
   patient: Person = new Person();
-  products: Product[] = [];
+  inventory: Stock[] = [];
+  stock: Stock = new Stock();
   client: Client = new Client();
   file: File = null;
   states = states;
@@ -171,18 +172,18 @@ export class RegistrationComponent implements OnInit {
   getClient() {
     this.dataService.getClient().subscribe((res: any) => {
       this.client = res.client;
-      this.products = res.client.inventory;
-      this.cardTypes = res.client.inventory.filter(p => p.type === 'Cards'
-      );
-      const distincts = [];
-      ['Standard', 'Premium', 'Exclusive', 'Family']
-      .forEach((name) => {
-        if (this.cardTypes.some(cd => cd.item.name === name)) {
-          distincts.push(name);
-        }
-      });
-      this.cardTypes = distincts;
-      this.session.items = res.items;
+      this.inventory = res.client.inventory;
+      // this.cardTypes = res.client.inventory.filter(p => p.type === 'Cards'
+      // );
+      // const distincts = [];
+      // ['Standard', 'Premium', 'Exclusive', 'Family']
+      // .forEach((name) => {
+      //   if (this.cardTypes.some(cd => cd.item.name === name)) {
+      //     distincts.push(name);
+      //   }
+      // });
+      // this.cardTypes = distincts;
+      // this.session.items = res.items;
     });
   }
   withoutCard() {
@@ -256,15 +257,15 @@ export class RegistrationComponent implements OnInit {
     const c = this.patient.record.cards.find(cd => cd.pin === this.pin);
     if (c && c.pin === this.pin) {
       this.processing = true;
-      const product = this.products.find(p => p.item.name === 'Consultation');
-      if (product) {
+      const service = this.inventory.find(s => s.stockItem.name === 'Consultation');
+      if (service) {
         this.patient.record.invoices.unshift([{
           ...new Invoice(),
           name: 'Consultation',
-          price: product.stockInfo.price,
+          price: service.stockInfo.price,
           desc: `${c.category} Card | ${c.pin}`,
           processed: true,
-          meta: new Meta(this.cookies.get('i'), this.cookies.get('h'))
+          stamp: new Stamp(this.cookies.get('i'), this.cookies.get('h'))
       }]);
         this.patient.record.visits.unshift([
         this.visit
@@ -297,10 +298,10 @@ export class RegistrationComponent implements OnInit {
     this.errorMsg = null;
   }
   addDefaults() {
-    this.patient.info.personal.meta = new Meta(
-      this.cookies.get('i'), this.cookies.get('h')
-      );
-    this.patient.record.visits = [[new Visit()]];
+    // this.patient.stamp = new Stamp(
+    //   this.cookies.get('i'), this.cookies.get('h')
+    //   );
+    // this.patient.record.visits = [[new Visit()]];
   }
   returnFolder(i) {
     this.patient.record.visits[0][0].status = 'queued';
@@ -462,7 +463,7 @@ checkCard() {
               name: 'Card',
               desc: this.card.category,
               processed: true,
-              meta: new Meta(this.cookies.get('i'), this.cookies.get('h'))
+              stamp: new Stamp(this.cookies.get('i'), this.cookies.get('h'))
           }]);
       } else {
           this.patient.record.cards[0] = this.card;
@@ -472,7 +473,7 @@ checkCard() {
               name: 'Card',
               desc: this.card.category,
               processed: true,
-              meta: new Meta(this.cookies.get('i'), this.cookies.get('h'))
+              stamp: new Stamp(this.cookies.get('i'), this.cookies.get('h'))
           }];
       }
   } else {
@@ -483,61 +484,61 @@ checkCard() {
           name: 'Card',
           desc: this.card.category,
           processed: true,
-          meta: new Meta(this.cookies.get('i'), this.cookies.get('h'))
+          stamp: new Stamp(this.cookies.get('i'), this.cookies.get('h'))
       }]);
   }
 }
 chargeForConsultation() {
-  const product = this.products.find(p => p.item.name === 'Consultation');
-  if (product) {
-        this.patient.record.invoices.unshift([{
-          ...new Invoice(),
-          name: 'Consultation',
-          price: product.stockInfo.price,
-          desc: 'Consultation fee',
-          processed: true,
-          meta: new Meta(this.cookies.get('i'), this.cookies.get('h'))
-      }]);
-        this.patient.record.visits.unshift([
-        this.visit
-      ]);
-      } else {
-        this.patient.record.visits.unshift([{
-          ...this.visit, status: 'queued'
-        }]);
-      }
+  // const d = this.inventory.services.find(p => s.name === 'Consultation');
+  // if (stock) {
+  //       this.patient.record.invoices.unshift([{
+  //         ...new Invoice(),
+  //         name: 'Consultation',
+  //         price: stock.stockInfo.price,
+  //         desc: 'Consultation fee',
+  //         processed: true,
+  //         stamp: new Stamp(this.cookies.get('i'), this.cookies.get('h'))
+  //     }]);
+  //       this.patient.record.visits.unshift([
+  //       this.visit
+  //     ]);
+  //     } else {
+  //       this.patient.record.visits.unshift([{
+  //         ...this.visit, status: 'queued'
+  //       }]);
+      // }
 }
 
 chargeForCard() {
-   this.products.find(p => p.item.name === 'Consultation');
-   this.patient.record.invoices.unshift([{
-      ...new Invoice(),
-      name: 'Card',
-      price: this.products.find(p => p.item.name === this.card.category).stockInfo.price,
-      desc: this.card.category,
-      processed: true,
-      meta: new Meta(this.cookies.get('i'), this.cookies.get('h'))
-  }]);
+  //  this.inventory.find(p => p.item.name === 'Consultation');
+  //  this.patient.record.invoices.unshift([{
+  //     ...new Invoice(),
+  //     name: 'Card',
+  //     price: this.inventory.find(p => p.item.name === this.card.category).stockInfo.price,
+  //     desc: this.card.category,
+  //     processed: true,
+  //     stamp: new Stamp(this.cookies.get('i'), this.cookies.get('h'))
+  // }]);
 }
-markEntry(entry){
-  this.entry = entry;
+markEntry(s) {
+  this.entry = s;
 }
 createInvoice() {
-  this.invoice = {...new Invoice(),
-    price: this.products.find(p => p.item.name === this.card.category).stockInfo.price,
-    meta: new Meta(this.cookies.get('i'), this.cookies.get('h')),
-    processed: true
-  };
-  this.card = {
-    ...this.card,
-    meta: new Meta(this.cookies.get('i'), this.cookies.get('h'))
-  };
-  if (this.patient.record.cards.length) {
-    this.patient.record.visits.unshift([{
-      ...new Visit(),
-      meta: new Meta(this.cookies.get('i'), this.cookies.get('h'))
-    }]);
-  }
+  // this.invoice = {...new Invoice(),
+  //   price: this.inventory.find(p => p.item.name === this.card.category).stockInfo.price,
+  //   stamp: new Stamp(this.cookies.get('i'), this.cookies.get('h')),
+  //   processed: true
+  // };
+  // this.card = {
+  //   ...this.card,
+  //   stamp: new Stamp(this.cookies.get('i'), this.cookies.get('h'))
+  // };
+  // if (this.patient.record.cards.length) {
+  //   this.patient.record.visits.unshift([{
+  //     ...new Visit(),
+  //     stamp: new Stamp(this.cookies.get('i'), this.cookies.get('h'))
+  //   }]);
+  // }
 }
 addCard() {
   if (!this.errorMsg) {
@@ -555,7 +556,6 @@ addCard() {
     setTimeout(() => {
       this.switchCardView(this.curIndex, 'front');
     }, 5000);
-
    }, (e) => {
      this.processing = false;
      this.errorMsg = 'Unable to add card';
@@ -595,7 +595,9 @@ createRecord() {
   }
 
 }
-
+ goTo(count) {
+   this.count = count;
+ }
 
 
 

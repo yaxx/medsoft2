@@ -8,7 +8,7 @@ import {CookieService } from 'ngx-cookie-service';
 import {states, lgas} from '../../data/states';
 import {departments} from '../../data/departments';
 import * as cloneDeep from 'lodash/cloneDeep';
-import {host} from '../../util/url';
+import {host, appName} from '../../util/url';
 @Component({
   selector: 'app-settings',
   templateUrl: './settings.component.html',
@@ -56,7 +56,9 @@ export class SettingsComponent implements OnInit {
   message = null;
   menu = null;
   transMsg = null;
+  succs = true;
   errLine = null;
+  appName = appName;
 
   constructor(
     private dataService: DataService,
@@ -75,14 +77,18 @@ export class SettingsComponent implements OnInit {
         this.client = res.client;
         this.staffs = res.client.staffs;
         this.departments = departments;
-        console.log(res.client.departments);
-        this.roomNumb = this.getRoomNumbs();
-        // this.deptName = res.departments[0].name;
+        this.client.departments = this.client.departments.map(d => ({...d, menu: false}));
       }
     }, (e) => {
       this.message = 'Network Error';
       this.loading = false;
     });
+  }
+  showDeptMenu(i) {
+    this.client.departments[i].menu = true;
+  }
+  hideDeptMenu(i) {
+    this.client.departments[i].menu = false;
   }
   getDp(avatar: string) {
     return `${host}/api/dp/${avatar}`;
@@ -105,6 +111,10 @@ export class SettingsComponent implements OnInit {
       backgroundImage: `url(${url})`,
     };
   }
+  switchToEditDept(i) {
+    this.department = this.client.departments[i];
+    this.switchRightCard('add');
+  }
   showMenu(menu: string) {
     this.menu =  menu;
   }
@@ -112,7 +122,7 @@ export class SettingsComponent implements OnInit {
     this.menu = null;
   }
   getRoomNumbs() {
-   return this.department.rooms.length + 1;
+  //  return this.department.rooms.length + 1;
   }
   // addRoom() {
   //   const beds = [];
@@ -161,7 +171,7 @@ export class SettingsComponent implements OnInit {
  }
 
   deptHasWard() {
-    const d = departments.find(dept => dept.name === this.department.name)
+    const d = departments.find(dept => dept.name === this.department.name);
     return (d) ? d.hasWard : false;
   }
   isAddminStaff() {
@@ -229,17 +239,9 @@ export class SettingsComponent implements OnInit {
     this.numOfRooms = null;
   }
   inComplete() {
-    return (this.deptHasWard() && !this.numOfRooms) ? true : false;
+    return (this.department.numbOfRooms) ? true : false;
   }
-  setDepartmet() {
-    if(this.numOfRooms) {
-     for (let index = 0; index < this.numOfRooms; index++) {
-       this.department.rooms.push({...new Room(), number: index + 1 });
-     }
-     this.department.hasWard = true;
-    }
-    this.department.category = departments.find(dept => dept.name === this.department.name).category;
-  }
+
   resetVariables() {
     this.department = new Department();
     this.rooms = [];
@@ -250,21 +252,42 @@ export class SettingsComponent implements OnInit {
   }
   addDepartment() {
     this.processing = true;
-    this.setDepartmet();
+    this.message = null;
     let copy = cloneDeep(this.client);
     copy.departments.unshift(this.department);
-    this.dataService.updateClient(copy).subscribe((res: Client) => {
+    this.dataService.updateDept(this.department).subscribe((res: Client) => {
       this.client.departments.unshift(this.department);
       this.processing = false;
       this.transMsg = 'Department added successfully';
+      this.succs = true;
       setTimeout(() => {
         this.resetVariables();
     }, 4000);
     }, (e) => {
       this.transMsg = 'Could not add department';
+      this.succs = false;
       this.processing = false;
     }
     );
   }
+  deleteAccount() {
+    this.processing = true;
+    this.message = null;
+    this.dataService.deleteAccount(this.staff._id).subscribe((res) => {
+      this.client.staffs = this.client.staffs.filter(staff => staff._id !== this.staff._id);
+      this.processing = false;
+      this.transMsg = 'Account deleted successfully';
+      this.succs = true;
+      setTimeout(() => {
+        this.resetVariables();
+    }, 4000);
+    }, (e) => {
+      this.transMsg = 'Could not delete account';
+      this.succs = false;
+      this.processing = false;
+    }
+    );
+  }
+
 }
 

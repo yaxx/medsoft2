@@ -132,19 +132,51 @@ catch (e) {
 
 getPatients: async (req, res) => {
   try {
+   
     const {info: {official}} = await Person.findById(req.cookies.i).select('info');
-    let patients = await Person.find().sort({'updatedAt':-1});
-    patients = Array.from(patients)
-    .filter(person => person.info.official.department === null);
-    //record transformation
-  //   patients = Array.from(patients).map(p => p.toJSON()).map(patient => {
-  //     let {record} = patient
+    let patients = await Person.find().sort({'updatedAt': -1}).lean()
+    patients = patients.filter(person => person.info.official.department === null);
+    let names = [];
+    // record transformation
+
+    let {inventory} = await Client.findOne({'info.city': null}).lean()
+    let meds = []
+    inventory.forEach(stock => {
+      if(!meds.some(n => n.name === stock.stockItem.name)) {
+        meds.push(new Suggestion({
+          name: stock.stockItem.name,
+          category: 'medication' 
+       }))
+     }
+    })
+    await Suggestion.deleteMany({'category':'medication'},(e, doc)=>{
+      if(e) {
+        console.log(e)
+      }
+      console.log(doc)
+    })
+    await Suggestion.insertMany(meds,{ordered: false}, (e,doc) => {
+      if(!e) {
+        console.log(doc)
+      } 
+      console.log(e)
+    })
+
+
+  //   patients = patients.map(patient => {
   //     return ({
-  //       ...patient, record: {
-  //           ...record, invoices: record.invoices.map(invoice => invoice.map(i => (i.paid) ?  
-  //             ({...i, datePaid: new Date(i.datePaid.toString()).toLocaleDateString()}) : i
-  //             )
-  //           )
+  //       ...patient, info: {
+  //          ...patient.info,
+  //          stamp: {
+  //            addedBy: null,
+  //            facility: null,
+  //            selected: false,
+  //            dateAdded: patient.dateAdded
+  //           },
+  //           record: {
+  //             ...patient.record,
+  //             medications: []
+  //           }
   //       }
   //   }) 
   // })
@@ -154,22 +186,22 @@ getPatients: async (req, res) => {
   //         "record": p.record
   //       }, {
   //         new: true
-  //       }, (e, data) => {
-  //         console.log(data.record.invoices)
+  //       }, (e, patient) => {
+  //         console.log(patient)
   //       if(e) {
   //         console.log(e)
   //       }
   //     })
   // }
 
-    
+
 
     switch(official.role) {
       case 'Doctor':
         patients = patients.filter(
           patient => patient.record.visits[0][0].status === req.params.type && 
           patient.record.visits[0][0].dept === official.department
-          );
+      );
       break;
       case 'Nurse':
         patients = patients.filter(
@@ -219,21 +251,7 @@ getPatients: async (req, res) => {
           );
       }
       break
-      // res.send(patients) 
     }
-    // console.log(req.params.page)
-    // let i = Number(req.params.page) * 9
-    
-    // console.log(i)
-    // patients.splice(0,i)
-    // patients = patients.slice(0, 9);
-    // console.log(patients.length)
-    // if (patients.length >= (Number(req.params.page) * 9) + 9 ) {
-    //    patients = patients.slice(Number(req.params.page) * 9, 9);
-    // } else {
-    //   patients = patients.slice(Number(req.params.page) * 9);
-    // }
-  //  console.log(patients.length)
     res.send(patients)
   }
   catch(e){
@@ -454,6 +472,7 @@ getClient: async (req, res) => {
 
 updateClient: async (req, res) => {
   try {
+    console.log(req.body)
       const client = await Client.findByIdAndUpdate(req.cookies.h, {
       info: req.body.info,
       departments: req.body.departments,
@@ -462,18 +481,39 @@ updateClient: async (req, res) => {
     )
     res.send(client);
   }
-
-  
  catch(e) {
     throw e
   } 
 },
-getInPatients: (req, res)=>{
+updateDept: async (req, res) => {
+  try {
+      const client = await Client.findByIdAndUpdate(req.cookies.h)
+      client.departments.unshift(req.body)
+      client.save()
+      res.send(req.body);
+  }
+ catch(e) {
+    throw e
+  } 
+},
+deleteAccount: async (req, res) => {
+  try {
+      await Person.findByIdAndRemove(mongoose.Types.ObjectId(req.body.id))
+      const client = await Client.findByIdAndUpdate(req.cookies.h)
+      client.staffs = client.staffs.filter(s => s !== req.body.id)
+      client.save()
+      res.send(req.body);
+  }
+ catch(e) {
+    throw e
+  } 
+},
+getInPatients: (req, res) => {
     Person.find({'record.visits.status':'admitted'},(e, patients)=>{
     if(!e){
       res.send(patients)
     }
-    else{
+    else {
       console.log(e)
     }
   })
@@ -522,7 +562,6 @@ updateInfo: async (req, res) => {
 },
 updateRecord: async (req, res) => {
   try {
-    console.log(req.body.item)
     await Suggestion.insertMany(req.body.items);
     const person = await Person.findByIdAndUpdate(
       req.body.patient._id, {
@@ -713,11 +752,22 @@ addProduct: async (req, res) => {
 getProducts: async (req, res) => {
   try {
     let {inventory} = await Client.findById(req.cookies.h)
-    let patients = await Person.find({"record.invoices": {$elemMatch: {$elemMatch: {paid: true, datePaid: new Date().toLocaleDateString()}}}})
-    patients.forEach(p => {
-      p.record.invoices = p.record.invoices.map(i => i.filter(invoice => invoice.paid && invoice.datePaid === new Date().toLocaleDateString())).filter(i=>i.length > 0)
+    let patients = await Person.find({
+      "record.invoices": {
+        $elemMatch: {
+          $elemMatch: {
+            paid: true, datePaid: new Date().toLocaleDateString()
+          }
+        }
+      }
     })
-      res.send({inventory, patients})
+    patients.forEach(p => {
+      p.record.invoices = p.record.invoices
+      .map(i => i.filter(invoice => invoice.paid && invoice.datePaid === new Date().toLocaleDateString()))
+      .filter(i => i.length > 0)
+    })
+    console.log(inventory.length+' '+patients.length)
+    res.send({inventory, patients})
   }
   catch(e)  {
     throw e
@@ -726,10 +776,19 @@ getProducts: async (req, res) => {
 getTransactions: async (req, res) => {
   try {
     let patients = await Person.find({
-      "record.invoices": {$elemMatch: {$elemMatch: {paid: true, datePaid: new Date(req.params.date).toLocaleDateString()}}}
+      "record.invoices": {
+        $elemMatch: {
+          $elemMatch: {
+            paid: true, 
+            datePaid: new Date(req.params.date).toLocaleDateString()
+          }
+        }
+      }
     })
     patients.forEach(p => {
-      p.record.invoices = p.record.invoices.map(i => i.filter(invoice => invoice.paid && invoice.datePaid === new Date(req.params.date).toLocaleDateString())).filter(i => i.length > 0)
+      p.record.invoices = p.record.invoices
+      .map(i => i.filter(invoice => invoice.paid && invoice.datePaid === new Date(req.params.date).toLocaleDateString()))
+      .filter(i => i.length > 0)
     })
     res.send(patients);
   }
@@ -738,24 +797,51 @@ getTransactions: async (req, res) => {
   }
 },
 
-updateProducts: async (req, res) => {
+updateStocks: async (req, res) => {
   try {
-       let client = await Client.findByIdAndUpdate(req.cookies.h)
-       req.body.forEach(product => {
-        client.inventory[client.inventory.findIndex(pro => pro._id.toString() === product._id)] = product;
-      });
-      await client.save()
-      res.send()
- }
+    let client = await Client.findById(req.cookies.h).lean()
+    let {inventory} = client;
+    switch(req.body.action) {
+      case 'add':
+        inventory = [...req.body.stocks,...inventory];
+      break;
+      case 'edit':
+        req.body.stocks.forEach(newStock => {
+          inventory = inventory
+          .map(oldStock => (oldStock._id.equals(newStock._id)) ? newStock : oldStock);
+        })
+      break;
+      case 'delete':
+        req.body.stocks.forEach(newStock => {
+          inventory = inventory.filter(oldStock => !oldStock._id.equals(newStock._id))
+        })
+      break;
+      default:
+      break
+    }
+    // client.inventory = inventory
+    client = await Client.findByIdAndUpdate(mongoose.Types.ObjectId(req.cookies.h), {inventory: inventory}, {new: true}, (e,doc) => {
+      if(e) {
+        console.log(e)
+      }
+    })
+    if(req.body.action === 'add') {
+        let newStocks = client.inventory.slice(0, req.body.stocks.length)
+        res.send(newStocks);
+    } else {
+      res.send([])
+    }
+  }
  catch (e) {
    throw e
- }
+  }
 },
-// },
+
 
 deleteProducts: async (req, res) => {
   try {
-    let client = await Client.findByIdAndUpdate(req.cookies.h)
+    let client = await Client.findByIdAndU
+    date(req.cookies.h)
     req.body.forEach(product => {
       client.inventory.splice(client.inventory.findIndex(pro => pro._id.toString() === product._id),1) 
     });

@@ -95,17 +95,17 @@
 }
 
 .card-header.grapheader {
-    padding-top: 6px;
+    padding-top: 13px;
     padding-bottom: 6px;
     border-bottom: none;
     /* border-bottom: 1px solid rgb(251, 245, 245); */
-    border-top-right-radius: 10px;
-    border-top-left-radius: 10px;
-    background: #fdfdfd;
+    border-top-right-radius: 20px;
+    border-top-left-radius: 20px;
+    background: #ececec1f;
 }
 
 .card.card-secondary.historycard.midlecard.topcard.graphcard {
-    min-height: 180px;
+  min-height: 215px;
 }
 
 .card.card-secondary.historycard.rightcard.condition {
@@ -151,7 +151,7 @@
     font-style: italic;
     cursor: pointer;
     float: right;
-    color: #1da1f2;
+    color: dodgerblue;
     margin-bottom: 1px;
     bottom: 7px;
     position: relative;
@@ -162,7 +162,7 @@
 
 .icon.ion-android-more-vertical.thread-icon {
     font-size: 22px;
-    color: #1da1f2;
+    color: dodgerblue;
     position: absolute;
     /*right:2px;*/
     top: -20%;
@@ -183,7 +183,7 @@
     font-weight: 500;
     color: #333333;
     font-size: 13px;
-    padding-left: 5px;
+    /* padding-left: 5px; */
 }
 
 .dept.previnfo.sec-info {
@@ -213,9 +213,9 @@
 }
 
 .dept.headtitle {
-    color: #1da1f2;
-    border-top-right-radius: 12px;
-    border-top-left-radius: 12px;
+    color: dodgerblue;
+    border-top-right-radius: 20px;
+    border-top-left-radius: 20px;
 }
 
 .dept.previnfo.weightval {
@@ -425,7 +425,9 @@ p {
   padding-top: 2px;
   padding-left: 5px;
 }
-
+/* .note-item:last-child {
+  border-bottom: 0px;
+} */
 
 .image-link {
     height: 100%;
@@ -487,7 +489,7 @@ p {
 .card.card-secondary.maincard.halfcard.halfcard-right {
     left: 8px;
     /* border-left:1px solid rgba(0,0,0,.125); */
-    border-top-left-radius: 4px;
+    border-top-left-radius: 20px;
 }
 
 .card.card-secondary.maincard {
@@ -654,41 +656,7 @@ p {
 
 
 
-.steps {
-    position: relative;
-    width: 75%;
-    border-top:1px solid whitesmoke;
-    display: flex;
-    justify-content: space-around;
-    right: 10px;
-    flex-direction: row;
-    align-items: center;
-    margin:auto;
-}
-.step-item {
-  height: 25px;
-  width:25px;
-  border: 1px solid whitesmoke;
-  border-radius:50%;
-  position: relative;
-  top:-15px;
-  z-index: 100;
-  background: white;
-  margin-bottom: 15px;
-}
-.step-lebel {
-  position: absolute;
-  font-size:9px;
-  font-weight: normal;
-  text-align: center;
-  right: -28px;
-  top: 112%;
-  width:84px;
-  color: #4285f4;
-}
-.curent-step {
-  border-color: #4285f4;
-}
+
 .media-container {
   width: 900px;
   margin: auto;

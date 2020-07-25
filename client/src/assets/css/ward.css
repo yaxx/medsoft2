@@ -3,7 +3,7 @@
   position:absolute;
   left:178px;
   bottom:-47%;
-  color:blue;
+  color:dodgerblue;
   position:absolute;
 }
 
@@ -12,7 +12,7 @@
   position:absolute;
   left:187px;
   bottom:-47%;
-  color:blue;
+  color:dodgerblue;
 }
 
 .dept.priscriptiontime {
@@ -23,7 +23,7 @@
 }
 
 .priscription.wardpriscription {
-  border-left:2px solid blue;
+  border-left:2px solid dodgerblue;
   padding-left:3px;
   margin-bottom:px;
   margin-bottom:8px;
@@ -36,7 +36,7 @@
 
 .icon.ion-ios-play-outline.editicon.continue {
   cursor:pointer;
-  color:blue;
+  color:dodgerblue;
   left:189px;
 }
 

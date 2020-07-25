@@ -6,7 +6,7 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {CookieService } from 'ngx-cookie-service';
 import { Priscription, Scan, Session, Vital, Medication, Note, Bp, Resp, Pulse, Temp} from '../../models/record.model';
 import { Person } from '../../models/person.model';
-import { Product, Item, Invoice} from '../../models/inventory.model';
+import { Stock, Inventory, Suggestion, Invoice} from '../../models/inventory.model';
 import { Client} from '../../models/client.model';
 import * as cloneDeep from 'lodash/cloneDeep';
 import {sorter, searchPatients} from '../../util/functions';
@@ -29,17 +29,18 @@ export class WardComponent implements OnInit {
   temp: Person[] = [];
   patient: Person = new Person();
   clonePatient: Person = new Person();
-  products: Product[] = [];
+  inventory: Inventory = new Inventory();
+  stocks: Stock[] = [];
   client: Client = new Client();
   cloneClient: Client = new Client();
-  product: Product = new Product();
+  stock: Stock = new Stock();
   priscription: Priscription = new Priscription();
   medication: Medication = new Medication();
   invoices: Invoice[][] = new Array<Invoice[]>();
   medications: any[] = [];
-  temProducts: Product[] = [];
-  item: Item = new Item();
-  items: Item[] = new Array<Item>();
+  temStocks: Stock[] = [];
+  item: Suggestion = new Suggestion();
+  items: Suggestion[] = [];
   file: File = null;
   filesDesc = null;
   errLine = null;
@@ -189,6 +190,9 @@ export class WardComponent implements OnInit {
     return {
       backgroundImage: `url(${url})`,
     };
+  }
+  isInfo() {
+    return this.router.url.includes('information');
   }
   searchPatient(name: string) {
     if (!this.temp.length) {
@@ -344,8 +348,8 @@ export class WardComponent implements OnInit {
   }
 
   getRooms(i) {
-    return this.client.departments
-    .find(dept => dept.name === this.patients[i].record.visits[0][0].dept).rooms;
+    // return this.client.departments
+    // .find(dept => dept.name === this.patients[i].record.visits[0][0].dept).rooms;
   }
   getBeds() {
 
@@ -605,25 +609,25 @@ gone(i) {
 //   }
 // }
 
-getProducts() {
-  this.dataService.getProducts().subscribe((p: any) => {
-    this.products = p.inventory;
+getStocks() {
+  this.dataService.getStocks().subscribe((p: any) => {
+    this.inventory = p.inventory;
   });
 }
 
 searchItem(input) {
-  if (input === '') {
-    this.temProducts = new Array<Product>();
-  } else {
-      this.temProducts = this.products.filter((product) => {
-      const patern =  new RegExp('\^' + input , 'i');
-      return patern.test(product.item.name);
-  });
+//   if (input === '') {
+//     this.temStocks = new Array<Stock>();
+//   } else {
+//       this.temStocks = this.inventory.stocks.filter((stock) => {
+//       const patern =  new RegExp('\^' + input , 'i');
+//       return patern.test(stock.product.name);
+//   });
+// }
 }
-}
-selectProduct(product: Product) {
-  // this.input = product.item.name + ' ' + product.item.mesure + product.item.unit;
-  // this.temProducts = new Array<Product>();
+selectStock(stock: Stock) {
+  // this.input = stock.item.name + ' ' + stock.item.mesure + stock.item.unit;
+  // this.temStocks = new Array<Stock>();
 
 }
 

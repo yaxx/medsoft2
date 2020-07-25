@@ -167,3 +167,44 @@ td {
 .drugs-table td {
     font-size: 11px;
 }
+.succs_err_msg {
+    margin-bottom: 0px;
+    font-size: 12px;
+    width: 100%;
+    text-align: center;
+    position: relative;
+    bottom: 36%;
+}
+  .succs {
+    color: lightgreen;
+}
+  .err {
+    color: red
+}
+.more-wrap.dept-opt {
+  top:-16%;
+  left: 100%;
+}
+.log__out.depts-option {
+  width: 70px;
+  top: -4px;
+  z-index: 1;
+  right: -24px;
+}
+.list__options li{
+  font-size: 11px;
+  padding-left: 8px;
+}
+.list__options li:hover {
+  background: dodgerblue;
+  color: white;
+}
+.spinner.medium {height: 40px;
+    width: 40px;
+    top: 43px;
+    border: 2px solid rgba(30, 31, 30, 0.1);
+    border-top-color: red;
+    animation: spin .5s infinite ease-in-out;
+    position: absolute;
+    color: red;
+    left: 34.5%;}

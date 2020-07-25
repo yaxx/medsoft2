@@ -19,7 +19,7 @@
   text-align:center;
   position:absolute;
   left:6px;
-  color:#1da1f2;
+  color:dodgerblue;
 }
 
 .patientdata {
@@ -40,7 +40,7 @@
   background-color:white;
   left:15px;
   margin:0px;
-  color: #2196F3;
+  color: dodgerblue;
 }
 
 .datainfo {
@@ -81,7 +81,7 @@
   position:absolute;
   left:6px;
   text-align:center;
-  color:#1da1f2;
+  color:dodgerblue;
 }
 
 .timeline.lastdoc {

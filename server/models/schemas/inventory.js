@@ -1,29 +1,40 @@
 const mongoose = require('../db') ;
-const Scheema = mongoose.Schema
-const InventoryScheema = new Scheema({
-    products:[{
-        type: String,
-        item: {
-            name: String,
-            brand: String,
-            category: String,
-            description: String,
-            mesure:Number,
-            unit: String,
-            dateCreated: date 
-        },
-        stockInfo: {
-            expiry: Date,
-            price: Number ,
-            expired: Boolean,
-            status: Boolean,
-            quantity: Number,
-            inStock: Number 
-        },
-        addedOn: date 
-    }],
-    dateCreated:Date  
+const Schema = mongoose.Schema;
 
-})
-const Inventory = mongoose.model('Inventrory', InventoryScheema)
+
+const InventorySchema = new Schema({
+    socks: [{
+        product: {
+        name: String,
+        conc: String,
+        size: Number,
+        unit: String,
+        expiry: Date,
+        category: String
+    },
+    stockInfo: {
+        expiry: Date,
+        price: Number,
+        expired: Boolean,
+        status: Boolean,
+        quantity: Number,
+        inStock: Number 
+    },
+    stamp: {
+            addedBy: {
+                type: Schema.Types.ObjectId,
+                ref: 'Person'
+            },
+            facility: {
+                type: Schema.Types.ObjectId,
+                ref: 'Client'
+            },
+            selected: Boolean,
+            dateAdded: Date
+        }
+    }]
+   
+},{timestamps: true, strict: false})
+
+const Inventory = mongoose.model('Inventrory', InventorySchema);
 module.exports = Inventory;

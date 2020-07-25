@@ -27,7 +27,7 @@ app.use(cors({
 //   origin:"*",
 //   credentials: true
 // }))
-// app.use(express.static(path.join(__dirname,'dist','client')))
+app.use(express.static(path.join(__dirname,'dist','client')))
 // app.use(history());
 app.use(require('morgan')('dev'))
 app.use(bodyParser.json())
@@ -36,25 +36,24 @@ var connections = [];
 var logins = [];
 io.sockets.on('connection', (socket) => {
   connections.push(socket)
-  console.log('%s socket(s) connected', connections.length)
   socket.on('login', (data) => {
     data.si = socket.id;
     logins.push({ui: data.ui, si: socket.id})
     socket.broadcast.emit('online', data.ui)
-  })
+})
   socket.on('new message', (data) => {
    logins.forEach(function (user) {
     if (user.ui === data.reciever) {
       socket.to(user.si).emit('new message', data)
       }
     })
-  })
+})
   socket.on('record update', (update) => {
     socket.broadcast.emit('record update', update);  
-  })
+})
   socket.on('store update', changes => {
     socket.broadcast.emit('store update', changes);
-  })
+})
   socket.on('check', (data) => {
     logins.forEach(function (user) {
       if (user.username === data.username) {
@@ -65,8 +64,8 @@ io.sockets.on('connection', (socket) => {
 })
 
 app.get('/', (req, res) => {
-    res.render('index')
-    //  res.sendFile(path.join(__dirname,'dist','client','index.html'));
+    // res.render('index')
+    res.sendFile(path.join(__dirname,'dist','client','index.html'));
 })
 
 app.get('/api/client', api.getClient)  
@@ -81,7 +80,7 @@ app.get('/api/orders', api.getOrders)
 app.get('/api/products', api.getProducts)
 app.get('/api/history/:id', api.getHistory)
 app.get('/api/notifications', api.getNotifications)
-app.post('/api/update-products', api.updateProducts)
+app.post('/api/update-stocks', api.updateStocks)
 app.post('/api/update-msg', api.updateMessages)
 app.post('/api/delete-products', api.deleteProducts)
 app.post('/api/new-client', api.addClient)
@@ -98,6 +97,8 @@ app.post('/api/update-record', api.updateRecord)
 app.post('/api/update-info', api.updateInfo)
 app.post('/api/add-card', api.addCard)
 app.post('/api/updateclient', api.updateClient)
+app.post('/api/update-dept', api.updateDept)
+app.post('/api/delete-account', api.deleteAccount)
 app.post('/api/login', api.login)
 app.post('/api/transaction', api.runTransaction)
 server.listen(5000, (err) => {

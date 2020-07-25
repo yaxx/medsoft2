@@ -9,7 +9,7 @@
                         </div>
                         <div class="card-body orderbody" style="width:85%; margin:auto; padding-top:30px">
                           <div style ='top:20px' class="steps">
-                              <div [class.curent-step] = 'count === 0' class="step-item">
+                              <div (click) = goTo(0)  [class.curent-step] = 'count === 0' class="step-item">
                                   <span>
                                       <h6 class="step-lebel">PERONAL INFO</h6>
                                   </span>
@@ -17,7 +17,7 @@
                                       <i  class="icon ion-ios-checkmark-empty paid-icon"></i>
                                   </span>
                               </div>
-                              <div [class.curent-step] = 'count === 1' class="step-item">
+                              <div (click) = goTo(1)  [class.curent-step] = 'count === 1' class="step-item">
                                   <span>
                                       <h6 class="step-lebel">CONTACT</h6>
                                   </span>
@@ -25,7 +25,7 @@
                                       <i *ngIf=" isValidContact()" class="icon ion-ios-checkmark-empty paid-icon"></i>
                                   </span>
                               </div>
-                              <div [class.curent-step] = 'count === 2' class="step-item">
+                              <div (click) = goTo(2) [class.curent-step] = 'count === 2' class="step-item">
                                   <span>
                                       <h6 style="width:94px;" class="step-lebel">INSURANCE</h6>
                                   </span>
@@ -93,19 +93,19 @@
                                 </div>
                                 <div *ngIf=reg class="form-group">
                                   <label  for="address" class="labelss">DATE ENROLED</label>
-                                  <input [(ngModel)]='patient.info.personal.meta.dateAdded' type = 'date' (focus) = clearError() autocomplete="off" name="address" class="form-control input" />
+                                  <!-- <input [(ngModel)]='patient.info.stamp.dateAdded' type = 'date' (focus) = clearError() autocomplete="off" name="address" class="form-control input" /> -->
                               </div>
-                              <div *ngIf=!reg class ='group-wrap'>
+                              <!-- <div *ngIf=!reg class ='group-wrap'>
                                   <div   class="form-group ">
                                     <label  for="enroled" class="labelss"><span style='font-size:11px; color:red;'>*</span>DATE ENROLED</label>
-                                    <input [(ngModel)]='patient.info.personal.meta.dateAdded  'type="date" (focus) = clearError()  autocomplete="off" name="enroled" class="form-control input   "/>
+                                    <input [(ngModel)]='patient.info.stamp.dateAdded  'type="date" (focus) = clearError()  autocomplete="off" name="enroled" class="form-control input   "/>
                                   </div>
                                   <div  class="form-group">
                                       <label  for="firstname" class="labelss"><span style='font-size:11px; color:red;'>*</span>CARD NUMBER
                                       </label>
                                       <input  (focus) = clearError() autocomplete="off"  name="firstname" class="form-control input">
                                   </div>
-                                </div>
+                                </div> -->
                               </form>
                               <form *ngIf="count === 1" class="staffsform reg-form">
                                 <div class ='group-wrap'>
@@ -313,14 +313,14 @@
 <header class="header-main">
   <nav>
     <div class="logo-box">
-      <a href="/"><h1 class="logo">O</h1></a>
+      <a href="/"><h1 class="logo">{{appName}}</h1></a>
     </div>
     <div class="search-box">
       <form class='search__form'>
         <svg viewBox="0 0 24 24" class="search__icon">
           <g><path d="M21.53 20.47l-3.66-3.66C19.195 15.24 20 13.214 20 11c0-4.97-4.03-9-9-9s-9 4.03-9 9 4.03 9 9 9c2.215 0 4.24-.804 5.808-2.13l3.66 3.66c.147.146.34.22.53.22s.385-.073.53-.22c.295-.293.295-.767.002-1.06zM3.5 11c0-4.135 3.365-7.5 7.5-7.5s7.5 3.365 7.5 7.5-3.365 7.5-7.5 7.5-7.5-3.365-7.5-7.5z"></path></g>
         </svg>
-        <input type="search" name="search" autocomplete="off" placeholder='Search Patient' class='form-control input search'>
+        <input [(ngModel)]='searchTerm' #search (keyup)='searchPatient(searchTerm)' type="search" name="search" autocomplete="off" placeholder='Search Patient' class='form-control input search'>
       </form>
     </div>
     <div class="view-box">
@@ -335,7 +335,7 @@
       <h6>Sort:
         <span style='cursor:pointer' (click) ='toggleSortMenu()'>{{nowSorting}}</span>
       </h6>
-      <div *ngIf='isInfo()' class="add__patient__box">
+      <div *ngIf='isInfo()' class="add__patient__box add__box">
         <i (click) = clearPatient() style="left:75%;" class="icon ion-ios-plus-empty" title="Add Patient" data-target="#addModal" data-toggle="modal"></i>
       </div>
     </div>
@@ -368,7 +368,7 @@
           <div style="left: 62%" (mouseleave)='hideMenu()' *ngIf="patient.card.menu" class="menu">
             <ul  class="actions primary">
                  <li *ngIf="patient.record.cards[0] && patient.record.cards[0].pin" (click)="switchCardView(i,'enrole')" class="action">Enrole</li>
-                 <li (click)="switchCardView(i,'card')" class="action">Add Card</li>
+                 <!-- <li (click)="switchCardView(i,'card')" class="action">Add Card</li> -->
                  <li (click)="switchCardView(i,'return')" class="action">Return Folder</li>
                  <li (click)='viewDetails(i)' data-toggle="modal" data-target="#addModal" class="action">
                      Edit Info
@@ -450,12 +450,12 @@
 
                 <div [class.on]='patient.card.view === "enrole"'   style="position: absolute; width:100%;height: 87%; top:13%;background:white;border-bottom-right-radius: 12px;border-bottom-left-radius: 12px" class="card-body mainbody off">
                     <form  style="top:15%;position:absolute;width:100%; padding-left: 10%; padding-right: 10%;" class=" staffsform">
-                        <div style=" margin-top:2px;" class="form-group   formGroup">
+                    <!-- <div style=" margin-top:2px;" class="form-group   formGroup">
                             <label style='font-size:8px;left: 25px;top:-15%;' for="title" class="labelss complain">
                                 CARD NUMBER
                             </label>
                             <input autocomplete="off" (focus)='clearError()' [maxLength]='4' [(ngModel)]="pin" placeholder="Scan card pin" name="cardpin" class="form-control input">
-                        </div>
+                        </div> -->
                         <div style=" margin-top:2px;" class="form-group   formGroup">
                             <label style='font-size:8px;left: 25px;top:-15%;' for="title" class="labelss complain">DEPARTMENT</label>
                             <select id = select [(ngModel)]="visit.dept"  name="dept" class="form-control input" >
@@ -463,7 +463,7 @@
                             </select>
                         </div>
                     </form>
-                    <button [disabled]='!pin || !visit.dept' (click)='enrolePatient(i)' style=" width: 170px;font-size: 10px; height:27px;left:15%; bottom:25%;" class="btn btn-sm btn-outline-primary  mainbtn">
+                    <button [disabled]='!visit.dept' (click)='enrolePatient(i)' style=" width: 170px;font-size: 10px; height:27px;left:15%; bottom:25%;" class="btn btn-sm btn-outline-primary  mainbtn">
                         ENROLE
                         <span *ngIf="processing"  style="position: absolute; bottom: -7%;left: 76%;">
                         <i class="fa fa-circle-o-notch fa-spin fa-10x slow-spin " style="position:absolute;bottom:5px;left:5px;font-size:19px;color: #1da1f2;"> </i>
@@ -491,7 +491,7 @@
 
 
 
-                <div [class.on]='patient.card.view === "card"'   style="position: absolute; width:100%;height: 87%; top:13%;background:white;border-bottom-right-radius: 12px;border-bottom-left-radius: 12px" class="card-body mainbody off">
+                <!-- <div [class.on]='patient.card.view === "card"'   style="position: absolute; width:100%;height: 87%; top:13%;background:white;border-bottom-right-radius: 12px;border-bottom-left-radius: 12px" class="card-body mainbody off">
                     <form  style="top:15%;position:absolute;width:100%; padding-left: 10%; padding-right: 10%;" class=" staffsform">
                         <div style=" margin-top:2px;" class="form-group   formGroup">
                             <label style='font-size:8px;left: 25px;top:-15%;' for="title" class="labelss complain">
@@ -521,7 +521,7 @@
                         </i>
                     </span>
                     </button>
-                </div>
+                </div> -->
                 <h6 *ngIf="successMsg && curIndex===i" class="feedbackMsg">{{successMsg}}</h6>
                 <h6 *ngIf="errorMsg && curIndex===i"  style="color: red" class="feedbackMsg">{{errorMsg}}</h6>
             </div>

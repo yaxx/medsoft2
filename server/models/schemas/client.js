@@ -1,68 +1,60 @@
 const mongoose = require( '../db');
-var Scheema = mongoose.Schema;
-var ClientScheema = new Scheema({
+var Schema = mongoose.Schema;
+var ClientSchema = new Schema({
         info: {
-                name: String,
-                category: String, 
-                ownership: String,
-                specialization:  String,
-                mobile: Number,
-                email:String,
-                dp: String ,
-                city: String,
-                zipcode: String,
-                address: String,
-                expiry: Date
+            name: String,
+            category: String, 
+            ownership: String,
+            specialization: String,
+            mobile: Number,
+            email: String,
+            dp: String ,
+            city: String,
+            zipcode: String,
+            address: String,
+            expiry: Date
         },
         departments: [{
-                name: String,
-                category: String,
-                hasWard: Boolean,
-                descriptions: String,
-                rooms: [{
-                    name: String,
-                    number: Number,
-                    beds: [{
-                        number:Number,
-                        allocated: Boolean,
-                        dateCreated: Date
-                 }]
-                }],
-                dateCreated: Date
-        }],   
+            name: String,
+            category: String,
+            hasWard: Boolean,
+            numbOfRooms: Number,
+            numbOfBeds: Number
+        }],    
         inventory: [{
-                item: {
-                    name: String,
-                    brand: String,
-                    type: {type:String, required: false},
+                category: String,
+                stockItem: {
                     category: String,
-                    description: String,
-                    mesure: Number,
-                    unit: String,
-                    dateCreated: Date  
-                },
+                    name: String,
+                    size: Number,
+                    unit: String
+                    },
                 stockInfo: {
-                    expiry: Date,
                     price: Number,
-                    sold: Number ,
-                    expired: Boolean,
-                    status: Boolean,
+                    category: String,
                     quantity: Number,
-                    inStock: Number
+                    sold: Number,
+                    expiry: Date
                 },
-                type: {type:String, required: false},
-                dateCreated: Date  
-            }],
-            staffs: [
-                      {
-                        type: Scheema.Types.ObjectId, 
+                stamp: {
+                    addedBy: {
+                        type: Schema.Types.ObjectId,
                         ref: 'Person'
-                    }
-                ]
-          
-},
-{timestamps: true}
+                    },
+                    facility: {
+                        type: Schema.Types.ObjectId,
+                        ref: 'Client'
+                    },
+                    selected: Boolean,
+                    dateAdded: Date
+                }
+            }],
+        staffs: [
+            { type: Schema.Types.ObjectId, ref: 'Person'}
+       ]
+    },
+    {timestamps: true}
 )
 
-const Client = mongoose.model('Client', ClientScheema);
+const Client = mongoose.model('Client', ClientSchema);
 module.exports =  Client;

@@ -1,14 +1,53 @@
-
-  #newproduct {
-    width:36%;
-    height:100%;
-    margin:auto;
-    position: relative;
-    background: white;
-
-  }
+.valid-maker  {
+  position: absolute;
+  height: .11em;
+  width: 12px;
+  background-color: red;
+  display: block;
+  bottom: 0px;
+  left: 17px;
+  display: none;
+}
+.input::placeholder {
+  color: lightgray;
+}
+.valid-maker.invalid {
+  display: block;
+}
+.invalid-msg {
+  font-size: 12px;
+  color: red;
+  text-align: center;
+  margin-top: 21px;
+}
+#add-stock-btn {
+  width: 369px;
+  font-size: 12px;
+  font-weight: normal;
+  border-radius: 4px;
+  height: 27px;
+  right: 8px;
+}
+.btn-wraper {
+  position: relative;
+  width:100%;
+  display:flex;
+  justify-content: center;
+  align-content: center;
+  margin-top: 25px;
+}
+.err {
+  color:red;
+}
+#newproduct {
+  width:36%;
+  height:100%;
+  margin:auto;
+  position: relative;
+  background: white;
+}
 .drugs-table td {
-  font-size:11px;
+  font-size: 13px;
 }
 .expired {
    text-decoration: line-through;
@@ -26,14 +65,14 @@
   position:relative;
 }
 .nav-items li  {
- color: #1da1f2;
+ color: dodgerblue;
  height:39px;
  display:flex;
  align-items: center;
  margin-right:15px;
 }
 .nav-items li:hover  {
- border-bottom: 1px solid #1da1f2;
+ border-bottom: 1px solid dodgerblue;
 }
 .nav-items li h6 {
   padding: 0 1rem;
@@ -81,12 +120,15 @@
 .date-picker {
   border: none;
   background: inherit;
-  color: #1da1f2;
+  color: dodgerblue;
   height: 100%;
-  width: 100%;
-  text-align: center;
+  width: 89%;
+  text-align: right;
   outline: none;
   box-shadow: none;
+  font-size: 13px;
+  font-weight: normal;
+  position: relative;
 }
 .menu.view  {
   position: absolute;
@@ -101,7 +143,19 @@
   height: 100px;
   position: absolute;
   margin: auto;
-  top: 250px;
+  top: 195px;
+}
+.view-box {
+  width: 200px;
+  height: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  right: 76px;
+}
+.add__patient__box .form-group{
+  margin-bottom: 0px;
 }
 .fbMsg {
   font-size:13px;
@@ -147,4 +201,104 @@
   cursor:pointer;
   position:absolute;
   font-size:20px;
+}
+#productModal, #serviceModal, #prodEditModal{
+  max-width:570px;
+  margin: auto;
+  padding-top: 0px;
+}
+#productModal .modal-dialog, #serviceModal .modal-dialog, #prodEditModal .modal-dialog {
+  max-width: 730px;
+  border-radius:32px;
+  height:100%;
+  margin-top: 0px;
+  margin-bottom: 0px;
+}
+#productModal .modal-content, #serviceModal .modal-content, #prodEditModal .modal-content {
+  width:100%;
+  height:100%;
+  margin-top:0px;
+  padding-left:0px;
+  padding-right: 0px;
+}
+#productModal .profilecard, #serviceModal .profilecard, #prodEditModal .profilecard {
+  margin:auto;
+  height:100%;
+  border-radius:0px;
+  width:100%;
+  position: absolute
+}
+#productModal .small-header, #serviceModal .small-header, #prodEditModal .small-header{
+  padding-left: 30px;
+  border-top-right-radius:0px;
+  border-top-left-radius:0px;
+  border-bottom: 0px;
+  height:40px;
+  margin-bottom: 10px;
+}
+.suggestion-list {
+  border-radius:4px;
+  height: 300px;
+  background-color: white;
+  border:1px solid whitesmoke
+}
+.suggestion-wrap {
+  position: absolute;
+  z-index:200;
+  height: 300px;
+  border: none;
+}
+.suggestion-item {
+  font-size:11px;
+  padding-left: 10px;
+  padding-right: 10px;
+  font-weight: normal;
+}
+#product-form {
+  width:80%;
+  margin:auto;
+  height: auto;
+}
+#product-form .group-wrap .form-group {
+  width: 100%;
+}
+#product-form .group-wrap  {
+  margin-bottom: 4px;
+}
+.form-group.counter {
+  margin-bottom:0px;
+  width:100%;position:relative;
+  height:15px;
+}
+.count {
+  font-size: 13px;
+  margin: 0px 26px;
+}
+.next-count {
+  position: absolute;
+  left:47%;
+  text-align:center;
+  font-size:11px;
+  top:12%;
+}
+.small-table-wrap {
+  top:16px;
+  position:relative;
+  width:80%;
+  margin:auto;
+}
+
+.shifter-btn {
+  height: 25px;
+  width: 25px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  border: none;
+  box-shadow: none;
+  outline: none;
+}
+.invisible {
+  visibility: hidden;
 }

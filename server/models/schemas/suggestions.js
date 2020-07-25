@@ -1,11 +1,11 @@
 const mongoose = require('../db') ;
-const Scheema = mongoose.Schema
-const SuggestionScheema = new Scheema({
-        category: String,
-        name: String
-})
-const Suggestion = mongoose.model('Suggestion', SuggestionScheema)
-module.exports  = Suggestion
+const Schema = mongoose.Schema
+const SuggestionSchema = new Schema({
+        name: String,
+        category: String
+});
+const Suggestion = mongoose.model('Suggestion', SuggestionSchema);
+module.exports  = Suggestion;
 
 
 

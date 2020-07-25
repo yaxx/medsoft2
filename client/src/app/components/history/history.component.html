@@ -107,7 +107,7 @@ max-width:100%;">
                             </p>
                             <h6 style='font-size:11px;position:absolute;color:dodgerblue; font-weight: normal; top:18px;left:75%' class="patien-name small-name">UPDATE</h6>
                         </div>
-                        <div class="card-body orderbody" style="width:85%;margin:auto;">
+                        <div class="card-body orderbody" style="width:95%;margin:auto;">
                             <div class="steps">
                                 <div style="cursor: pointer;"  title="Go to" (click)='goTo(0)' [class.curent-step]='count===0' class="step-item">
                                     <span>
@@ -125,8 +125,15 @@ max-width:100%;">
                                         <i  class="icon ion-ios-checkmark-empty paid-icon"></i>
                                    </span>
                                 </div>
-
-                                <div style="cursor: pointer;"  title="Go to" (click)='goTo(2)'  [class.curent-step]='count === 2' class="step-item">
+                                <div style="cursor: pointer;"  title="Go to" (click)='goTo(2)' [class.curent-step]='count===2' class="step-item">
+                                  <span>
+                                      <h6 class="step-lebel">EXAMINATION</h6>
+                                  </span>
+                                  <span *ngIf='session.tests.length||session.scans.length||session.surgeries.length'>
+                                      <i  class="icon ion-ios-checkmark-empty paid-icon"></i>
+                                  </span>
+                              </div>
+                                <div style="cursor: pointer;"  title="Go to" (click)=goTo(3)  [class.curent-step]='count === 3' class="step-item">
                                     <span >
                                         <h6 class="step-lebel">VITALS</h6>
                                     </span>
@@ -134,23 +141,23 @@ max-width:100%;">
                                         <i  class="icon ion-ios-checkmark-empty paid-icon"></i>
                                     </span>
                                 </div>
-                                <div style="cursor: pointer;"  title="Go to" (click)='goTo(3)' [class.curent-step]='count===3' class="step-item">
-                                    <span>
-                                        <h6 class="step-lebel">LAB</h6>
-                                    </span>
-                                    <span *ngIf='session.tests.length||session.scans.length||session.surgeries.length'>
-                                        <i  class="icon ion-ios-checkmark-empty paid-icon"></i>
-                                    </span>
+                                <div style="cursor: pointer;"  title="Go to" (click)=goTo(4) [class.curent-step]='count===4' class="step-item">
+                                  <span >
+                                  <h6 class="step-lebel">DIAGNOSIS</h6>
+                                  </span>
+                                  <span *ngIf="session.conditions.length">
+                                      <i  class="icon ion-ios-checkmark-empty paid-icon"></i>
+                                  </span>
                                 </div>
-                                <div style="cursor: pointer;"  title="Go to" (click)='goTo(4)' [class.curent-step]='count===4' class="step-item">
-                                    <span >
-                                    <h6 class="step-lebel">DIAGNOSIS</h6>
-                                    </span>
-                                    <span *ngIf="session.conditions.length">
-                                        <i  class="icon ion-ios-checkmark-empty paid-icon"></i>
-                                    </span>
+                                <div style="cursor: pointer;"  title="Go to" (click)=goTo(5) [class.curent-step]='count===5' class="step-item">
+                                  <span >
+                                  <h6 class="step-lebel">INVST.</h6>
+                                  </span>
+                                  <span *ngIf="session.conditions.length">
+                                      <i  class="icon ion-ios-checkmark-empty paid-icon"></i>
+                                  </span>
                                 </div>
-                                <div style="cursor: pointer;"  title="Go to" (click) = goTo(5) [class.curent-step] = 'count === 5' class="step-item">
+                                    <div style="cursor: pointer;"  title="Go to" (click) = goTo(6) [class.curent-step] = 'count === 6' class="step-item">
                                     <span >
                                         <h6 class="step-lebel">MEDICATIONS</h6>
                                     </span>
@@ -158,7 +165,7 @@ max-width:100%;">
                                         <i  class="icon ion-ios-checkmark-empty paid-icon"></i>
                                     </span>
                                 </div>
-                                <div style="cursor: pointer;"  title="Go to" (click) = goTo(6) [class.curent-step] = 'count === 6' class="step-item">
+                                <div style="cursor: pointer;"  title="Go to" (click) = goTo(7) [class.curent-step] = 'count === 7' class="step-item">
                                     <span>
                                         <h6 class="step-lebel">NOTES</h6>
                                     </span>
@@ -232,12 +239,12 @@ max-width:100%;">
                             <form *ngIf="count===1"  style="width:60%;" class=" staffsform">
                                 <div class="form-group">
                                     <label for="allegy" class="labelss">ALLEGIES<span style='font-size:11px; color:red;'>*</span> </label>
-                                    <input 
+                                    <input
                                         autocomplete = off
                                         (focus) = "showSuggestions('allegy')"
                                         (keyup) = searchAllegies()
-                                        [(ngModel)]="session.allegies.allegy" 
-                                        name="allegy" 
+                                        [(ngModel)]="session.allegies.allegy"
+                                        name="allegy"
                                         class="form-control input"/>
                                     <div  *ngIf="matches.length && elm === 'allegy'" class="prisOption slideIn">
                                       <ul data-simplebar class="itemsList" >
@@ -317,7 +324,12 @@ max-width:100%;">
                                     </table>
                                 </div>
                             </form>
-                            <form *ngIf="count===3" style="width:60%;" class="staffsform">
+                            <form *ngIf="count===2"  style="top: 3%; width:60%;margin:auto;position: relative; border-bottom: 1px solid whitesmoke" class=" ">
+                              <div class="form-group vitals-section formGroup newnote">
+                                  <textarea  id='newnote' style="width:100%; min-height: 150px; font-size: 13px; padding: 5px; border: 0px; " name="note" placeholder="Type in any examinations"></textarea>
+                              </div>
+                          </form>
+                            <form *ngIf="count===5" style="width:60%;" class="staffsform">
                                 <div class="form-group">
                                     <label   for="request" class="labelss">REQ. TYPE</label>
                                     <select id=select (focus) = clearMsg()
@@ -448,7 +460,7 @@ max-width:100%;">
                                 </div>
                             </form>
 
-                            <form *ngIf="count === 2"  style="width:60%;" class="staffsform">
+                            <form *ngIf="count === 3"  style="width:60%;" class="staffsform">
                                 <div class="form-group">
                                     <label   for="request" class="labelss">VITAL</label>
                                     <select name="vital" id=select
@@ -591,18 +603,33 @@ max-width:100%;">
                                     </table>
                                 </div>
                             </form>
-                            <form *ngIf="count===5"  style="width:60%;" class="staffsform">
-                                <div class="form-group">
-                                    <label   for="drug" class="labelss">PRODUCT</label>
-                                    <input  (focus) = "showSuggestions('medications')"
-                                    (keyup)= searchMedications()
-                                    [(ngModel)]=session.medication.name
-                                    placeholder="E.g paracetamol 500mg"
-                                     autocomplete="off"
-                                     name="drug"
-                                     class="form-control input"
-                                    />
-                                    <div  *ngIf="matches.length" class="prisOption slideIn">
+                            <form *ngIf="count===6"  style="width:60%;" class="staffsform">
+                              <div class="group-wrap">
+                                <div style='width:35%' class="form-group">
+                                  <label   for="freq" class="labelss complain">FORM</label>
+                                  <select [(ngModel)]=form  id=select (focus) = clearMsg()
+                                  class="form-control input first  " name="freq">
+                                      <option>IV</option>
+                                      <option>IM</option>
+                                      <option>IVF</option>
+                                      <option>Tabs</option>
+                                      <option>Cream</option>
+                                      <option>Syrup</option>
+                                      <option>Suspension</option>
+                                 </select>
+                                </div>
+                                <div [ngStyle] = getInputStyle() class="form-group">
+                                      <label for="drug" class="labelss">PRODUCT NAME</label>
+                                      <input  (focus) = "showSuggestions('medications')"
+                                      (keyup)= searchMedications()
+                                      [(ngModel)]=session.medication.name
+                                      placeholder="E.g Paracetamol"
+                                       autocomplete="off"
+                                       name="drug"
+                                       class="form-control input mid"
+                                       [ngStyle] = getInStyle()
+                                      />
+                                      <div *ngIf="matches.length" class="prisOption slideIn">
                                         <ul data-simplebar class="itemsList" >
                                             <li *ngFor="let match of matches">
                                                 <p (click)=selectMedic(match) class="drugItem">{{match}}<span class="lastdept timetaken "></span>
@@ -611,16 +638,59 @@ max-width:100%;">
                                         </ul>
                                     </div>
                                 </div>
+                                <div *ngIf = 'form==="IVF"' style="width:30%;" class="form-group">
+                                  <label for="percentage" class="labelss">PERCENTAGE</label>
+                                      <select id=select (focus) = clearMsg()
+                                      class="form-control input last" name="freq"
+                                      style='width:100%;border-right: 1px solid ghostwhite;border-top-right-radius: 4px;border-bottom-right-radius:4px'>
+                                          <option>5</option>
+                                          <option>10</option>
+                                          <option>25</option>
+                                          <option>30</option>
+                                          <option>35</option>
+                                          <option>40</option>
+                                          <option>45</option>
+                                          <option>50</option>
+                                      </select>
+                                  </div>
+                                </div>
                                 <div class="group-wrap">
                                   <div class="form-group">
-                                    <label   for="dos" class="labelss complain">INTAE</label>
+                                    <label  for="dos" class="labelss complain">DOSAGE</label>
                                     <input [(ngModel)]="session.medication.priscription.intake"
                                      [min]='0.5' type="number" step='0.5' name="dos"
                                      class="form-control input first">
                                   </div>
                                   <div class="form-group" >
-                                      <label   for="freq" class="labelss complain">FREQ</label>
+                                      <label   for="freq" class="labelss complain">UNIT</label>
                                       <select id=select (focus) = clearMsg()
+                                      class="form-control input mid  " name="freq">
+                                          <option>g</option>
+                                          <option>mg</option>
+                                          <option>l</option>
+                                          <option>ml</option>
+                                          <option>ug</option>
+                                          <option>"</option>
+                                      </select>
+                                  </div>
+                                  <div *ngIf = 'form==="IVF"' class="form-group">
+                                      <label   for="freq" class="labelss complain">HOURLY INTERVAL</label>
+                                      <select style="border-left:1px solid ghoshwhite" id=select (focus) = clearMsg()
+                                      [(ngModel)]="session.medication.priscription.freq"
+                                      class="form-control input mid  " name="freq">
+                                          <option>1</option>
+                                          <option>2</option>
+                                          <option>3</option>
+                                          <option>4</option>
+                                          <option>5</option>
+                                          <option>8</option>
+                                          <option>9</option>
+                                          <option>10</option>
+                                      </select>
+                                  </div>
+                                  <div *ngIf = 'form!="IVF"' class="form-group">
+                                      <label   for="freq" class="labelss complain">FREQ</label>
+                                      <select style="border-left:1px solid ghoshwhite" id=select (focus) = clearMsg()
                                       [(ngModel)]="session.medication.priscription.freq"
                                       class="form-control input mid  " name="freq">
                                           <option>bd</option>
@@ -630,11 +700,11 @@ max-width:100%;">
                                       </select>
                                   </div>
                                   <div class="form-group submit-group">
-                                      <label   for="piriod" class="labelss complain">DAYS</label>
+                                      <label for="piriod" class="labelss complain">DAYS</label>
                                       <input  name='days' [(ngModel)]="session.medication.priscription.piriod"
                                       type="number" [min]='1' name="piriod" class="form-control input last">
                                       <button class="btn btn-outline-primary">
-                                        <i *ngIf="session.medication.name && session.medication.priscription.intake &&session.medication.priscription.freq && session.medication.priscription.piriod"
+                                        <i *ngIf="session.medication.product.name && session.medication.priscription.intake &&session.medication.priscription.freq && session.medication.priscription.piriod"
                                         title="Add Medication" (click)="addMedication()"
                                         class="icon ion-ios-plus-empty arrow "></i>
                                       </button>
@@ -652,7 +722,7 @@ max-width:100%;">
                                         </thead>
                                         <tbody>
                                             <tr style="border-bottom: 1px solid #f8f9fa;"  *ngFor="let med of session.medInvoices let i = index; let odd = odd;" class="ro patient-row">
-                                                <td style="padding:0px;padding-left:4px;" class="data">{{med.name}}</td>
+                                                <td style="padding:0px;padding-left:4px;" class="data">{{med.product.name}}</td>
                                                 <td style='padding:0px;' class="data">
                                                     {{getPriscription(med)}}</td>
                                                 <td style='padding:0px;text-align:center;padding:0px' class="data" >
@@ -667,7 +737,7 @@ max-width:100%;">
                                     </table>
                                 </div>
                             </form>
-                            <form *ngIf="count===6"  style="top: 3%; width:60%;margin:auto;position: relative; border-bottom: 1px solid whitesmoke" class=" ">
+                            <form *ngIf="count===7"  style="top: 3%; width:60%;margin:auto;position: relative; border-bottom: 1px solid whitesmoke" class=" ">
                                 <div class="form-group vitals-section formGroup newnote">
                                     <textarea [(ngModel)]="session.note.note" id='newnote' style="width:100%; min-height: 150px; font-size: 13px; padding: 5px; border: 0px; " name="note" placeholder="Additional note"></textarea>
                                 </div>
@@ -689,13 +759,12 @@ max-width:100%;">
                                 </i>
                             </button>
                         </div>
-                        <div *ngIf="count === 6" style="left:31%;top:-74px;position:relative;width:53%" class="btn-group disposition">
+                        <div *ngIf="count === 7" style="left:31%;top:-74px;position:relative;width:53%" class="btn-group disposition">
                             <button [disabled]='isEmptySession()'
                             (click) = updateRecord() style=" width:170px;font-size: 10px; border-radius: 30px; height:27px;left:15%; bottom:10%;" class="btn btn-sm btn-outline-primary mainbtn">
                                 <div *ngIf="processing" class='spinner small'></div>
                                 <span *ngIf="!processing" >UPDATE RECORD</span>
                             </button>
-
                         </div>
                         <h6 *ngIf="feedback" class="feedbackMsg">{{feedback}}</h6>
                         <h6 *ngIf="errLine"  style="color: red" class="feedbackMsg">{{errLine}}</h6>
@@ -839,7 +908,7 @@ max-width:100%;">
                           <div [class.in] = "vit==='in'" [class.out] = "vit==='out'"  class="info vital vitals-vals">
                             <div class="info-lbl">
                                 <p *ngIf="patient.record.vitals.bloodGl.length">{{patient.record.vitals.bloodGl[0].value ||'---'}}</p>
-                                <p class='lbl'>BLOOD</p>
+                                <p class='lbl'>B.GRUOP</p>
                             </div>
                             <div class="info-lbl">
                                 <p *ngIf=patient.record.vitals.height.length>{{patient.record.vitals.height[0].value ||'---'}}
@@ -891,14 +960,14 @@ max-width:100%;">
                         </div>
                         <div style="width:150px;margin:auto;top:75%;left: 33%;position: absolute;">
                           <button *ngIf="isConsult() && (patient.record.visits[0][0].status !=='out') " data-toggle="modal" data-target="#consModal"   style=" width:150px;top:8px;margin:auto;font-size:10px; height:27px;position:relative;left: 4px;" class="btn btn-sm btn-outline-primary  mainbtn">
-                              RECORD
+                              CLARK PATIENT
                           </button>
                       </div>
                     </div>
                   </div>
                 </div>
                 <div style="margin-bottom: 3px" class="card card-secondary historycard midlecard graphcard">
-                    <div style='border-top-right-radius:12px;border-top-left-radius:12px;' class="card-header grapheader">
+                    <div style='border-top-right-radius:20px;border-top-left-radius:20px;' class="card-header grapheader">
                         <h1 class="dept headtitle">NOTES</h1>
                     </div>
                     <div class="card-body notecardbody">
@@ -923,8 +992,8 @@ max-width:100%;">
                     </p>
                 </div>
                 <div class="card-group">
-                    <div style='border-radius:12px;margin-bottom: 4px;' class="card card-secondary maincard halfcard">
-                        <div style='border-top-right-radius:12px;border-top-left-radius:12px'  class="card-header grapheader">
+                    <div style='border-radius:20px;margin-bottom: 4px;' class="card card-secondary maincard halfcard">
+                        <div style='border-top-right-radius:20px;border-top-left-radius:20px'  class="card-header grapheader">
                             <h1 class="dept headtitle">TESTS</h1>
                         </div>
                         <div style='height:100%;padding-left: 17px;' class="card-body midcardbody">
@@ -974,7 +1043,7 @@ max-width:100%;">
                         </div>
                     </div>
                     <div style='border-radius:12px;margin-bottom: 4px;' class="card card-secondary maincard halfcard halfcard-right">
-                        <div style='border-top-right-radius:12px;border-top-left-radius:12px' class="card-header grapheader">
+                        <div style='border-top-right-radius:20px;border-top-left-radius:20px' class="card-header grapheader">
                             <h1 class="dept headtitle">SCANS</h1>
                         </div>
                         <div style='height:100%;padding-left: 17px;' class="card-body midcardbody">
@@ -1027,9 +1096,8 @@ max-width:100%;">
                 <div class="card card-secondary historycard midlecard topcard graphcard">
                     <div class="card-header grapheader">
                         <h1 class="dept headtitle">VITALS</h1>
-                        <h1 style="position: absolute;
-                        left: 88%;
-                    top: 6px;" class="dept headtitle">{{showing}}<span>
+                        <h1 style="position: absolute; left: 88%;top: 6px;"
+                        class="dept headtitle">{{showing}}<span>
                           <i style="top: -3px;  position: absolute;  color: lightgrey;
                           margin-left: 5px;" (click) ='toggleSortMenu()' class="icon ion-ios-arrow-down shevron"></i>
                         </span></h1>
@@ -1100,7 +1168,7 @@ max-width:100%;">
                 </div>
                 <div class="card-group">
                         <div style='border-radius:12px;margin-bottom: 4px;' class="card card-secondary maincard halfcard">
-                            <div style='border-top-right-radius:12px;border-top-left-radius:12px'  class="card-header grapheader">
+                            <div style='border-top-right-radius:20px;border-top-left-radius:20px'  class="card-header grapheader">
                                 <h1 class="dept headtitle">PROCEDURES</h1>
                             </div>
                             <div style='height:100%;padding-left: 17px;' class="card-body midcardbody">
@@ -1149,8 +1217,8 @@ max-width:100%;">
                                 </div>
                             </div>
                         </div>
-                        <div style='border-radius:12px;margin-bottom: 4px;  overflow:hidden' class="card card-secondary maincard halfcard halfcard-right">
-                            <div style='border-top-right-radius:12px;border-top-left-radius:12px' class="card-header grapheader">
+                        <div style='border-radius:20px;margin-bottom: 4px;  overflow:hidden' class="card card-secondary maincard halfcard halfcard-right">
+                            <div style='border-top-right-radius:20px;border-top-left-radius:20px' class="card-header grapheader">
                                 <h1 style="padding-left: 15px;" class="dept headtitle">
                                     <span *ngIf="clientMode ==='edit'"><i  (click)="switchClient('view')" style='position:absolute;right:97%;top:-3px; font-size:large;  cursor:pointer; display: inline-block;color:#1da1f2;' title="Back" class="icon ion-android-arrow-back "> </i>
                                     </span> IMMUNIZATIONS <span *ngIf="clientMode !=='edit'" (click)="switchClient('edit')" style='position:absolute;left:93%;top:-2px; cursor:pointer;'>
@@ -1196,7 +1264,6 @@ max-width:100%;">
         </div>
         <div *ngIf='patient._id' class="col col-xs-3 col-sm-3 col-md-3 col-lg-3 col-xl-3">
             <div class="card-colums rightcolumn">
-
                 <div style='height:370px'  class="card card-secondary historycard rightcard allegies">
                     <div class="card-header grapheader">
                         <h1 class="dept headtitle">HISTORY</h1>

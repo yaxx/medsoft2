@@ -1,16 +1,17 @@
-import {Product} from './inventory.model';
+import {Inventory} from './inventory.model';
 import {Person} from './person.model';
 
 export class Bed {
   constructor(
-    public number: number  = null,
+    public bedNumber: number  = null,
     public allocated: boolean = false,
     public dateCreated: Date = new Date() ) {}
 }
 export class Room {
-  constructor(public _id?: string,
+  constructor(
+    public _id?: string,
     public name: string = null,
-    public number: Number = null,
+    public roomNumber: number = null,
     public beds: Bed[] = [],
     public dateCreated: Date = new Date() ) {}
 }
@@ -20,12 +21,14 @@ export class Department {
     public name: string = null,
     public category: string = null,
     public hasWard: boolean = false,
-    public description: string = null,
-    public rooms: Room[] = [],
-    public dateCreated: Date = new Date() ) {}
+    public numbOfRooms: number = 0,
+    public numbOfBeds: number = 0,
+    public menu?: boolean
+    ) {}
 }
 export class Info {
-  constructor(public name: string = null,
+  constructor(
+    public name: string = null,
     public mobile: string = null,
     public email: string = null,
     public state: string = null,
@@ -38,17 +41,15 @@ export class Info {
     public password: string = null,
     public comfirm: string = null,
     public address: string = null
-      
    ) {}
 }
+
 export class Client {
   constructor(
     public _id?: string,
     public info: Info = new Info(),
     public departments: Department[] = [],
     public staffs: Person[] = [],
-    public inventory: Product[] = [],
-    
-    ) {
-  }
+    public inventory: Inventory = new Inventory()
+    ) {}
 }

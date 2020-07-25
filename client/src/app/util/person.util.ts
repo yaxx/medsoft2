@@ -2,7 +2,7 @@ import {Person, Info} from '../models/person.model';
 import {DataService} from '../services/data.service';
 import { Injectable } from '@angular/core';
 import {states, lgas } from '../data/states';
-import { Invoice, Meta, Card} from '../models/inventory.model';
+import { Invoice, Stamp, Card} from '../models/inventory.model';
 import {CookieService } from 'ngx-cookie-service';
 import {Visit} from '../models/record.model';
 import { FileSelectDirective, FileUploader } from 'ng2-file-upload';
@@ -65,14 +65,14 @@ export  class PersonUtil {
     addDefaults() {
         // this.person.record.cards.unshift({
         //     ...this.card,
-        //     meta: new Meta(this.cookies.get('i'))
+        //     stamp: new Stamp(this.cookies.get('i'))
         // });
         this.person.record.visits = [[new Visit()]];
     }
     addInitials() {
     this.person.record.cards.unshift({
         ...this.card,
-        meta: new Meta(this.cookies.get('i'))
+        stamp: new Stamp(this.cookies.get('i'))
     });
     this.person.record.visits = [[new Visit()]];
     this.person.record.invoices = [[{
@@ -80,7 +80,7 @@ export  class PersonUtil {
         name: 'Card',
         desc: this.card.category,
         processed: true,
-        meta: new Meta(this.cookies.get('i'))
+        stamp: new Stamp(this.cookies.get('i'))
     }]];
     }
     addCard() {
@@ -90,10 +90,10 @@ export  class PersonUtil {
                 this.person.record.visits.unshift([new Visit()]);
                 this.person.record.invoices.unshift([{
                     ...new Invoice(),
-                    name: 'Card',
-                    desc: this.card.category,
+                    desc: 'Card',
+                    name: this.card.category,
                     processed: true,
-                    meta: new Meta(this.cookies.get('i'))
+                    stamp: new Stamp(this.cookies.get('i'))
                 }]);
             } else {
                 this.person.record.cards[0] = this.card;
@@ -103,7 +103,7 @@ export  class PersonUtil {
                     name: 'Card',
                     desc: this.card.category,
                     processed: true,
-                    meta: new Meta(this.cookies.get('i'))
+                    stamp: new Stamp(this.cookies.get('i'))
                 }];
             }
         } else {
@@ -114,7 +114,7 @@ export  class PersonUtil {
                 name: 'Card',
                 desc: this.card.category,
                 processed: true,
-                meta: new Meta(this.cookies.get('i'))
+                stamp: new Stamp(this.cookies.get('i'))
             }]);
         }
     }

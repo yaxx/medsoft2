@@ -12,7 +12,7 @@ import {Conditions} from '../../data/conditions';
 import {states, lgas } from '../../data/states';
 import {PersonUtil} from '../../util/person.util';
 import {sorter, searchPatients} from '../../util/functions';
-import { Item, StockInfo, Product, Card, Invoice, Meta} from '../../models/inventory.model';
+import { Suggestion, StockInfo, StockItem, Stock, Card, Invoice, Stamp} from '../../models/inventory.model';
 import {Subject} from 'rxjs';
 import {Observable} from 'rxjs';
 import {WebcamImage, WebcamInitError, WebcamUtil} from 'ngx-webcam';
@@ -33,7 +33,7 @@ export class ConsultationComponent implements OnInit {
   temp: Person[] = [];
   patient: Person = new Person();
   patients: Person[] = [];
-  products: Product[] = [];
+  products: Stock[] = [];
   clonedPatient: Person = new Person();
   pool: Person[] = [];
   reserved: Person[] = [];
@@ -49,7 +49,7 @@ export class ConsultationComponent implements OnInit {
   curIndex = 0;
   searchTerm = '';
   medicView = false;
-  selectedProducts: Product[] = [];
+  selectedProducts: Stock[] = [];
   input = '';
   in = 'discharge';
   loading  = false;
@@ -150,17 +150,17 @@ export class ConsultationComponent implements OnInit {
   });
 
    this.socket.io.on('store update', (data) => {
-    if (data.action === 'new') {
-      this.products.concat(data.changes);
-    } else if (data.action === 'update') {
-        for (const product of data.changes) {
-            this.products[this.products.findIndex(prod => prod._id === product._id)] = product;
-          }
-    } else {
-        for (const product of data.changes) {
-          this.products.splice(this.products.findIndex(prod => prod._id === product._id) , 1);
-        }
-    }
+    // if (data.action === 'new') {
+    //   this.products.concat(data.changes);
+    // } else if (data.action === 'update') {
+    //     for (const product of data.changes) {
+    //         this.products[this.products.findIndex(prod => prod._id === product._id)] = product;
+    //       }
+    // } else {
+    //     for (const product of data.changes) {
+    //       this.products.splice(this.products.findIndex(prod => prod._id === product._id) , 1);
+    //     }
+    // }
   });
    this.socket.io.on('new report', (patient: Person) => {
     const i = this.patients.findIndex(p => p._id === patient._id);
@@ -276,25 +276,25 @@ getLgas() {
       .filter(dept => (dept.hasWard) && (dept.name !== this.patient.record.visits[0][0].dept));
   }
   setAppointment() {
-    this.patients[this.curIndex].record.appointments.unshift(this.session.appointment);
-    this.patients[this.curIndex].record.visits[0][0].status = 'ap';
-    this.processing = true;
-    this.dataService.updateRecord(this.patients[this.curIndex], this.session.newItems).subscribe(patient => {
-      this.processing = false;
-      this.successMsg = 'Appointment Set';
-      setTimeout(() => {
-        this.successMsg = null;
-      }, 3000);
-      setTimeout(() => {
-        this.switchCards(this.curIndex , 'front');
-      }, 5000);
-      setTimeout(() => {
-        this.patients.splice(this.curIndex , 1);
-      }, 7000);
-     }, (e) => {
-       this.processing = false;
-       this.errorMsg = 'Unable to set Appointment';
-     });
+    // this.patients[this.curIndex].record.appointments.unshift(this.session.appointment);
+    // this.patients[this.curIndex].record.visits[0][0].status = 'ap';
+    // this.processing = true;
+    // this.dataService.updateRecord(this.patients[this.curIndex], this.session.newItems).subscribe(patient => {
+    //   this.processing = false;
+    //   this.successMsg = 'Appointment Set';
+    //   setTimeout(() => {
+    //     this.successMsg = null;
+    //   }, 3000);
+    //   setTimeout(() => {
+    //     this.switchCards(this.curIndex , 'front');
+    //   }, 5000);
+    //   setTimeout(() => {
+    //     this.patients.splice(this.curIndex , 1);
+    //   }, 7000);
+    //  }, (e) => {
+    //    this.processing = false;
+    //    this.errorMsg = 'Unable to set Appointment';
+    //  });
   }
   showMenu(i: number) {
     this.hideMenu();
@@ -343,28 +343,28 @@ getLgas() {
      }
    }
   comfirmDesposition(i: number) {
-    this.processing = true;
-    this.patients[i].record.visits[0][0].dept = (this.patients[i].record.visits[0][0].status !== 'queued')
-       ? this.dept : this.patients[i].record.visits[0][0].dept;
-    this.patients[i].record.visits[0][0].dischargedOn = new Date();
-    this.dataService.updateRecord(this.patients[i], this.session.newItems).subscribe((p: Person) => {
-    this.processing = false;
-    this.socket.io.emit('record update', {action: 'disposition', patient: this.patients[i]});
-    this.successMsg = 'Success';
-    setTimeout(() => {
-      this.successMsg = null;
-    }, 5000);
-    setTimeout(() => {
-      this.switchCards(i, 'front');
-    }, 8000);
-    setTimeout(() => {
-      this.patients.splice(i, 1);
-      this.message = ( this.patients.length) ? null : 'No Record So Far';
-    }, 10000);
-  }, (e) => {
-    this.errorMsg = '...Network Error';
-    this.processing = false;
-  });
+  //   this.processing = true;
+  //   this.patients[i].record.visits[0][0].dept = (this.patients[i].record.visits[0][0].status !== 'queued')
+  //      ? this.dept : this.patients[i].record.visits[0][0].dept;
+  //   this.patients[i].record.visits[0][0].dischargedOn = new Date();
+  //   this.dataService.updateRecord(this.patients[i], this.session.newItems).subscribe((p: Person) => {
+  //   this.processing = false;
+  //   this.socket.io.emit('record update', {action: 'disposition', patient: this.patients[i]});
+  //   this.successMsg = 'Success';
+  //   setTimeout(() => {
+  //     this.successMsg = null;
+  //   }, 5000);
+  //   setTimeout(() => {
+  //     this.switchCards(i, 'front');
+  //   }, 8000);
+  //   setTimeout(() => {
+  //     this.patients.splice(i, 1);
+  //     this.message = ( this.patients.length) ? null : 'No Record So Far';
+  //   }, 10000);
+  // }, (e) => {
+  //   this.errorMsg = '...Network Error';
+  //   this.processing = false;
+  // });
 }
   sortPatients(order: string) {
     this.sortMenu = false;

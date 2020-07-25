@@ -1,6 +1,6 @@
-const mongoose = require('../db');
-const Scheema = mongoose.Schema;
-const personScheema = new Scheema({
+var mongoose = require('../db');
+const Schema = mongoose.Schema;
+const personSchema = new Schema({
     info: {
         status: String,
         online: Boolean,
@@ -20,20 +20,7 @@ const personScheema = new Scheema({
             mstatus: String,
             username: String,
             password: String,
-            status: String,
-            meta: {
-                addedBy: {
-                    type: Scheema.Types.ObjectId,
-                    ref: 'Person'
-                },
-                facility: {
-                    type: Scheema.Types.ObjectId,
-                    ref: 'Client'
-                },
-                selected: Boolean,
-                dateAdded: Date
-            }
-
+            status: String
         },
         contact: {
             me: {
@@ -64,32 +51,43 @@ const personScheema = new Scheema({
         },
         official: {
             hospital: {
-                type: Scheema.Types.ObjectId,
+                type: Schema.Types.ObjectId,
                 ref: 'Client'
             },
             id: String,
             department: String,
             role: String
+        },
+        stamp: {
+            addedBy: {
+                type: Schema.Types.ObjectId,
+                ref: 'Person'
+            },
+            facility: {
+                type: Schema.Types.ObjectId,
+                ref: 'Client'
+            },
+            selected: Boolean,
+            dateAdded: Date
         }
-
     },
     connections: {
-        type: Scheema.Types.ObjectId,
+        type: Schema.Types.ObjectId,
         ref: 'Connection'
     },
-
+    
     record: {
         complains: [
             [{
                 complain: String,
                 duration: Number,
-                meta: {
+                stamp: {
                     addedBy: {
-                        type: Scheema.Types.ObjectId,
+                        type: Schema.Types.ObjectId,
                         ref: 'Person'
                     },
                     facility: {
-                        type: Scheema.Types.ObjectId,
+                        type: Schema.Types.ObjectId,
                         ref: 'Client'
                     },
                     selected: Boolean,
@@ -102,13 +100,13 @@ const personScheema = new Scheema({
                 condition: String,
                 duration: Number,
                 bearer: String,
-                meta: {
+                stamp: {
                     addedBy: {
-                        type: Scheema.Types.ObjectId,
+                        type: Schema.Types.ObjectId,
                         ref: 'Person'
                     },
                     facility: {
-                        type: Scheema.Types.ObjectId,
+                        type: Schema.Types.ObjectId,
                         ref: 'Client'
                     },
                     selected: Boolean,
@@ -119,13 +117,13 @@ const personScheema = new Scheema({
         notes: [{
             note: String,
             noteType: String,
-            meta: {
+            stamp: {
                 addedBy: {
-                    type: Scheema.Types.ObjectId,
+                    type: Schema.Types.ObjectId,
                     ref: 'Person'
                 },
                 facility: {
-                    type: Scheema.Types.ObjectId,
+                    type: Schema.Types.ObjectId,
                     ref: 'Client'
                 },
                 selected: Boolean,
@@ -136,13 +134,13 @@ const personScheema = new Scheema({
             bp: [{
                 systolic: Number,
                 dystolic: Number,
-                meta: {
+                stamp: {
                     addedBy: {
-                        type: Scheema.Types.ObjectId,
+                        type: Schema.Types.ObjectId,
                         ref: 'Person'
                     },
                     facility: {
-                        type: Scheema.Types.ObjectId,
+                        type: Schema.Types.ObjectId,
                         ref: 'Client'
                     },
                     selected: Boolean,
@@ -151,13 +149,13 @@ const personScheema = new Scheema({
             }],
             resp: [{
                 value: Number,
-                meta: {
+                stamp: {
                     addedBy: {
-                        type: Scheema.Types.ObjectId,
+                        type: Schema.Types.ObjectId,
                         ref: 'Person'
                     },
                     facility: {
-                        type: Scheema.Types.ObjectId,
+                        type: Schema.Types.ObjectId,
                         ref: 'Client'
                     },
                     selected: Boolean,
@@ -166,13 +164,13 @@ const personScheema = new Scheema({
             }],
             pulse: [{
                 value: Number,
-                meta: {
+                stamp: {
                     addedBy: {
-                        type: Scheema.Types.ObjectId,
+                        type: Schema.Types.ObjectId,
                         ref: 'Person'
                     },
                     facility: {
-                        type: Scheema.Types.ObjectId,
+                        type: Schema.Types.ObjectId,
                         ref: 'Client'
                     },
                     selected: Boolean,
@@ -185,13 +183,13 @@ const personScheema = new Scheema({
             }],
             weight: [{
                 value: Number,
-                meta: {
+                stamp: {
                     addedBy: {
-                        type: Scheema.Types.ObjectId,
+                        type: Schema.Types.ObjectId,
                         ref: 'Person'
                     },
                     facility: {
-                        type: Scheema.Types.ObjectId,
+                        type: Schema.Types.ObjectId,
                         ref: 'Client'
                     },
                     selected: Boolean,
@@ -200,13 +198,13 @@ const personScheema = new Scheema({
             }],
             tempreture: [{
                 value: Number,
-                meta: {
+                stamp: {
                     addedBy: {
-                        type: Scheema.Types.ObjectId,
+                        type: Schema.Types.ObjectId,
                         ref: 'Person'
                     },
                     facility: {
-                        type: Scheema.Types.ObjectId,
+                        type: Schema.Types.ObjectId,
                         ref: 'Client'
                     },
                     selected: Boolean,
@@ -215,31 +213,30 @@ const personScheema = new Scheema({
             }],
             bloodGl: [{
                 value: String,
-                meta: {
+                stamp: {
                     addedBy: {
-                        type: Scheema.Types.ObjectId,
+                        type: Schema.Types.ObjectId,
                         ref: 'Person'
                     },
                     facility: {
-                        type: Scheema.Types.ObjectId,
+                        type: Schema.Types.ObjectId,
                         ref: 'Client'
                     },
                     selected: Boolean,
                     dateAdded: Date
                 }
-                
             }]
         },
         conditions: [
             [{
                 name: String,
-                meta: {
+                stamp: {
                     addedBy: {
-                        type: Scheema.Types.ObjectId,
+                        type: Schema.Types.ObjectId,
                         ref: 'Person'
                     },
                     facility: {
-                        type: Scheema.Types.ObjectId,
+                        type: Schema.Types.ObjectId,
                         ref: 'Client'
                     },
                     selected: Boolean,
@@ -249,13 +246,13 @@ const personScheema = new Scheema({
         ],
         allegies: [{
             allegy: String,
-            meta: {
+            stamp: {
                 addedBy: {
-                    type: Scheema.Types.ObjectId,
+                    type: Schema.Types.ObjectId,
                     ref: 'Person'
                 },
                 facility: {
-                    type: Scheema.Types.ObjectId,
+                    type: Schema.Types.ObjectId,
                     ref: 'Client'
                 },
                 selected: Boolean,
@@ -265,7 +262,7 @@ const personScheema = new Scheema({
         visits: [
             [{
                 hospital: {
-                    type: Scheema.Types.ObjectId,
+                    type: Schema.Types.ObjectId,
                     ref: 'Client'
                 },
                 dept: String,
@@ -282,13 +279,13 @@ const personScheema = new Scheema({
         cards: [{
             category: String,
             pin: String,
-            meta: {
+            stamp: {
                 addedBy: {
-                    type: Scheema.Types.ObjectId,
+                    type: Schema.Types.ObjectId,
                     ref: 'Person'
                 },
                 facility: {
-                    type: Scheema.Types.ObjectId,
+                    type: Schema.Types.ObjectId,
                     ref: 'Client'
                 },
                 selected: Boolean,
@@ -301,13 +298,13 @@ const personScheema = new Scheema({
             date: Date,
             time: String,
             attended: Boolean,
-            meta: {
+            stamp: {
                 addedBy: {
-                    type: Scheema.Types.ObjectId,
+                    type: Schema.Types.ObjectId,
                     ref: 'Person'
                 },
                 facility: {
-                    type: Scheema.Types.ObjectId,
+                    type: Schema.Types.ObjectId,
                     ref: 'Client'
                 },
                 selected: Boolean,
@@ -316,45 +313,47 @@ const personScheema = new Scheema({
         }],
         medications: [
             [{
-                name: String,
+                product: {
+                    name: String,
+                    size: Number,
+                    unit: String,
+                },
                 priscription: {
                     intake: Number,
                     freq: String,
                     piriod: Number,
                     extend: String
                 },
-                meta: {
+                lastTaken: Date,
+                paused: Boolean,
+                pausedOn: Date,
+                stamp: {
                     addedBy: {
-                        type: Scheema.Types.ObjectId,
+                        type: Schema.Types.ObjectId,
                         ref: 'Person'
                     },
                     facility: {
-                        type: Scheema.Types.ObjectId,
+                        type: Schema.Types.ObjectId,
                         ref: 'Client'
                     },
                     selected: Boolean,
                     dateAdded: Date
-                },
-                lastTaken: Date,
-                paused: Boolean,
-                pausedOn: Date
-
+                }
             }]
         ],
-
         scans: [
             [{
                 name: String,
                 dept: String,
                 treated: Boolean,
                 bodyPart: String,
-                meta: {
+                stamp: {
                     addedBy: {
-                        type: Scheema.Types.ObjectId,
+                        type: Schema.Types.ObjectId,
                         ref: 'Person'
                     },
                     facility: {
-                        type: Scheema.Types.ObjectId,
+                        type: Schema.Types.ObjectId,
                         ref: 'Client'
                     },
                     selected: Boolean,
@@ -363,20 +362,19 @@ const personScheema = new Scheema({
                 report: {
                     comment: String,
                     attachments: [],
-                    meta: {
+                    stamp: {
                         addedBy: {
-                            type: Scheema.Types.ObjectId,
+                            type: Schema.Types.ObjectId,
                             ref: 'Person'
                         },
                         facility: {
-                            type: Scheema.Types.ObjectId,
+                            type: Schema.Types.ObjectId,
                             ref: 'Client'
                         },
                         selected: Boolean,
                         dateAdded: Date
-                    }
+                    },
                 }
-              
             }]
         ],
         tests: [
@@ -384,89 +382,87 @@ const personScheema = new Scheema({
                 name: String,
                 dept: String,
                 treated: Boolean,
-                meta: {
+                report: {
+                    comment: String,
+                    attachments: [],
+                    stamp: {
+                        addedBy: {
+                            type: Schema.Types.ObjectId,
+                            ref: 'Person'
+                        },
+                        facility: {
+                            type: Schema.Types.ObjectId,
+                            ref: 'Client'
+                        },
+                        selected: Boolean,
+                        dateAdded: Date
+                    }
+                },
+                stamp: {
                     addedBy: {
-                        type: Scheema.Types.ObjectId,
+                        type: Schema.Types.ObjectId,
                         ref: 'Person'
                     },
                     facility: {
-                        type: Scheema.Types.ObjectId,
+                        type: Schema.Types.ObjectId,
                         ref: 'Client'
                     },
                     selected: Boolean,
                     dateAdded: Date
-                },
-                report: {
-                    comment: String,
-                    attachments: [],
-                    meta: {
-                        addedBy: {
-                            type: Scheema.Types.ObjectId,
-                            ref: 'Person'
-                        },
-                        selected: Boolean,
-                        dateAdded: Date,
-                        facility: {
-                            type: Scheema.Types.ObjectId,
-                            ref: 'Client'
-                        },
-                    }
                 }
             }]
-
         ],
         surgeries: [
             [{
                 name: String,
                 dept: String,
                 treated: Boolean,
-                meta: {
+                report: {
+                    comment: String,
+                    attachments: [],
+                    stamp: {
+                        addedBy: {
+                            type: Schema.Types.ObjectId,
+                            ref: 'Person'
+                        },
+                        facility: {
+                            type: Schema.Types.ObjectId,
+                            ref: 'Client'
+                        },
+                        selected: Boolean,
+                        dateAdded: Date
+                    }
+                },
+                stamp: {
                     addedBy: {
-                        type: Scheema.Types.ObjectId,
+                        type: Schema.Types.ObjectId,
                         ref: 'Person'
                     },
                     facility: {
-                        type: Scheema.Types.ObjectId,
+                        type: Schema.Types.ObjectId,
                         ref: 'Client'
                     },
                     selected: Boolean,
                     dateAdded: Date
-                },
-                report: {
-                    comment: String,
-                    attachments: [],
-                    meta: {
-                        addedBy: {
-                            type: Scheema.Types.ObjectId,
-                            ref: 'Person'
-                        },
-                        selected: Boolean,
-                        dateAdded: Date,
-                        facility: {
-                            type: Scheema.Types.ObjectId,
-                            ref: 'Client'
-                        },
-                    }
                 }
             }]
-
         ],
       
         immunization: {
             vaccins: [
                 [{
                     name: String,
-                    meta: {
+                    stamp: {
                         addedBy: {
-                            type: Scheema.Types.ObjectId,
+                            type: Schema.Types.ObjectId,
                             ref: 'Person'
                         },
-                        selected: Boolean,
-                        dateAdded: Date,
                         facility: {
-                            type: Scheema.Types.ObjectId,
+                            type: Schema.Types.ObjectId,
                             ref: 'Client'
                         },
+                        selected: Boolean,
+                        dateAdded: Date
                     }
                 }]
             ],
@@ -474,7 +470,6 @@ const personScheema = new Scheema({
         },
         invoices: [
             [{
-                name: String,
                 desc: String,
                 kind: String,
                 price: Number,
@@ -483,17 +478,17 @@ const personScheema = new Scheema({
                 credit: Boolean,
                 processed: Boolean,
                 datePaid: String,
-                comfirmedBy: {
-                    type: Scheema.Types.ObjectId,
+                paymentComfirmer: {
+                    type: Schema.Types.ObjectId,
                     ref: 'Person'
                 },
-                meta: {
+                stamp: {
                     addedBy: {
-                        type: Scheema.Types.ObjectId,
+                        type: Schema.Types.ObjectId,
                         ref: 'Person'
                     },
                     facility: {
-                        type: Scheema.Types.ObjectId,
+                        type: Schema.Types.ObjectId,
                         ref: 'Client'
                     },
                     selected: Boolean,
@@ -517,13 +512,12 @@ const personScheema = new Scheema({
             ]
         ]
     }
-        
-    ]
-}, { 
-    timestamps: true, 
-    strict: false 
+  ]
 });
 
 
-const Person = mongoose.model('Person', personScheema);
+
+    
+
+const Person = mongoose.model('Person', personSchema);
 module.exports = Person;

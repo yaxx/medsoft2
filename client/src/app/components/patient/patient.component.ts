@@ -7,7 +7,7 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {Person, Info} from '../../models/person.model';
 import {Client, Department} from '../../models/client.model';
 import {states, lgas } from '../../data/states';
-import {Product, Item, Meta, Invoice, Card, StockInfo} from '../../models/inventory.model';
+import {Suggestion, Stamp, Invoice, Card, StockInfo} from '../../models/inventory.model';
 import { Record,  Session} from '../../models/record.model';
 import * as cloneDeep from 'lodash/cloneDeep';
 import {PersonUtil} from '../../util/person.util';
@@ -160,7 +160,7 @@ export class PatientComponent implements OnInit {
     this.bills.unshift({
       ...this.invoice,
       paid: true,
-      meta: new Meta(this.cookies.get('i'), this.cookies.get('h'))
+      stamp: new Stamp(this.cookies.get('i'), this.cookies.get('h'))
     });
     this.invoice = new Invoice();
   }
@@ -171,7 +171,7 @@ export class PatientComponent implements OnInit {
     // const invoices = cloneDeep([...this.session.invoices, ...this.session.medInvoices]);
     if (this.bills.length) {
     if (this.patient.record.invoices.length) {
-      if (new Date(this.patient.record.invoices[0][0].meta.dateAdded)
+      if (new Date(this.patient.record.invoices[0][0].stamp.dateAdded)
       .toLocaleDateString() === new Date()
       .toLocaleDateString()) {
         for (const b of this.bills) {
@@ -244,7 +244,7 @@ export class PatientComponent implements OnInit {
  switchToEdit() {
   this.patient.record.medications.forEach(inner => {
     inner.forEach(medic => {
-      if (medic.meta.selected) {
+      if (medic.stamp.selected) {
          this.selections.push(medic);
       }
     });
@@ -255,7 +255,7 @@ switchBilling() {
   this.billing = !this.billing;
 }
 medSelected() {
-  return this.patient.record.medications.some(med => med.some(m => m.meta.selected));
+  return this.patient.record.medications.some(med => med.some(m => m.stamp.selected));
  }
 switchViews(view) {
   switch (view) {
@@ -288,17 +288,17 @@ getStyle(medication) {
   };
 }
 selectMedication(i: number, j: number) {
-  this.patient.record.medications[i][j].meta.selected =
-  this.patient.record.medications[i][j].meta.selected ? false : true;
+  this.patient.record.medications[i][j].stamp.selected =
+  this.patient.record.medications[i][j].stamp.selected ? false : true;
  }
  changeMedStatus() {
  this.processing = true;
  this.patient.record.medications.forEach(group => {
     group.forEach(medic => {
-      if (medic.meta.selected) {
+      if (medic.stamp.selected) {
         medic.paused = (medic.paused) ? false : true;
         medic.pausedOn = new Date();
-        medic.meta.selected = false;
+        medic.stamp.selected = false;
       }
     });
   });
@@ -348,6 +348,7 @@ viewOrders(i: number) {
   linked() {
     return !this.router.url.includes('information');
   }
+
   logOut() {
     this.dataService.logOut();
   }
@@ -360,7 +361,6 @@ viewOrders(i: number) {
   refresh() {
     this.message = null;
     this.getPatients('Admit');
-
   }
   next() {
     this.count = this.count + 1;
@@ -443,18 +443,18 @@ viewOrders(i: number) {
     this.patients[i].card.view = face;
     switch (face) {
        case 'ap': this.cardCount = 'dispose';
-                  break;
+          break;
        case 'appointment': this.cardCount = 'ap';
-                           break;
+          break;
        case 'dispose': this.cardCount = 'dispose';
-                       this.patients[i].card.btn = 'discharge';
-                       this.dept = this.patients[i].record.visits[0][0].dept;
-                       break;
+            this.patients[i].card.btn = 'discharge';
+            this.dept = this.patients[i].record.visits[0][0].dept;
+          break;
        default: this.cardCount = null;
-                this.patients[i].record.visits[0][0].status = 'queued';
-                this.patients[i].record.visits[0][0].dept = this.dept;
-                this.patients[i].card.btn = 'discharge';
-                break;
+            this.patients[i].record.visits[0][0].status = 'queued';
+            this.patients[i].record.visits[0][0].dept = this.dept;
+            this.patients[i].card.btn = 'discharge';
+          break;
      }
    }
    comfirmDesposition(i: number) {
@@ -462,7 +462,7 @@ viewOrders(i: number) {
     this.patients[i].record.visits[0][0].dept = (
       this.patients[i].record.visits[0][0].status !== 'queued') ? this.dept : this.patients[i].record.visits[0][0].dept;
     this.patients[i].record.visits[0][0].dischargedOn = new Date();
-    this.dataService.updateRecord(this.patients[i], this.session.newItems).subscribe((p: Person) => {
+    this.dataService.updateRecord(this.patients[i], this.session.newServices).subscribe((p: Person) => {
       this.processing = false;
       this.socket.io.emit('record update', {action: 'disposition', patient: this.patients[i]});
       this.successMsg = 'Success';

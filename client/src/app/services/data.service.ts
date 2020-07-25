@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
-import {Product, Item} from '../models/inventory.model';
+import {Stock, Suggestion} from '../models/inventory.model';
 import {Client, Department} from '../models/client.model';
 import {Person} from '../models/person.model';
 import * as socketIo from 'socket.io-client';
@@ -73,14 +73,12 @@ export class DataService {
       );
   }
 
-  addProducts(products: Product[], items: Item[]) {
-    return this.http.post(
-    `${this.uri}/new-product`,  {products, items}, {withCredentials: true}
-    );
+  addProducts() {
+
   }
-  updateProducts(products) {
+  updateStocks(stocks, action, suggestions) {
     return this.http.post(
-      `${this.uri}/update-products`, products, {withCredentials: true}
+      `${this.uri}/update-stocks`, {stocks, action, suggestions}, {withCredentials: true}
       );
   }
   runTransaction(pid, record, cart,reciepts) {
@@ -89,9 +87,7 @@ export class DataService {
       );
   }
   deleteProducts(product) {
-    return this.http.post(
-      `${this.uri}/delete-products`, product, {withCredentials: true}
-      );
+   
   }
   login (user) {
     return this.http.post(
@@ -171,7 +167,7 @@ export class DataService {
   }
   addNotifications(note) {
     return this.http.post(
-      `${this.uri}/addnotification`, {note: note}, {withCredentials: true});
+      `${this.uri}/addnotification`, note, {withCredentials: true});
   }
   getNew() {
     return this.staff;
@@ -181,7 +177,7 @@ export class DataService {
       `${this.uri}/client`, {withCredentials: true}
       );
   }
-  getProducts() {
+  getStocks() {
     return this.http.get(
       `${this.uri}/products`, {withCredentials: true}
       );
@@ -220,6 +216,14 @@ export class DataService {
   updateClient(client) {
     return this.http.post(
       `${this.uri}/updateclient`, client, {withCredentials: true});
+  }
+  updateDept(dept) {
+    return this.http.post(
+      `${this.uri}/update-dept`, dept, {withCredentials: true});
+  }
+  deleteAccount(id) {
+    return this.http.post(
+      `${this.uri}/delete-account`, {id}, {withCredentials: true});
   }
 }
 

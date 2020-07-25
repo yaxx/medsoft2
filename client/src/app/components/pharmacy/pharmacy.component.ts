@@ -4,7 +4,7 @@ import {SocketService} from '../../services/socket.service';
 import {ActivatedRoute, Router} from '@angular/router';
 import {Person} from '../../models/person.model';
 import {CookieService} from 'ngx-cookie-service';
-import {Product, Item, StockInfo,Invoice} from '../../models/inventory.model';
+import {Stock, Suggestion, Stamp, StockInfo, Invoice, Inventory} from '../../models/inventory.model';
 import {Priscription, Medication} from '../../models/record.model';
 import * as cloneDeep from 'lodash/cloneDeep';
 import {sorter, searchPatients} from '../../util/functions';
@@ -23,17 +23,17 @@ export class PharmacyComponent implements OnInit {
   pool: Person[] = [];
   temp: Person[] = [];
   patient: Person = new Person();
-  products: Product[] = [];
-  clonedStore: Product[] = [];
-  cart: Product[] = [];
-  product: Product = new Product();
+  inventory: Inventory = new Inventory();
+  clonedStore: Inventory = new Inventory();
+  cart = [];
+  stock: Stock = new Stock();
   priscription: Priscription = new Priscription();
   medication: Medication = new Medication();
-  temProducts: Product[] = [];
-  item: Item = new Item();
-  items: Item[] = [];
-  temItems: Item[] = [];
-  searchedProducts: Product[] = [];
+  temStocks: Stock[] = [];
+  suggestion: Suggestion = new Suggestion();
+  suggestions: Suggestion[] = [];
+  temSuggestions: Suggestion[] = [];
+  searchedProducts: Stock[] = [];
   invoices: Invoice[][] = new Array<Invoice[]>();
   edited: Invoice[] = [];
   editables: Invoice[] = [];
@@ -106,17 +106,17 @@ export class PharmacyComponent implements OnInit {
       }
     });
     this.socket.io.on('store update', (data) => {
-      if (data.action === 'new') {
-        this.products = [...data.changes, ...this.products];
-      } else if (data.action === 'update') {
-          for (const product of data.changes) {
-              this.products[this.products.findIndex(prod => prod._id === product._id)] = product;
-            }
-      } else {
-          for (const product of data.changes) {
-            this.products.splice(this.products.findIndex(prod => prod._id === product._id) , 1);
-          }
-      }
+      // if (data.action === 'new') {
+      //   this.inventory = [...data.changes, ...this.inventory];
+      // } else if (data.action === 'update') {
+      //     for (const product of data.changes) {
+      //         this.inventory.stocks.stocks[this.inventory.stocks.findIndex(prod => prod._id === product._id)] = product;
+      //       }
+      // } else {
+      //     for (const product of data.changes) {
+      //       this.inventory.stocks.splice(this.inventory.stocks.findIndex(prod => prod._id === product._id) , 1);
+      //     }
+      // }
     });
   }
 
@@ -192,7 +192,7 @@ export class PharmacyComponent implements OnInit {
     this.switchViews('editing');
   }
   getMaxQty(med) {
-    return this.products.find(prod => prod.item.name === med.name).stockInfo.quantity;
+    // return this.inventory.stocks.find(prod => prod.suggestion.name === med.name).stockInfo.quantity;
   }
   getReversables(i: number, j: number) {
     // this.curIndex = i;
@@ -202,7 +202,7 @@ export class PharmacyComponent implements OnInit {
  sortPatients(order: string) {
     this.sortMenu = false;
     this.nowSorting = order;
-    this.patients = sorter(this.patients, order)
+    this.patients = sorter(this.patients, order);
   }
   getBackgrounds() {
     const url = this.getMyDp();
@@ -210,18 +210,21 @@ export class PharmacyComponent implements OnInit {
       backgroundImage: `url(${url})`,
     };
   }
-  selectItem(i: number, j: number) {
-   this.invoices[i][j].meta.selected = !this.invoices[i][j].meta.selected;
+  isInfo() {
+    return this.router.url.includes('information');
+  }
+  selectSuggestion(i: number, j: number) {
+   this.invoices[i][j].stamp.selected = !this.invoices[i][j].stamp.selected;
   }
   medidcationsSelected(i: number) {
-    return this.invoices.some(med => med.some(m => m.meta.selected));
+    return this.invoices.some(med => med.some(m => m.stamp.selected));
   }
   getSelections() {
     const selections = [];
     this.invoices.forEach(group => {
        group.forEach(medic => {
-         if (medic.meta.selected) {
-          medic.meta.selected = !medic.meta.selected;
+         if (medic.stamp.selected) {
+          medic.stamp.selected = !medic.stamp.selected;
           selections.push(medic);
          }
        });
@@ -232,14 +235,14 @@ export class PharmacyComponent implements OnInit {
     // return this.invoices[i].some(invoice => invoice.paid);
    }
 updatePrices() {
-    this.invoices.forEach(invoices => {
-      invoices.forEach(invoice => {
-        const p = this.products.find(prod => prod.item.name === invoice.name);
-        if (p && !invoice.paid) {
-          invoice.price = p.stockInfo.price;
-        }
-      });
-    });
+    // this.invoices.forEach(invoices => {
+    //   invoices.forEach(invoice => {
+    //     const p = this.inventory.stocks.find(prod => prod.suggestion.name === invoice.name);
+    //     if (p && !invoice.paid) {
+    //       invoice.price = p.stockInfo.price;
+    //     }
+    //   });
+    // });
 }
   viewOrders(i: number) {
     this.curIndex = i;
@@ -248,27 +251,27 @@ updatePrices() {
     const medications = [];
     this.invoices = cloneDeep(this.patients[i].record.invoices);
     this.invoices.forEach((i1) => {
-      let items = [];
-      items = i1.filter(m => m.desc === 'Medication');
-      if (items.length) {
-        console.log(items);
-        medications.push(items);
+      let suggestions = [];
+      suggestions = i1.filter(m => m.desc === 'Medication');
+      if (suggestions.length) {
+        console.log(suggestions);
+        medications.push(suggestions);
       }
     });
     this.invoices = medications;
     this.updatePrices();
   }
   reset() {
-    setTimeout(() => {
-      this.transMsg = null;
-      this.cart = [];
-      this.clonedStore = [];
-    }, 3000);
-    setTimeout(() => {
-      this.edited = [];
-      this.editables = [];
-      this.switchViews('orders');
-    }, 6000);
+    // setTimeout(() => {
+    //   this.transMsg = null;
+    //   this.cart = [];
+    //   this.clonedStore = [];
+    // }, 3000);
+    // setTimeout(() => {
+    //   this.edited = [];
+    //   this.editables = [];
+    //   this.switchViews('orders');
+    // }, 6000);
 
   }
   closeModal() {
@@ -288,17 +291,17 @@ updatePrices() {
     });
   }
    updateInvoices() {
-      this.edited.forEach(invoice => {
-        invoice.processed = true;
-        this.patients[this.curIndex].record.invoices.forEach((m) =>  {
-          m[m.findIndex(i => i._id === invoice._id)] = invoice;
-        });
-        this.products.forEach(prod => {
-          if(prod.item.name === invoice.name) {
-            prod.stockInfo.quantity = prod.stockInfo.quantity - invoice.quantity;
-          }
-        });
-      });
+      // this.edited.forEach(invoice => {
+      //   invoice.processed = true;
+      //   this.patients[this.curIndex].record.invoices.forEach((m) =>  {
+      //     m[m.findIndex(i => i._id === invoice._id)] = invoice;
+      //   });
+      //   this.inventory.stocks.forEach(prod => {
+      //     if(prod.suggestion.name === invoice.name) {
+      //       prod.stockInfo.quantity = prod.stockInfo.quantity - invoice.quantity;
+      //     }
+      //   });
+      // });
       this.sendRecord();
    }
   getTransTotal(invoices: Invoice[]) {
@@ -316,7 +319,7 @@ updatePrices() {
     return total;
   }
 
-    getDp(avatar: String) {
+    getDp(avatar: string) {
       return `${host}/api/dp/${avatar}`;
   }
 
@@ -326,9 +329,9 @@ updatePrices() {
     return this.getDp(this.cookies.get('d'));
   }
   getProducts() {
-    this.dataService.getProducts().subscribe((res: any) => {
-      this.products = res.inventory.filter(p => p.type === 'Products');
-      this.items = res.items;
+    this.dataService.getStocks().subscribe((res: any) => {
+      this.inventory = res.stocks;
+      this.suggestions = res.suggestion;
     });
   }
   logOut() {

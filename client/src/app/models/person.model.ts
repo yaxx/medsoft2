@@ -1,6 +1,6 @@
 import {Record} from './record.model';
 import {Message} from './message.model';
-import {Meta} from './inventory.model';
+import {Stamp} from './inventory.model';
 export class Notification {
     constructor(
       public person: string = null,
@@ -55,7 +55,7 @@ export class Personal {
     public cardType: string = null,
     public cardNum: string = null,
     public avatar: string = 'avatar.jpg',
-    public meta: Meta =  new Meta()
+    public stamp: Stamp =  new Stamp()
      ) {}
 }
 export class Me {

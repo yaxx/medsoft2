@@ -12,7 +12,7 @@ import 'simplebar';
 import 'simplebar/dist/simplebar.css';
 import {CookieService } from 'ngx-cookie-service';
 import {ActivatedRoute, Router} from '@angular/router';
-import { Item, StockInfo, Product, Card, Invoice, Meta} from '../../models/inventory.model';
+import {Inventory, Suggestion, StockInfo, Stock, Card, Invoice, Stamp} from '../../models/inventory.model';
 
 import {
     Record, Medication, Height, Weight, Bg, Condition,
@@ -33,8 +33,9 @@ import {host} from '../../util/url';
   styleUrls: ['./history.component.css']
 })
 export class HistoryComponent implements OnInit {
-  products: Product[] = [];
-  suggestions = [];
+  stocks: Stock[] = [];
+  inventory: Stock[] = [];
+  suggestions: Suggestion[] = [];
   clonedPatient: Person = new Person();
   clonedPatients: Person[] = [];
   department: Department = new Department();
@@ -68,6 +69,7 @@ export class HistoryComponent implements OnInit {
   complains = [];
   medications = [];
   vital = 'Blood Presure';
+  form = '';
   vitals = [];
   matches = [];
   patient: Person = new Person();
@@ -213,7 +215,7 @@ export class HistoryComponent implements OnInit {
     });
     // this.patient.record.vitals.bp.forEach((bp, i) => {
     //     this.chartData.push(bp.systolic);
-    //     this.chartLabels[i] = new Date(bp.meta.dateAdded).getDate().toString() + months[new Date(bp.meta.dateAdded).getMonth()];
+    //     this.chartLabels[i] = new Date(bp.stamp.dateAdded).getDate().toString() + months[new Date(bp.stamp.dateAdded).getMonth()];
     //   });
 
   }
@@ -420,7 +422,7 @@ export class HistoryComponent implements OnInit {
        if (vcn.selected) {
         s.push({
           name: vcn.name,
-           meta: new Meta(this.cookies.get('i'), this.cookies.get('h'))
+           stamp: new Stamp(this.cookies.get('i'), this.cookies.get('h'))
           });
         vcn.selected = false;
        }
@@ -453,19 +455,19 @@ export class HistoryComponent implements OnInit {
     if (this.session.vitals.height.value) {
           this.patient.record.vitals.height.unshift({
             ...this.session.vitals.height,
-            meta: new Meta(this.cookies.get('i'), this.cookies.get('h'))
+            stamp: new Stamp(this.cookies.get('i'), this.cookies.get('h'))
           });
     }
     if (this.session.vitals.weight.value) {
           this.patient.record.vitals.weight.unshift({
             ...this.session.vitals.weight,
-            meta: new Meta(this.cookies.get('i'), this.cookies.get('h'))
+            stamp: new Stamp(this.cookies.get('i'), this.cookies.get('h'))
           });
         }
     if (this.session.vitals.bloodGl.value) {
           this.patient.record.vitals.bloodGl[0] = {
             ...this.session.vitals.bloodGl,
-            meta: new Meta(this.cookies.get('i'), this.cookies.get('h'))
+            stamp: new Stamp(this.cookies.get('i'), this.cookies.get('h'))
           };
       }
   }
@@ -539,22 +541,22 @@ export class HistoryComponent implements OnInit {
   }
 
 getDescriptions() {
-  switch (this.session.reqItem.category) {
-    case 'Surgery':
-    this.session.desc = this.surgeries;
-    this.clearSuggestions();
-    break;
-  case 'Scan':
-    this.session.desc  = this.scannings;
-    this.clearSuggestions();
-    break;
-  case 'Test':
-    this.session.desc  = this.tests;
-    this.clearSuggestions();
-    break;
-    default:
-    break;
-  }
+  // switch (this.session.reqItem.category) {
+  //   case 'Surgery':
+  //   this.session.desc = this.surgeries;
+  //   this.clearSuggestions();
+  //   break;
+  // case 'Scan':
+  //   this.session.desc  = this.scannings;
+  //   this.clearSuggestions();
+  //   break;
+  // case 'Test':
+  //   this.session.desc  = this.tests;
+  //   this.clearSuggestions();
+  //   break;
+  //   default:
+  //   break;
+  // }
 }
 
 removeMedication(i: number) {
@@ -652,22 +654,22 @@ searchComplains() {
   }
 }
 searchMedications() {
-  if (!this.session.medication.name) {
-    this.matches = [];
-  } else {
-      this.matches = this.medications.filter((name) => {
-      const patern =  new RegExp('\^' + this.session.medication.name, 'i');
-      return patern.test(name);
-    });
-  }
+  // if (!this.session.medication.stockItemname) {
+  //   this.matches = [];
+  // } else {
+  //     this.matches = this.medications.filter((name) => {
+  //     const patern =  new RegExp('\^' + this.session.medication.stockItemname, 'i');
+  //     return patern.test(name);
+  //   });
+  // }
 }
 selectAllegy(match) {
   this.session.allegies.allegy = match;
   this.matches = [];
 }
 selectMedic(match) {
-  this.session.medication.name = match;
-  this.matches = [];
+  // this.session.medication.stockItemname = match;
+  // this.matches = [];
 }
 selectTest(match) {
   this.session.test.name = match;
@@ -726,7 +728,7 @@ getRequestTotal() {
 getClient() {
   this.dataService.getClient().subscribe((res: any) => {
     this.client = res.client;
-    this.products = res.client.inventory;
+    this.inventory = res.client.inventory;
     res.client.inventory.forEach(p => {
       switch (p.item.category) {
         case 'test':
@@ -773,18 +775,18 @@ prevImage() {
   this.currentImage = this.currentImage - 1;
 }
 toggleComment(i, j, action) {
-  this.patient.record.tests[i][j].report.meta.selected = (action === 'open') ? true : false;
+  this.patient.record.tests[i][j].report.stamp.selected = (action === 'open') ? true : false;
 }
 toggleScanComment(i, j, action) {
-  this.patient.record.scans[i][j].report.meta.selected = (action === 'open') ? true : false;
+  this.patient.record.scans[i][j].report.stamp.selected = (action === 'open') ? true : false;
 }
 getLength(length) {
   return (length > 1 ) ? 's' : '';
 }
 getProducts() {
-  this.dataService.getProducts().subscribe((res: any) => {
-    this.products = res.inventory;
-    this.medications = res.inventory.filter(prod => prod.type === 'Products').map(med => med.name);
+  this.dataService.getStocks().subscribe((res: any) => {
+    this.inventory = res.inventory;
+    this.medications = res.inventory.filter(m => m.stockInfo.category).map(med => med.name);
     this.session.items = res.items;
  });
 }
@@ -798,10 +800,12 @@ checkItems(type: string) {
   // return this.temItems.some(item => item.type === type);
 }
 composeInvoices() {
-  const invoices = cloneDeep([...this.session.invoices, ...this.session.medInvoices]);
+  const invoices = cloneDeep([
+    ...this.session.invoices, ...this.session.medInvoices
+  ]);
   if (invoices.length) {
   if (this.patient.record.invoices.length) {
-    if (new Date(this.patient.record.invoices[0][0].meta.dateAdded)
+    if (new Date(this.patient.record.invoices[0][0].stamp.dateAdded)
     .toLocaleDateString() === new Date()
     .toLocaleDateString()) {
       for (const i of invoices) {
@@ -819,7 +823,7 @@ composeMedications() {
   if (this.session.medications.length) {
     this.session.bills.push('Medication');
     if (this.patient.record.medications.length) {
-    if (new Date(this.patient.record.medications[0][0].meta.dateAdded)
+    if (new Date(this.patient.record.medications[0][0].stamp.dateAdded)
     .toLocaleDateString() === new Date()
     .toLocaleDateString()) {
       for (const m of this.session.medications) {
@@ -837,7 +841,7 @@ composeTests() {
   if (this.session.tests.length) {
     this.session.bills.push('cashier');
     if (this.patient.record.tests.length) {
-    if (new Date(this.patient.record.tests[0][0].meta.dateAdded)
+    if (new Date(this.patient.record.tests[0][0].stamp.dateAdded)
     .toLocaleDateString() === new Date().toLocaleDateString()) {
       for (const t of this.session.tests) {
         this.patient.record.tests[0].unshift(t);
@@ -854,7 +858,7 @@ composeScans() {
   if (this.session.scans.length) {
     this.session.bills.push('cashier');
     if (this.patient.record.scans.length) {
-    if (new Date(this.patient.record.scans[0][0].meta.dateAdded)
+    if (new Date(this.patient.record.scans[0][0].stamp.dateAdded)
     .toLocaleDateString() === new Date().toLocaleDateString()) {
       for (const t of this.session.scans) {
         this.patient.record.scans[0].unshift(t);
@@ -871,7 +875,7 @@ composeSurgeries() {
   if (this.session.surgeries.length) {
     this.session.bills.push('cashier');
     if (this.patient.record.surgeries.length) {
-    if (new Date(this.patient.record.surgeries[0][0].meta.dateAdded)
+    if (new Date(this.patient.record.surgeries[0][0].stamp.dateAdded)
     .toLocaleDateString() === new Date().toLocaleDateString()) {
       for (const t of this.session.surgeries) {
         this.patient.record.surgeries[0].unshift(t);
@@ -887,7 +891,7 @@ composeSurgeries() {
 composeComplains() {
   if (this.session.complains.length) {
   if (this.patient.record.complains.length) {
-    if (new Date(this.patient.record.complains[0][0].meta.dateAdded)
+    if (new Date(this.patient.record.complains[0][0].stamp.dateAdded)
     .toLocaleDateString() === new Date().toLocaleDateString()) {
       for (const c of this.session.complains) {
         this.patient.record.complains[0].unshift(c);
@@ -903,7 +907,7 @@ composeComplains() {
 composeHistory() {
   if (this.session.histories.length) {
   if (this.patient.record.histories.length) {
-    if (new Date(this.patient.record.histories[0][0].meta.dateAdded)
+    if (new Date(this.patient.record.histories[0][0].stamp.dateAdded)
     .toLocaleDateString() === new Date().toLocaleDateString()) {
       for (const c of this.session.complains) {
         this.patient.record.histories[0].unshift(c);
@@ -919,7 +923,7 @@ composeHistory() {
 composeConditions() {
   if (this.session.conditions.length) {
   if (this.patient.record.conditions.length) {
-    if (new Date(this.patient.record.conditions[0][0].meta.dateAdded)
+    if (new Date(this.patient.record.conditions[0][0].stamp.dateAdded)
     .toLocaleDateString() === new Date().toLocaleDateString()) {
       for (const c of this.session.conditions) {
         this.patient.record.conditions[0].unshift(c);
@@ -934,7 +938,7 @@ composeConditions() {
 }
 
 addInvoice(name: string, itemType: string) {
-  const p = this.products.find(prod => prod.item.name === name);
+  const p = this.inventory.find(stock => stock.stockItem.name === name);
   if (p) {
     if (itemType === 'Medication') {
       this.session.medInvoices.unshift({
@@ -945,7 +949,7 @@ addInvoice(name: string, itemType: string) {
         desc: itemType,
         // tslint:disable-next-line:max-line-length
         kind: `${this.session.medication.priscription.intake}-${this.session.medication.priscription.freq}-${this.session.medication.priscription.piriod}`,
-        meta: new Meta(this.cookies.get('i'), this.cookies.get('h'))
+        stamp: new Stamp(this.cookies.get('i'), this.cookies.get('h'))
       });
     } else {
       this.session.invoices.unshift({
@@ -954,7 +958,7 @@ addInvoice(name: string, itemType: string) {
         price: p.stockInfo.price,
         desc: itemType,
         kind: itemType,
-        meta: new Meta(this.cookies.get('i'), this.cookies.get('h'))
+        stamp: new Stamp(this.cookies.get('i'), this.cookies.get('h'))
       });
     }
   } else {
@@ -966,7 +970,7 @@ addInvoice(name: string, itemType: string) {
         // tslint:disable-next-line:max-line-length
         kind: `${this.session.medication.priscription.intake}-${this.session.medication.priscription.freq}-${this.session.medication.priscription.piriod}`,
         processed: false,
-        meta: new Meta(this.cookies.get('i'), this.cookies.get('h'))
+        stamp: new Stamp(this.cookies.get('i'), this.cookies.get('h'))
       });
     } else {
       this.session.invoices.unshift({
@@ -974,7 +978,7 @@ addInvoice(name: string, itemType: string) {
         name,
         desc: itemType,
         kind: itemType,
-        meta: new Meta(this.cookies.get('i'), this.cookies.get('h'))
+        stamp: new Stamp(this.cookies.get('i'), this.cookies.get('h'))
       });
     }
   }
@@ -982,8 +986,8 @@ addInvoice(name: string, itemType: string) {
 clearSuggestions() {
   this.matches = [];
 }
-showSuggestions(field){
-  this.elm = (field==='history'||field==='allegy') ? field : null;
+showSuggestions(field) {
+  this.elm = (field === 'history' || field === 'allegy') ? field : null;
   this.errLine = null;
   switch (field) {
     case 'tests':
@@ -1019,24 +1023,20 @@ invoiceExist(name) {
   return this.session.invoices.some(invoice => invoice.name === name);
 }
 addMedication() {
-  // if (this.session.items.some(i => i.name === this.session.medication.name)) {
-  // } else {
-  //   this.session.newItems.unshift(new Item('drug', this.session.medication.name));
-  //   this.session.items.unshift(new Item('drug', this.session.medication.name));
-  // }
-  if (this.session.medications.some(medic => medic.name === this.session.medication.name)) {
-    this.errLine = 'Medication already added';
-  } else {
-  this.session.medications.unshift({
-    ...this.session.medication,
-    meta: new Meta(this.cookies.get('i'),
-    this.cookies.get('h')
-    )
-  });
-  this.addInvoice(this.session.medication.name, 'Medication');
-  this.addSuggestion('medication');
-  this.session.medication = new Medication();
-}
+
+//   if (this.session.medications.some(medic => medic.stockItemname === this.session.medication.stockItemname)) {
+//     this.errLine = 'Medication already added';
+//   } else {
+//   this.session.medications.unshift({
+//     ...this.session.medication,
+//     stamp: new Stamp(this.cookies.get('i'),
+//     this.cookies.get('h')
+//     )
+//   });
+//   this.addInvoice(this.session.medication.stockItemname, 'Medication');
+//   this.addSuggestion('medication');
+//   this.session.medication = new Medication();
+// }
 }
 addTest() {
   if (this.invoiceExist(this.session.test.name)) {
@@ -1044,7 +1044,7 @@ addTest() {
   } else {
     this.session.tests.unshift({
       ...this.session.test,
-      meta: new Meta(this.cookies.get('i'),
+      stamp: new Stamp(this.cookies.get('i'),
       this.cookies.get('h')
       )
     });
@@ -1059,7 +1059,7 @@ addSurgery() {
   } else {
      this.session.surgeries.unshift({
       ...this.session.surgery,
-      meta: new Meta(this.cookies.get('i'),
+      stamp: new Stamp(this.cookies.get('i'),
       this.cookies.get('h')
       )
   });
@@ -1074,7 +1074,7 @@ addScanning() {
   } else {
      this.session.scans.unshift({
     ...this.session.scan,
-    meta: new Meta(this.cookies.get('i'), this.cookies.get('h'))
+    stamp: new Stamp(this.cookies.get('i'), this.cookies.get('h'))
   });
      this.addSuggestion('scan');
      this.addInvoice(this.session.scan.name, 'Scan');
@@ -1091,7 +1091,7 @@ addComplain() {
   if (!this.session.complains.some(c => c.complain === this.session.complain.complain)) {
      this.session.complains.unshift({
      ...this.session.complain,
-     meta: new Meta(this.cookies.get('i'), this.cookies.get('h'))
+     stamp: new Stamp(this.cookies.get('i'), this.cookies.get('h'))
    });
      this.addSuggestion('complain');
      this.session.complain = new Complain();
@@ -1103,7 +1103,7 @@ addHistory() {
   if (!this.session.histories.some(h => h.condition === this.session.history.condition)) {
      this.session.histories.unshift({
      ...this.session.history,
-     meta: new Meta(this.cookies.get('i'), this.cookies.get('h'))
+     stamp: new Stamp(this.cookies.get('i'), this.cookies.get('h'))
    });
      this.addSuggestion('history');
      this.session.history = new History();
@@ -1117,7 +1117,7 @@ addHistory() {
     ) {
      this.session.conditions.unshift({
      ...this.session.condition,
-     meta: new Meta(this.cookies.get('i'), this.cookies.get('h'))
+     stamp: new Stamp(this.cookies.get('i'), this.cookies.get('h'))
      });
      this.addSuggestion('condition');
      this.session.condition = new Condition();
@@ -1126,73 +1126,73 @@ addHistory() {
   }
  }
 addSuggestion(suggestion: string) {
-  switch (suggestion) {
-    case 'complain':
-      if (!this.complains.find(complain => complain === this.session.complain.complain) ) {
-        this.suggestions.unshift({
-          category: suggestion,
-          name: this.session.complain.complain
-        });
-      }
-      break;
-    case 'history':
-      if (!this.histories.find(h => h.condition === this.session.history.condition) ) {
-        this.suggestions.unshift({
-          category: suggestion,
-          name: this.session.history.condition
-        });
-      }
-      break;
-    case 'surgery':
-      if ( !this.surgeries.find(name => name === this.session.surgery.name)) {
-        this.suggestions.unshift({
-          category: suggestion,
-          name: this.session.surgery.name
-        });
-      }
-      break;
-    case 'scan':
-      if (!this.scans.find(name => name === this.session.scan.name)) {
-        this.suggestions.unshift({
-          category: suggestion,
-          name: this.session.scan.name
-        });
-      }
-      break;
-    case 'test':
-      if ( !this.tests.find(name => name === this.session.test.name)) {
-        this.suggestions.unshift({
-          category: suggestion,
-          name: this.session.test.name
-        });
-      }
-      break;
-    case 'condition':
-      if (!this.conditions.find(condition => condition === this.session.condition.condition)) {
-        this.suggestions.unshift({
-          category: suggestion,
-          name: this.session.condition.condition
-        });
-      }
-      break;
-    case 'medication':
-      if(!this.medications.find(name => name === this.session.medication.name)) {
-        this.suggestions.unshift({
-          category: suggestion,
-          name: this.session.medication.name
-        });
-      }
-    case 'allegy':
-      if (!this.allegies.find(name => name === this.session.allegies.allegy)) {
-        this.suggestions.unshift({
-          category: 'allegy',
-          name: this.session.allegies.allegy
-        });
-      }
-      break;
-    default:
-      break;
-  }
+  // switch (suggestion) {
+  //   case 'complain':
+  //     if (!this.complains.find(complain => complain === this.session.complain.complain) ) {
+  //       this.suggestions.unshift({
+  //         category: suggestion,
+  //         name: this.session.complain.complain
+  //       });
+  //     }
+  //     break;
+  //   case 'history':
+  //     if (!this.histories.find(h => h.condition === this.session.history.condition) ) {
+  //       this.suggestions.unshift({
+  //         category: suggestion,
+  //         name: this.session.history.condition
+  //       });
+  //     }
+  //     break;
+  //   case 'surgery':
+  //     if ( !this.surgeries.find(name => name === this.session.surgery.name)) {
+  //       this.suggestions.unshift({
+  //         category: suggestion,
+  //         name: this.session.surgery.name
+  //       });
+  //     }
+  //     break;
+  //   case 'scan':
+  //     if (!this.scans.find(name => name === this.session.scan.name)) {
+  //       this.suggestions.unshift({
+  //         category: suggestion,
+  //         name: this.session.scan.name
+  //       });
+  //     }
+  //     break;
+  //   case 'test':
+  //     if ( !this.tests.find(name => name === this.session.test.name)) {
+  //       this.suggestions.unshift({
+  //         category: suggestion,
+  //         name: this.session.test.name
+  //       });
+  //     }
+  //     break;
+  //   case 'condition':
+  //     if (!this.conditions.find(condition => condition === this.session.condition.condition)) {
+  //       this.suggestions.unshift({
+  //         category: suggestion,
+  //         name: this.session.condition.condition
+  //       });
+  //     }
+  //     break;
+  //   case 'medication':
+  //     if(!this.medications.find(name => name === this.session.medication.stockItemname)) {
+  //       this.suggestions.unshift({
+  //         category: suggestion,
+  //         name: this.session.medication.stockItemname
+  //       });
+  //     }
+  //   case 'allegy':
+  //     if (!this.allegies.find(name => name === this.session.allegies.allegy)) {
+  //       this.suggestions.unshift({
+  //         category: 'allegy',
+  //         name: this.session.allegies.allegy
+  //       });
+  //     }
+  //     break;
+  //   default:
+  //     break;
+  // }
 }
 refresh() {
   // this.message = null;
@@ -1203,24 +1203,24 @@ refresh() {
    return med.kind;
  }
 addRequest() {
-  switch (this.session.reqItem.category) {
-    case 'Surgery':
-    this.addSurgery();
-    this.session.reqItem = new Item();
-    this.session.desc = [];
-    break;
-  case 'Scan':
-    this.addScanning();
-    this.session.reqItem = new Item();
-    this.session.desc = [];
-    break;
-  case 'Test':
-    this.addTest();
-    this.session.reqItem = new Item();
-    this.session.desc = [];
-    default:
-    break;
-  }
+  // switch (this.session.reqItem.category) {
+  //   case 'Surgery':
+  //   this.addSurgery();
+  //   this.session.reqItem = new Item();
+  //   this.session.desc = [];
+  //   break;
+  // case 'Scan':
+  //   this.addScanning();
+  //   this.session.reqItem = new Item();
+  //   this.session.desc = [];
+  //   break;
+  // case 'Test':
+  //   this.addTest();
+  //   this.session.reqItem = new Item();
+  //   this.session.desc = [];
+  //   default:
+  //   break;
+  // }
 
 }
 
@@ -1247,23 +1247,23 @@ this.session.scans.splice(this.session.scans
   .findIndex(scn => scn.name === invoice.name), 1);
 }
 removeRequest(i: number, invoice: Invoice) {
-  this.session.reqItems.splice(i, 1);
-  this.session.invoices.splice(i, 1);
-  this.removeData(invoice);
+  // this.session.reqItems.splice(i, 1);
+  // this.session.invoices.splice(i, 1);
+  // this.removeData(invoice);
 }
 
 checkScalars() {
   if (this.session.note.note) {
     this.patient.record.notes.unshift({
       ...this.session.note,
-      meta: new Meta(this.cookies.get('i'),
+      stamp: new Stamp(this.cookies.get('i'),
       this.cookies.get('h'))
     });
   } else {}
   if (this.session.allegies.allegy) {
     this.patient.record.allegies.unshift({
       ...this.session.allegies,
-      meta: new Meta(this.cookies.get('i'),
+      stamp: new Stamp(this.cookies.get('i'),
       this.cookies.get('h'))
     });
     this.addSuggestion('allegy');
@@ -1356,6 +1356,27 @@ nextImg() {
       backgroundPosition: 'center'
     };
   }
+
+  getInputStyle() {
+    return {
+      width: (this.form === 'IVF') ? '70%' : '' ,
+    };
+   }
+  getInStyle() {
+    if (this.form === 'IVF') {
+      return {
+      width: '100%',
+      borderRight: '1px solid ghostwhite',
+    };
+  }
+    return {
+      width: '100%',
+      borderRight: '1px solid ghostwhite',
+      borderTopRightRadius: '4px',
+      borderBottomRightRadius: '4px'
+  };
+}
+
   getBackgrounds(name) {
     const url = this.getPhoto(name);
     return {

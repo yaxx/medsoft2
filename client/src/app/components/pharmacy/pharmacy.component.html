@@ -20,17 +20,17 @@
                         <div style="border-left:2px solid #1da1f2;height:290px; width:100%;">
                             <div style='border:none' *ngFor="let medic of invoices; let i = index" class="carditem priscriptioncontainer order">
                                 <div style='left:-3%' class="timeline condition drugtimeline">
-                                    <p class="timelinedate">{{medic[0]?.meta.dateAdded|date:'dd'}}</p>
-                                    <p class="timelinedate month"> {{medic[0]?.meta.dateAdded|date:'MMM'|uppercase}}</p>
+                                    <p class="timelinedate">{{medic[0]?.stamp.dateAdded|date:'dd'}}</p>
+                                    <p class="timelinedate month"> {{medic[0]?.stamp.dateAdded|date:'MMM'|uppercase}}</p>
                                 </div>
                                 <div *ngFor="let m of medic; let j = index" class="priscription drug">
-                                    <h6 class="dept">{{m.name}}&nbsp;<span class="predata">|&nbsp;{{m.meta.dateAdded|date:'hh:mma'|lowercase}}</span>
+                                    <h6 class="dept">{{m.name}}&nbsp;<span class="predata">|&nbsp;{{m.stamp.dateAdded|date:'hh:mma'|lowercase}}</span>
                                         <span *ngIf="m.paid" class="predata priceval">
                                         <i class="icon ion-ios-checkmark-empty paid-icon"></i></span>
                                         <span *ngIf="!m.paid" class="predata priceval">
-                                        <i (click)="selectItem(i,j)" style=' color:lightgrey;' *ngIf="m.meta.selected" class="icon ion-ios-checkmark-empty paid-icon" title="Deselect "></i>
+                                        <i (click)="selectItem(i,j)" style=' color:lightgrey;' *ngIf="m.stamp.selected" class="icon ion-ios-checkmark-empty paid-icon" title="Deselect "></i>
                                         <div  style='border-color:rgb(216, 216, 216)' *ngIf ="!m.price" class="mycheckbox"></div>
-                                        <div [ngStyle]=getCostedStyle(m) class="mycheckbox" *ngIf="(!m.meta.selected) && (m.price)"  (click)="selectItem(i,j)" ></div>
+                                        <div [ngStyle]=getCostedStyle(m) class="mycheckbox" *ngIf="(!m.stamp.selected) && (m.price)"  (click)="selectItem(i,j)" ></div>
                                         </span>
                                     </h6>
                                     <h6 class="dept previnfo">Dosage&nbsp;<span class="predata">{{m.kind}}</span>
@@ -107,14 +107,14 @@
 <header class="header-main">
   <nav>
     <div class="logo-box">
-      <a href="/"><h1 class="logo">O</h1></a>
+      <a href="/"><h1 class="logo">{{appName}}</h1></a>
     </div>
     <div class="search-box">
       <form class='search__form'>
         <svg viewBox="0 0 24 24" class="search__icon">
           <g><path d="M21.53 20.47l-3.66-3.66C19.195 15.24 20 13.214 20 11c0-4.97-4.03-9-9-9s-9 4.03-9 9 4.03 9 9 9c2.215 0 4.24-.804 5.808-2.13l3.66 3.66c.147.146.34.22.53.22s.385-.073.53-.22c.295-.293.295-.767.002-1.06zM3.5 11c0-4.135 3.365-7.5 7.5-7.5s7.5 3.365 7.5 7.5-3.365 7.5-7.5 7.5-7.5-3.365-7.5-7.5z"></path></g>
         </svg>
-        <input type="search" name="search" autocomplete="off" placeholder='Search Patient' class='form-control input search'>
+        <input [(ngModel)]='searchTerm' #search (keyup)='searchPatient(searchTerm)' type="search" name="search" autocomplete="off" placeholder='Search Patient' class='form-control input search'>
       </form>
     </div>
     <div class="view-box">
@@ -129,9 +129,7 @@
       <h6>Sort:
         <span style='cursor:pointer' (click) ='toggleSortMenu()'>{{nowSorting}}</span>
       </h6>
-      <div *ngIf='isInfo()' class="add__patient__box">
-        <i (click) = clearPatient() style="left:75%;" class="icon ion-ios-plus-empty" title="Add Patient" data-target="#addModal" data-toggle="modal"></i>
-      </div>
+      <div class="add__patient__box"></div>
     </div>
   </nav>
   <div (mouseleave) = hideLogOut() class="log__box">
@@ -185,8 +183,8 @@
                         </div> -->
                         <div class="sub-container">
                             <h6 style="width:100%;text-align:center" class="dept basic-secondary basic-value">
-                                {{patient.record.medications[0][0].meta.dateAdded|date:'dd-MM-y'}}&nbsp;
-                                <span>{{patient.record.medications[0][0].meta.dateAdded|date:'hh:mma'|lowercase}}</span>
+                                {{patient.record.medications[0][0].stamp.dateAdded|date:'dd-MM-y'}}&nbsp;
+                                <span>{{patient.record.medications[0][0].stamp.dateAdded|date:'hh:mma'|lowercase}}</span>
                             </h6>
                         </div>
                     </div>

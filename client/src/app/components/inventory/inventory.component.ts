@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy} from '@angular/core';
 import {DataService} from '../../services/data.service';
-import {Product, Item, StockInfo} from '../../models/inventory.model';
+import {Inventory, Suggestion, Service, Stock, StockInfo} from '../../models/inventory.model';
 import {Tests, Scannings, Surgeries} from '../../data/request';
 import {Person} from '../../models/person.model';
 import {CookieService } from 'ngx-cookie-service';
@@ -8,6 +8,7 @@ import {SocketService} from '../../services/socket.service';
 import * as cloneDeep from 'lodash/cloneDeep';
 import {host, appName} from '../../util/url';
 import Simplebar from 'simplebar';
+import {sortInventory} from '../../util/functions';
 import 'simplebar/dist/simplebar.css';
 @Component({
   selector: 'app-inventory',
@@ -16,56 +17,54 @@ import 'simplebar/dist/simplebar.css';
 })
 export class InventoryComponent implements OnInit {
   appName = appName;
-  product: Product = new Product();
-  clonedInventory: Product[] = [];
-  item: Item = new Item();
+  stock: Stock = new Stock();
+  clonedStocks: Stock[] = [];
   stockInfo: StockInfo = new StockInfo();
-  temItems: Item[] = [];
-  items: Item[] = [];
+  suggestions: Suggestion[] = [];
+  tempSuggestions: Suggestion[] = [];
   patients: Person[] = [];
   scanItems = [];
+  actionMode = null;
   surgeryItems = [];
   inventoryItems = [];
-  newItems: Item[] = [];
-  products: Product[] = [];
-  services: Product[] = [];
-  cloned: Product;
+  newSuggestions: Suggestion[] = [];
+  suggestion: Suggestion = new Suggestion();
+  cloned: Stock;
   desc = [];
-  temProducts: Product[] = [];
-  editables: Product[] = [];
-  edited: Product[] = [];
+  stockNames = [];
+  temStocks: Stock[] = [];
+  stocksInView: Stock[] = [];
+  editables: Stock[] = [];
+  edited: Stock[] = [];
   selections: number[] = [];
   tests = Tests;
   scans = Scannings;
   matches = [];
-  medications = [];
+  stocks = [];
   input = '';
   logout = false;
   loading = false;
   processing = false;
   message = null;
   page = 0;
+  fieldMissing = false;
   tableView = 'Transactions';
   feedback = null;
   categories = [];
   menuView = false;
   expSummary = [];
-  cat = 'Products';
+  stocksForm = [1, 1, 1, 1, 1, 1];
+  cat = 'Stocks';
   errLine = null;
   header = 2;
   cardType = 'Standard';
-  curentItems = [];
+  inventory: Inventory = new Inventory();
   sortBy = 'added';
+  err = false;
   searchTerm = '';
   count = 0;
   clonedPatients = [];
   curDate = new Date();
-  tableHeaders = [
-    ['CARD', 'PRICE', 'CARD NUMBER', 'STATUS', 'DATE ADDED'],
-    ['SERVICE', 'CATEGORY', 'PRICE', 'REQUEST', 'DATE ADDED'],
-    ['PRODUCT', 'CATEGORY', 'PRICE', 'QUANTITY', 'SOLD', 'DATE ADDED', 'EXPIRY'],
-    ['PATIENT', 'MEDICATIONS', 'LAB', 'OTHERS', 'TOTAL EXPENSES']
-  ];
 
   constructor(
     private dataService: DataService,
@@ -74,10 +73,9 @@ export class InventoryComponent implements OnInit {
    }
 
   ngOnInit() {
-    this.getProducts();
+    this.getStocks();
     this.socket.io.on('record update', changes => {
      if (changes.action === 'payment') {
-       console.log(changes);
        changes.patient.record.invoices = this.summarizeInvoice(changes.patient.record.invoices);
        const i = this.patients.findIndex(p => p._id === changes.patient._id);
        if (i !== -1) {
@@ -89,8 +87,8 @@ export class InventoryComponent implements OnInit {
      }
     });
     this.socket.io.on('new card', changes => {
-        this.curentItems[this.curentItems
-          .findIndex(pro => pro._id === changes.item._id)] = changes.item;
+        // this.stocks[this.stocks
+        //   .findIndex(pro => pro._id === changes.item._id)] = changes.item;
     });
   }
   getTransactions() {
@@ -105,6 +103,9 @@ export class InventoryComponent implements OnInit {
       this.loading = false;
       this.message = '...Network Error';
     });
+  }
+  setActionMode(action) {
+    this.actionMode = action;
   }
   switchToEdit() {
   }
@@ -123,34 +124,24 @@ export class InventoryComponent implements OnInit {
   hideLogOut() {
     this.logout = false;
   }
-  getProducts() {
+  getStocks() {
     this.loading =  true;
     this.patients = [];
-    this.dataService.getProducts().subscribe((res: any) => {
+    this.dataService.getStocks().subscribe((res: any) => {
       this.loading = false;
       this.sumTransactions(res.patients);
-      this.items = res.items;
+      this.suggestions = res.suggestions;
       this.distInventory(res.inventory);
     }, (e) => {
       this.loading = false;
-      this.curentItems = [];
       this.patients = [];
       this.message = '...Network Error';
     });
   }
   distInventory(inventory) {
-    if (inventory.length) {
-      this.clonedInventory = inventory;
-      this.products = inventory.map(p => ({...p, selected: false}));
-      this.curentItems  =  [...this.curentItems, ...this.products.filter(product => product.type === 'Products')];
-      this.medications  =  this.curentItems.map(m => m.item.name);
-      // this.loading = false;
-      // this.message = null;
-      // ++this.page;
-    } else {
-      // this.message = (this.page === 0) ? `NO ${this.tableView} SO FAR` : null;
-      // this.loading = false;
-    }
+    this.stocks = inventory;
+    this.clonedStocks = cloneDeep(inventory);
+      this.stockNames  =  this.stocks.map(st => st.stockItem.name);
   }
   summarizeInvoice(invoices) {
     const summary = [0, 0, 0];
@@ -198,203 +189,176 @@ export class InventoryComponent implements OnInit {
   }
   loadMore() {
     if (this.page > 0) {
-      this.getProducts();
+      this.getStocks();
     }
   }
   refresh() {
-    this.getProducts();
+    this.getStocks();
   }
-  formCompleted() {
-    return this.product.item.name;
-    // this.product.stockInfo.price &&
-    // this.product.stockInfo.quantity &&
-    // this.product.stockInfo.expiry;
-  }
+
   searchTests() {
-    if (!this.product.item.name) {
+    if (!this.stock.stockItem.name) {
       this.matches = [];
     } else {
         this.matches = this.tests.filter((name) => {
-        const patern =  new RegExp('\^' + this.product.item.name , 'i');
+        const patern =  new RegExp('\^' + this.stock.stockItem.name , 'i');
         return patern.test(name);
       });
     }
   }
   selectTest(match) {
-    this.product.item.name = match;
+    this.stock.stockItem.name = match;
     this.matches = [];
   }
-  sortProducts(name: string) {
-    switch (name) {
-      case 'name':
-        this.curentItems.sort((m, n) => m.item.name.localeCompare(n.item.name));
-        this.sortBy = 'name';
-        break;
-      case 'category':
-        this.curentItems.sort((m, n) => m.item.name.localeCompare(n.item.category));
-        this.sortBy = 'category';
-        break;
-      // case 'description':
-      //   this.curentItems.sort((m, n) => m.item.name.localeCompare(n.item.description));
-      //   this.sortBy = 'description';
-      //   break;
-      case 'price':
-        this.curentItems.sort((m, n) => m.stockInfo.price - n.stockInfo.price );
-        this.sortBy = 'price';
-        break;
-      case 'quantity':
-        this.curentItems.sort((m, n) => m.stockInfo.quantity - n.stockInfo.quantity );
-        this.sortBy = 'quantity';
-        break;
-      case 'instock':
-        this.curentItems.sort((m, n) => m.stockInfo.inStock - n.stockInfo.inStock );
-        this.sortBy = 'instock';
-        break;
-      case 'sold':
-        this.curentItems.sort((m, n) => n.stockInfo.sold - m.stockInfo.sold );
-        this.sortBy = 'sold';
-        break;
-      case 'added':
-        this.curentItems.sort((m, n) => new Date(n.dateCreated).getTime() - new Date(m.dateCreated).getTime());
-        this.sortBy = 'added';
-        break;
-        default:
-        break;
-    }
+  sortInventory(name: string) {
+    this.inventory = sortInventory(this.inventory, this.tableView, name);
+    this.sortBy = name;
+  }
+  formCompleted() {
+
   }
   addMoreCard() {
-    // if (this.products.some(product => product.item.description === this.product.item.description) ||
-    // this.temProducts.some(product => product.item.description === this.product.item.description)) {
-    // this.errLine = 'Card already exist';
-    // } else {
-      const p = cloneDeep({...this.product, type: this.tableView});
-      this.temProducts.unshift(p);
-      this.product.item.description = null;
+      // const p = cloneDeep({...this.stockItem, type: this.tableView});
+      // this.temStocks.unshift(p);
+      // this.stock.stockItem.description = null;
     // }
   }
-  addMore() {
-    if (this.products.some(product => product.item.name === this.product.item.name) ||
-      this.temProducts.some(product => product.item.name === this.product.item.name)) {
-      this.errLine = 'Product already exist';
-      } else {
-      this.temProducts.unshift({...this.product, type: this.tableView});
-      this.product = new Product();
-    }
+  missingField() {
+    return this.stocksForm.every(s => s === 1);
   }
-  addMoreService() {
-     if (this.products.some(product => product.item.name === this.product.item.name) ||
-     this.temProducts.some(product => product.item.name === this.product.item.name)) {
-    this.errLine = 'Service already exist';
+  clearFeedback(i) {
+    this.stocksForm[i] = 1;
+  }
+  isValidStock() {
+    this.stocksForm[0] = (this.stock.stockItem.name) ? 1 : 0;
+    this.stocksForm[1] = (this.stock.stockInfo.category) ? 1 : 0;
+    this.stocksForm[2] = (this.stock.stockItem.size) ? 1 : 0;
+    this.stocksForm[3] = (this.stock.stockItem.unit) ? 1 : 0;
+    this.stocksForm[4] = (this.stock.stockInfo.price) ? 1 : 0;
+    this.stocksForm[5] = (this.stock.stockInfo.quantity) ? 1 : 0;
+    return this.missingField();
+  }
+  addMoreStock() {
+    // if (this.isValidStock()) {
+      if (this.inventory.stocks.every(
+      stock => stock.stockItem !== this.stock.stockItem)) {
+        this.temStocks.unshift({
+          ...this.stock,
+          stamp: {...this.stock.stamp, selected: false},
+          category: this.tableView
+        });
+        if (this.tempSuggestions.some(s => s.name !== this.stock.stockItem.name)) {
+        this.tempSuggestions.unshift({
+        ...this.suggestion,
+        category: this.tableView
+        });
+      }
+        this.fieldMissing = false;
+        this.errLine = 'Please fill in all required fields';
+        this.stock = new Stock();
     } else {
-      this.temProducts.unshift({
-        ...this.product, type: this.tableView
-      });
-      this.product = new Product();
+      this.errLine = 'Stock already added';
     }
-  }
+  // } else {
+  //   this.fieldMissing = true;
+  //   this.errLine = 'Please fill in all required fields';
+  // }
+}
+
   serviceFormCompleted() {
-    return this.product.stockInfo.price && this.product.item.name && this.product.item.category;
+    return this.stock.stockInfo.price && this.stock.stockItem.name && this.stock.stockInfo.category;
   }
-  isValidCard() {
-    return (this.product.item.description &&
-      this.product.item.description.length === 6 &&
-      this.product.item.name &&
-      this.product.stockInfo.price
-      )
-  }
-  clearFeedback() {
-    this.feedback = null;
-    this.errLine = null;
-  }
-  toggleView(view: string, i: number) {
-    this.header = i;
+
+  toggleView(view: string) {
     this.tableView = view;
-    const p = this.clonedInventory;
-    this.curentItems =  p.filter(product => product.type === view).map(p => ({...p, selected: false}));
-    this.message = (this.curentItems.length) ? null : `No ${view} So Far`;
-    this.temProducts = [];
-    this.editables = [];
-    this.edited = [];
-    this.product = new Product();
-    this.curentItems.forEach(product => {
-      product.selected = false;
+    this.stocksInView = [];
+    this.stocks.forEach(stock => {
+      if (stock.category ===  view) {
+        this.stocksInView.push(stock);
+      }
     });
+    this.message = (!this.stocksInView.length) ? `No ${view} So Far` : '';
+    this.edited = [];
+    this.stock = new Stock();
   }
   toggleMenu() {
     this.menuView = !this.menuView;
   }
-  removeProduct(i: number) {
-    this.temProducts.splice(i, 1);
+  removeStock(i: number) {
+    this.temStocks.splice(i, 1);
   }
-  selectCategory(i: Item) {
-    this.product.item.category = i.name;
-    this.categories = [];
+  selectCategory(i: string) {
+    // this.stock.stockItem.category = i.name;
+    // this.categories = [];
   }
-  addSelection(i: Item) {
-    this.product.item = i;
-    this.temItems = [];
+  addSelection(i: string) {
+    // this.stockItem.item = i;
+    // this.temItems = [];
   }
-
-  selectProduct(i) {
-    this.curentItems[i].selected = !this.curentItems[i].selected ;
+  getBackgrounds() {
+    const url = this.getMyDp();
+    return {
+      backgroundImage: `url(${url})`,
+    };
+  }
+  isInfo() {
+    // return this.router.url.includes('information');
+  }
+  selectStock(i) {
+    this.stocksInView[i].stamp.selected = !this.stocksInView[i].stamp.selected ;
   }
   pickSelection() {
-    this.editables = cloneDeep(this.curentItems.filter(p => p.selected));
-    this.count = this.editables.length;
-    this.product = this.editables.shift();
-    // this.input = this.product.item.name;
-    // this.item = this.product.item;
+    this.temStocks = cloneDeep(this.stocksInView.filter(s => s.stamp.selected));
+    this.setActionMode('edit');
+    this.count = this.temStocks.length;
+    this.stock = this.temStocks.shift();
   }
   pickDeletables() {
-    return this.curentItems.filter(p => p.selected);
+    return this.stocksInView.filter(stock => stock.stamp.selected);
   }
-  updateStock() {
-    const oldProduct = this.products.find(product => product._id === this.product._id);
-    this.product.stockInfo.inStock = this.product.stockInfo.inStock + (this.product.stockInfo.quantity - oldProduct.stockInfo.quantity);
-    return this.product;
-   }
+
   next() {
-      this.edited.unshift(this.product);
-      this.product = new Product();
-      if (this.editables.length) {
-          this.product = this.editables.shift();
+      this.edited.unshift(this.stock);
+      this.stock = new Stock();
+      if (this.temStocks.length) {
+          this.stock = this.temStocks.shift();
       }
   }
   prev() {
-      this.editables.unshift(this.product);
-      this.product = this.edited.shift();
+      this.temStocks.unshift(this.stock);
+      this.stock = this.edited.shift();
   }
-  selectionOccure() {
-    return this.curentItems.some((product) => product.selected);
+  stockSelcted() {
+    return  this.stocksInView.some(stock => stock.stamp.selected);
   }
   dropSelection(i) {
-    this.temProducts = this.temProducts.splice(i, 1);
+    this.temStocks = this.temStocks.splice(i, 1);
   }
   hideCategories() {
-    this.categories = [];
-    this.clearFeedback();
+    // this.categories = [];
+    // this.clearFeedback();
   }
   showItems(type: string) {
-    this.categories = this.items.filter(item => item.type === type);
-}
-getDescriptions() {
-  switch (this.product.item.category) {
-    case 'Card':
-      // this.inventoryItems = ['Standard', 'Premium', 'Exclusive'];
-    break;
-    case 'Surgery':
-      // this.matches = this.searchSurgeries();
-    break;
-    case 'Scanning':
-      // this.inventoryItems = this.searchScans;
-    break;
-    case 'Test':
-      this.searchTests();
-    // tslint:disable-next-line:align
-    break;
-    default:
-    break;
+    // this.categories = this.items.filter(item => item.type === type);
   }
+getDescriptions() {
+  // switch (this.stock.stockItem.category) {
+  //   case 'Card':
+  //     this.inventoryItems = ['Standard', 'Premium', 'Exclusive'];
+  //   break;
+  //   case 'Surgery':
+  //     this.matches = this.searchSurgeries();
+  //   break;
+  //   case 'Scanning':
+  //     this.inventoryItems = this.searchScans;
+  //   break;
+  //   case 'Test':
+  //     this.searchTests();
+  //   tslint:disable-next-line:align
+  //   break;
+  //   default:
+  //   break;
+  // }
 
 }
 
@@ -402,147 +366,134 @@ hideList() {
   this.inventoryItems = [];
 }
 getItems() {
-  const prods = this.products;
-  this.curentItems = prods.filter(product => product.type === this.tableView);
-  return this.curentItems;
+//   const prods = this.stockItems;
+//   this.stocks = prods.filter(product => stockItem.type === this.tableView);
+//   return this.stocks;
 }
 selectDesc(name) {
-  this.product.item.name = name;
+  this.stock.stockItem.name = name;
   this.inventoryItems = [];
 }
 searchItems(i: string, type: string) {
-    if (i === '') {
-      this.temItems = [];
-    } else {
-        this.temItems = this.items.filter(it => it.type === type).filter((item) => {
-        const patern =  new RegExp('\^' + i , 'i');
-        return patern.test(item.name);
-      });
-  }
+  //   if (i === '') {
+  //     this.temItems = [];
+  //   } else {
+  //       this.temItems = this.items.filter(it => it.type === type).filter((item) => {
+  //       const patern =  new RegExp('\^' + i , 'i');
+  //       return patern.test(item.name);
+  //     });
+  // }
 }
-searchMedications() {
-  if (!this.product.item.name) {
+searchSuggestion() {
+  if (!this.stock.stockItem.name) {
     this.matches = [];
   } else {
-      this.matches = this.medications.filter((name) => {
-      const patern =  new RegExp('\^' + this.product.item.name, 'i');
-      console.log(this.matches);
+      this.matches = this.stockNames.filter((name) => {
+      const patern =  new RegExp('\^' + this.stock.stockItem.name, 'i');
       return patern.test(name);
     });
   }
 }
-selectMedication(match) {
-  this.product.item.name = match;
+selectSuggestion(suggetion) {
+  this.stock.stockItem.name = suggetion;
   this.matches = [];
 }
 searchDesc() {
-    if (this.product.item.name === '') {
+    if (this.stock.stockItem.name === '') {
       this.inventoryItems = [];
     } else {
         this.inventoryItems = this.inventoryItems.filter((item) => {
-        const patern =  new RegExp('\^' + this.product.item.name  , 'i');
-        return patern.test(this.product.item.name);
+        const patern =  new RegExp('\^' + this.stock.stockItem.name  , 'i');
+        return patern.test(this.stock.stockItem.name);
       });
   }
 }
-  addProducts() {
-    this.errLine = null;
+updateLocalStocks(newStocks) {
+  switch (this.actionMode) {
+    case 'add':
+      this.stocksInView = [...newStocks, ...this.stocksInView];
+      this.clonedStocks = [...newStocks, ...this.clonedStocks]
+      this.feedback = 'Stocks added successfully';
+      break;
+    case 'edit':
+      this.edited.forEach( s => {
+        this.stocksInView = this.stocksInView
+        .map(stock => (s._id === stock._id) ? s : stock);
+        this.clonedStocks = this.clonedStocks
+        .map(stock => (s._id === stock._id) ? s : stock);
+      });
+      this.edited = [];
+      this.feedback = 'Stocks edited successfully';
+      break;
+    case 'delete':
+      this.stocksInView = this.stocksInView.filter(stock => !stock.stamp.selected);
+      this.clonedStocks = this.clonedStocks.filter(stock => !stock.stamp.selected);
+      this.feedback = 'Stocks deleted successfully';
+      break;
+    default:
+      break;
+  }
+  this.temStocks = [];
+}
+updateStocks() {
+    this.feedback = null;
+    this.err = false;
     this.processing = true;
-    this.dataService.addProducts(this.temProducts, this.newItems)
-    .subscribe((products: Product[]) => {
+    this.dataService.updateStocks((this.actionMode === 'add'||this.actionMode === 'delete') ? this.temStocks : this.edited, this.actionMode, this.newSuggestions)
+    .subscribe((newStocks) => {
       this.processing = false;
-      this.feedback = 'Product added successfully';
-      this.curentItems = [...products, ...this.curentItems];
-      this.clonedInventory = [...products, ...this.clonedInventory];
-      this.socket.io.emit('store update', {action: 'new', changes: products});
-      this.temProducts = [];
+      this.updateLocalStocks(newStocks);
+      this.socket.io.emit('store update', {action: this.actionMode, changes: this.temStocks});
+      this.temStocks = [];
       setTimeout(() => {
         this.feedback = null;
   }, 4000);
    }, (e) => {
-        this.errLine = 'Could not add products';
+        this.feedback = 'Could not add products';
         this.processing = false;
+        this.err = true;
   });
 
   }
   clearTemVariables() {
     this.editables = this.edited = [];
-    this.product = new Product();
+    this.stock = new Stock();
     this.errLine = null;
+    this.temStocks = [];
   }
-  updateProducts() {
-    this.processing = true;
-    this.dataService.updateProducts(this.edited).subscribe(() => {
-        this.edited.forEach(product => {
-          const i  = this.curentItems.findIndex(pro => pro._id === product._id);
-          this.curentItems[i] = {...product, selected: false};
-    });
-        this.socket.io.emit('store update', {action: 'update', changes: this.edited});
-        this.product = new Product();
-        this.edited = [];
-        this.editables = [];
-        this.processing = false;
-        this.feedback = 'Update succesfull';
-        setTimeout(() => {
-      this.feedback = null;
-    }, 3000);
-   }, (e) => {
-      this.processing = false;
-      this.feedback = 'Unable to update inventory';
-    });
-}
-deleteProducts() {
-  this.processing = true;
-  const selections = this.curentItems.filter(p => p.selected);
-  this.dataService.deleteProducts(selections).subscribe(() => {
-      this.processing = false;
-      this.feedback = 'Inventory succesffully updated';
-      this.socket.io.emit('store update', {action: 'delete', changes: selections});
-      this.curentItems = this.curentItems.filter(product => !product.selected);
-      this.selections.forEach(product => {
-      // this.clonedInventory = this.clonedInventory.filter(item => item._id !== product._id)
-      });
-   }, (e) => {
-      this.processing = false;
-      this.feedback = 'Unable to update inventory';
-    });
-  }
-expired(expiry) {
-  return Date.now() >= new Date(expiry).valueOf();
+
+
+expired(exp: string) {
+  return false;
+  // return Date.now() >= new Date(exp).valueOf();
 }
 
-searchProducts(search: string) {
-  if (!search) {
-    const i = this.clonedInventory;
-    this.curentItems = i.filter(product => product.type === this.tableView);
-  } else {
-     this.curentItems = this.curentItems.filter((product) => {
-     const patern =  new RegExp('\^' + search , 'i');
-     return patern.test(product.item.name);
-  });
-}
-}
-searchStuff(name) {
-  if (this.tableView === 'Transactions') {
-    this.searchPatient(name);
-  } else {
-    this.searchProducts(name);
+searchInventory(search: string) {
+    if (!search) {
+      this.stocksInView = this.clonedStocks.filter(stock => stock.category === this.tableView);
+    } else {
+       this.stocksInView = this.stocksInView.filter((stock) => {
+       const patern =  new RegExp('\^' + search , 'i');
+       return patern.test(stock.stockItem.name);
+    });
   }
 }
+
+
 searchPatient(name: string) {
-  if (name) {
-    this.clonedPatients = cloneDeep(this.patients);
-    this.patients = this.patients.filter((patient) => {
-     const patern =  new RegExp('\^' + name  , 'i');
-     return patern.test(patient.info.personal.firstName);
-     });
-  } else {
-     this.patients = this.clonedPatients;
-  }
+  // if (name) {
+  //   this.clonedPatients = cloneDeep(this.patients);
+  //   this.patients = this.patients.filter((patient) => {
+  //    const patern =  new RegExp('\^' + name  , 'i');
+  //    return patern.test(patient.info.personal.firstName);
+  //    });
+  // } else {
+  //    this.patients = this.clonedPatients;
+  // }
  }
 
 getSatus(status: boolean) {
-  return (status) ? 'AVAILABLE' : 'TAKEN' ;
+  // return (status) ? 'AVAILABLE' : 'TAKEN' ;
 }
 
 }

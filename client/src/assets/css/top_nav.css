@@ -24,13 +24,13 @@ header {
   margin-bottom: 0px;
   padding: 0px;
   height: auto;
-  color:  skyblue;;
+  color:  dodgerblue;
 }
 .logo-box {
   display: flex;
   height: 30px;
   width: 30px;
-  border: 1px solid skyblue;
+  border: 1px solid dodgerblue;
   border-radius: 5px;
   justify-content: center;
   align-items: center;
@@ -65,7 +65,7 @@ header {
   font-size: 14px;
 }
 .view-box h6 span {
-  color: skyblue;
+  color: dodgerblue;
 }
 .input.search {
   padding: 0px;
@@ -82,7 +82,7 @@ header {
 
 .search__icon {
   min-width: 30px;
-  color: skyblue;
+  color: dodgerblue;
   left: 26px;
   vertical-align: text-bottom;
   position: relative;
@@ -97,7 +97,7 @@ header {
 }
 .input.search:focus {
   background-color: rgba(241, 243, 245, 0.29);
-  border: 1px solid skyblue;
+  border: 1px solid dodgerblue;
 }
 
 .add__patient__box {
@@ -111,9 +111,13 @@ header {
   font-weight: bold;
 }
 .add__patient__box:hover {
-  background: #87ceeb40;
+
+}
+.add__box:hover {
+  background: dodgerblue;
   color: white;
   cursor: pointer;
+  box-shadow: 0 1px 5px rgba(27,31,35,.15);
 }
 .log__box {
   position: absolute;
@@ -172,7 +176,7 @@ header {
   cursor: pointer;
 }
 .log__out .list__options:hover {
-  color: skyblue;
+  color: dodgerblue;
 }
 .action {
   padding-left: 10px;
