@@ -52,7 +52,7 @@ clear() {
 addNotifications() {
   this.processing = true;
   this.notification = {
-    ...this.notification, 
+    ...this.notification,
     stamp: new Stamp(this.cookies.get('i'), this.cookies.get('h'))
   };
   this.dataService.addNotifications(this.notification).subscribe((notification: Note) => {

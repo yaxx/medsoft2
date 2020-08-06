@@ -1,4 +1,13 @@
-import {Stock, StockItem, StockInfo, Service, Suggestion, Invoice, Stamp, Card} from './inventory.model';
+import {
+  Stock,
+  StockItem,
+  StockInfo,
+  Service,
+  Suggestion,
+  Invoice,
+  Stamp,
+   Card
+  } from './inventory.model';
 
 
 
@@ -9,7 +18,7 @@ export class Priscription {
     public intake = null,
     public freq: string= null,
     public piriod: number = null,
-    public extend: string = null
+    public duration: string = null
   ) {}
 }
 
@@ -34,15 +43,29 @@ export class Medication {
 export class Complain {
   constructor(
     public complain: string = null,
-    public duration: number = null,
+    public piriod: number = null,
+    public duration: string = null,
     public stamp: Stamp = new Stamp()
      ) {}
   }
+
+export class RecordItem {
+  constructor(
+    public name: string = null,
+    public stamp: Stamp = new Stamp()
+     ) {}
+  }
+export class PMH {
+  constructor(
+    public allegies: RecordItem[] = [],
+    public medHist: RecordItem[] = []
+    ) {}
+  }
 export class History {
   constructor(
-    public condition: string = null,
-    public duration: number = null,
-    public bearer: string = 'Self',
+    public pc: RecordItem[] = [],
+    public fsh: RecordItem[] = [],
+    public pmh: PMH = new PMH(),
     public stamp: Stamp = new Stamp()
      ) {}
   }
@@ -139,12 +162,7 @@ export class Condition {
     public stamp: Stamp = new Stamp()
      ) {}
   }
-export class Allegy {
-  constructor(
-    public allegy: string = null,
-    public stamp: Stamp = new Stamp()
-     ) {}
-  }
+
 export class Device {
   constructor(
     public device: string = null,
@@ -161,10 +179,10 @@ export class Visit {
     public dischargedOn: Date = null,
     public diedOn: Date = null,
     public wardNo: number = null,
-    public bedNo:  number = null
+    public bedNo: number = null
      ) {}
   }
-  export class Report {
+export class Report {
     constructor(
       public comment: string = null,
       public stamp: Stamp = new Stamp(),
@@ -175,19 +193,22 @@ export class Test {
   constructor(
     public name: string = null,
     public dept: string = null,
-    public stamp: Stamp = new Stamp(),
+    public urgency: string = 'Routine',
     public treated: boolean = false,
-    public report: Report = new Report()
+    public report: Report = new Report(),
+    public stamp: Stamp = new Stamp()
      ) {}
   }
-  export class Scan {
+export class Scan {
     constructor(
       public name: string = null,
       public dept: string = null,
-      public stamp: Stamp = new Stamp(),
-      public report: Report = new Report()
+      public urgency: string = 'Routine',
+      public report: Report = new Report(),
+      public stamp: Stamp = new Stamp()
     ) {}
 }
+
 export class Surgery {
   constructor(
     public name: string = null,
@@ -196,6 +217,13 @@ export class Surgery {
     public report: Report = new Report()
      ) {}
   }
+export class Investigation {
+  constructor(
+    public tests: Test[][] = [[]],
+    public scans: Scan[][] = [[]],
+    public stamp: Stamp = new Stamp()
+  ) {}
+}
 
 
 export class Vitals {
@@ -209,16 +237,18 @@ export class Vitals {
     public weight: Weight = new Weight()
   ) {}
 }
-  export class DeathNote {
-  constructor(public diagnosis: string = null,
-  public cause: string = null,
-  public owings: number = 0,
-  public isPostM: boolean = false,
-  public releasable: boolean = false,
-  public releasedTo: string = null,
-  public relationship: string = null,
-  public diedOn: Date = new Date(),
-  public comfirmedBy: any = null) {}
+export class DeathNote {
+    constructor(
+      public diagnosis: string = null,
+      public cause: string = null,
+      public owings: number = 0,
+      public isPostM: boolean = false,
+      public releasable: boolean = false,
+      public releasedTo: string = null,
+      public relationship: string = null,
+      public diedOn: Date = new Date(),
+      public comfirmedBy: any = null
+      ) {}
 
 }
 export class Appointment {
@@ -235,55 +265,58 @@ export class Appointment {
 export class Session {
   constructor(
     public history: History = new History(),
+    public examination: RecordItem = new RecordItem(),
+    public condition: RecordItem = new RecordItem(),
+    public allegy: RecordItem = new RecordItem(),
+    public pmh: RecordItem = new RecordItem(),
+    public fsh: RecordItem = new RecordItem(),
+    public pc: RecordItem = new RecordItem(),
+    public devices: Device = new Device(),
     public note: Note = new Note(),
+    public vitals: VitalStocks = new VitalStocks(),
+    public visits: Visit = new Visit(),
+    public service: Service = new Service(),
+    public stock: Stock = new Stock(),
     public appointment: Appointment = new Appointment(),
     public complain: Complain = new Complain(),
-    public condition: Condition = new Condition(),
     public medication: Medication = new Medication(),
     public surgery: Surgery = new Surgery(),
     public scan: Scan = new Scan(),
     public test: Test = new Test(),
-    public vitals: VitalStocks = new VitalStocks(),
-    public allegies: Allegy = new Allegy(),
-    public devices: Device = new Device(),
-    public visits: Visit = new Visit(),
-    public service: Service = new Service(),
-    public stock: Stock = new Stock(),
+    public deathNote: DeathNote = new DeathNote(),
+    public scans: Scan[] = [],
+    public tests: Test[] = [],
+    public requests: any = [],
     public newServices: Service[] = [],
-    public conditions: Condition[] = [],
+    public conditions: RecordItem[] = [],
+    public investigations: Investigation = new Investigation(),
+    public invst: any = [],
     public complains: Complain[] = [],
-    public histories: History[] = [],
     public items: Stock[] = [],
     public medications: Medication[] = [],
-    public tests: Test[] = [],
     public desc: string[] = [],
     public surgeries: Surgery[] = [],
-    public scans: Scan[] = [],
     public invoices: Invoice[] = [],
     public bills: string[] = [],
-    public medInvoices: Invoice[] = [],
-    public deathNote: DeathNote = new DeathNote()
+    public medInvoices: Invoice[] = []
 
      ) {}
   }
 export class Record {
     constructor(
-      public complains: any[] = [],
-      public histories: any[] = [],
-      public notes: Note[] = [],
+      public complains: Complain[][] = [[]],
+      public histories: History[] = [],
       public vitals: Vital = new Vital(),
-      public conditions: any[] = [],
-      public allegies: Allegy[] = [],
-      public devices: Device[] = [],
+      public examinations: RecordItem[][] = [[]],
+      public conditions: RecordItem[][] = [[]],
+      public investigations: Investigation = new Investigation(),
+      public medications: Medication[][] = [[]],
+      public notes: Note[] = [],
       public visits: any[] = [],
       public invoices: Invoice[][] = new Array<Invoice[]>(),
-      public cards: Card[] = [],
       public appointments: Appointment[] = [],
-      public medications: any[] = [],
-      public tests: any[] = [],
-      public scans: any = [],
-      public surgeries: any[] = [],
+      public surgeries: Surgery[] = [],
       public immunization: Immunization = new Immunization(),
       public deathNote: DeathNote = new DeathNote()
-       ) {}
-    }
+    ) {}
+  }

@@ -77,3 +77,18 @@
   });
    return p;
 };
+  export const si = (patients, name) : Person[] => {
+   const p = patients.filter((patient) => {
+      const pattern  = new RegExp('\^' + name, 'i');
+      return pattern.test(patient.info.personal.firstName);
+  });
+   return p;
+};
+  export const signStock = (stockItem) => {
+  // tslint:disable-next-line:max-line-length
+  const sign = (!stockItem.form) ? stockItem.name : `${stockItem.form}${stockItem.name}${stockItem.size}${stockItem.unit}`;
+  return sign.toLowerCase();
+};
+
+
+

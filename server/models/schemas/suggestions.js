@@ -1,5 +1,5 @@
 const mongoose = require('../db') ;
-const Schema = mongoose.Schema
+const Schema = mongoose.Schema;
 const SuggestionSchema = new Schema({
         name: String,
         category: String

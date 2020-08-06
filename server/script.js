@@ -89,3 +89,29 @@ let {inventory} = await Client.findById(req.cookies.h).lean()
     }))
 
     await Client.findByIdAndUpdate(mongoose.Types.ObjectId(req.cookies.h), {inventory: inventory})
+
+
+
+
+    // let {inventory} = await Client.findOne({'info.city': null}).lean()
+    // let meds = []
+    // inventory.forEach(stock => {
+    //   if(!meds.some(n => n.name === stock.stockItem.name)) {
+    //     meds.push(new Suggestion({
+    //       name: stock.stockItem.name,
+    //       category: 'medication' 
+    //    }))
+    //  }
+    // })
+    // await Suggestion.deleteMany({'category':'medication'},(e, doc)=>{
+    //   if(e) {
+    //     console.log(e)
+    //   }
+    //   console.log(doc)
+    // })
+    // await Suggestion.insertMany(meds,{ordered: false}, (e,doc) => {
+    //   if(!e) {
+    //     console.log(doc)
+    //   } 
+    //   console.log(e)
+    // })

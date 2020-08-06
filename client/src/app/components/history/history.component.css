@@ -15,9 +15,12 @@
     color: rgb(220, 220, 220);
   }
 
-  td {
-    padding: 0.1em 1em;
-    font-size: 12;
+  #histBtn {
+    bottom: 5px;
+    position: relative;
+    height: 27px;
+    outline: none;
+    box-shadow: none;
   }
  .main-table th {
     padding: 0.1em 1em;
@@ -60,9 +63,8 @@
   }
 
   tbody tr {
-    background-color: white;
+    /* background-color: white; */
     margin-bottom: 3px;
-    border-bottom: 2px solid #f3f8f7;
     text-align: center;
     color:rgb(90, 90, 90);
   }
@@ -73,10 +75,7 @@
   .prevtablebody tr:hover{
     border-left: 0px;
   }
-   tbody tr:hover {
-    background: #f1f6fc;
-
-  }
+  
   .selection{
     background:#f8f8f8;
     border-bottom-color:#f8f8f8;
@@ -103,10 +102,9 @@
     padding-left: 12px;
 
   }
-  td {
-    padding: 8px 0px 8px 0px;
-   color: rgb(162, 160, 160);
-    text-align: left;
+  .small-table-wrap {
+    top:1px;
+    width: 100%
   }
   .checkhead
   {
@@ -286,10 +284,10 @@
     display: block;
   }
 
-  
+
   .lebels {
     position: absolute;
-    font-size: 8px;
+    font-size: 9px;
     font-weight: normal;
     /* text-align: center;
     right: -28px; */
@@ -577,30 +575,14 @@ option {
 }
 .form-group label {
   position: absolute;
-  font-size: 8px;
+  font-size: 9px;
   background: white;
   bottom: 72%;
 }
 .submit-group {
   flex-direction: row;
 }
-.submit-group button {
-  height: 26px;
-  width: auto;
-  width: 26px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  border: 1px solid whitesmoke;
-  border-radius: 0px;
-  border-top-right-radius: 4px;
-  border-bottom-right-radius: 4px;
-  font-size: 23px;
-  outline: none;
-  box-shadow: none;
-  border-left: none;
-}
+
 
 .first {
   border-top-right-radius: 0px;
@@ -808,4 +790,49 @@ option {
    padding-top: 0px;
    height: auto;
    top: 0px;
+}
+.tiny-table {
+  position: absolute;
+  right: 0px;
+  top: 100%;
+  margin-top: 5px;
+}
+.check__box {
+ display: flex;
+ align-items: center;
+ flex-grow: 1;
+ height: 26px;
+ cursor: pointer;
+ color: lightgray;
+}
+.check__box:hover {
+  color: dodgerblue;
+  /* color: white; */
+}
+
+
+.mark__label {
+  font-size: 11px;
+  margin-bottom: 0px;
+  font-weight: normal;
+  text-align: center;
+  width: 100%;
+  
+}
+.check__group {
+  border: 1px solid ghostwhite;
+  border-radius: 4px;
+  align-items: start;
+  justify-content: justify;
+  margin-bottom: 12px;
+}
+.mid,.mid2 {
+  border-left: 1px solid ghostwhite;
+}
+.mid2 {
+  border-top-left-radius: 4px;
+  border-right: 1px solid ghostwhite;
+}
+.acitve {
+  color: dodgerblue;
 }

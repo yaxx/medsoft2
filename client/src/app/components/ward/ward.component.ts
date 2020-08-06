@@ -91,14 +91,14 @@ export class WardComponent implements OnInit {
     this.myDepartment = this.route.snapshot.params.dept;
     this.getClient();
     this.getPatients('Admit');
-    this.uploader.onCompleteItem = (item: any, fileName: any, status: any, headers: any ) => {
-      this.patients[this.curIndex].record.scans.unshift(new Scan(fileName, this.filesDesc));
-      this.loading = !this.loading;
-      this.dataService.updateRecord(this.patients[this.curIndex]).subscribe((newpatient: Person) => {
-        this.loading = !this.loading;
-        this.attachments = [];
-      });
-     };
+    // this.uploader.onCompleteItem = (item: any, fileName: any, status: any, headers: any ) => {
+    //   this.patients[this.curIndex].record.scans.unshift(new Scan(fileName, this.filesDesc));
+    //   this.loading = !this.loading;
+    //   this.dataService.updateRecord(this.patients[this.curIndex]).subscribe((newpatient: Person) => {
+    //     this.loading = !this.loading;
+    //     this.attachments = [];
+    //   });
+    //  };
     this.socket.io.on('record update', (update) => {
       const i = this.patients.findIndex(p => p._id === update.patient._id);
       switch (update.action) {
@@ -219,7 +219,7 @@ export class WardComponent implements OnInit {
     this.invoices = cloneDeep(this.patients[i].record.invoices);
   }
   medicationSelected() {
-    return this.patients[this.curIndex].record.medications.some(med => med.some(m => m.selected));
+    // return this.patients[this.curIndex].record.medications.some(med => med.some(m => m.selected));
   }
   uploadFile() {
     const data: FormData = new FormData();
@@ -260,14 +260,14 @@ export class WardComponent implements OnInit {
     this.logout = false;
   }
   switchToEdit() {
-    this.patient.record.medications.forEach(inner => {
-      inner.forEach(medic => {
-        if (medic.meta.selected) {
-           this.selections.push(medic);
-        }
-      });
-    });
-    this.switchViews('editing');
+    // this.patient.record.medications.forEach(inner => {
+    //   inner.forEach(medic => {
+    //     if (medic.meta.selected) {
+    //        this.selections.push(medic);
+    //     }
+    //   });
+    // });
+    // this.switchViews('editing');
   }
   switchViews(view) {
     switch (view) {
@@ -287,7 +287,7 @@ export class WardComponent implements OnInit {
    sortPatients(order: string) {
     this.sortMenu = false;
     this.nowSorting = order;
-    this.patients = sorter(this.patients, order)
+    this.patients = sorter(this.patients, order);
   }
   isWard() {
     return this.router.url.includes('ward');
@@ -545,7 +545,7 @@ export class WardComponent implements OnInit {
     this.patient.record.medications[i][j].meta.selected ? false : true;
    }
    medSelected() {
-    return this.patient.record.medications.some(med => med.some(m => m.meta.selected));
+    // return this.patient.record.medications.some(med => med.some(m => m.meta.selected));
    }
    getStyle(medication) {
     return {
@@ -564,23 +564,23 @@ export class WardComponent implements OnInit {
     }, 6000);
   }
  updateTimeTaken() {
-  this.errorMsg = null;
-  this.processing = true;
-  this.patient.record.medications.forEach(group => {
-      group.forEach(medic => {
-        if (medic.meta.selected) {
-          medic.lastTaken = new Date();
-          medic.meta.selected = false;
-        }
-      });
-    });
-  this.dataService.updateRecord(this.patient).subscribe((p: Person) => {
-      this.successMsg = 'Medications Successfully Updated';
-      this.patients[this.curIndex].record = p.record;
-      this.resetOrders();
-    }, () => {
-      this.errorMsg = 'Unable to Update Medications';
-    });
+  // this.errorMsg = null;
+  // this.processing = true;
+  // this.patient.record.medications.forEach(group => {
+  //     group.forEach(medic => {
+  //       if (medic.meta.selected) {
+  //         medic.lastTaken = new Date();
+  //         medic.meta.selected = false;
+  //       }
+  //     });
+  //   });
+  // this.dataService.updateRecord(this.patient).subscribe((p: Person) => {
+  //     this.successMsg = 'Medications Successfully Updated';
+  //     this.patients[this.curIndex].record = p.record;
+  //     this.resetOrders();
+  //   }, () => {
+  //     this.errorMsg = 'Unable to Update Medications';
+  //   });
   }
  updateVitals() {
    this.errorMsg = null;

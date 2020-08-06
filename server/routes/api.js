@@ -3,6 +3,7 @@ const mongoose = require ('mongoose')
 const Person = require('../models/schemas/person')
 const Client = require ('../models/schemas/client')
 const Suggestion = require ('../models/schemas/suggestions')
+const data = require ('../models/data')
 const Department = require ('../models/schemas/department')
 const multer = require ('multer')
 const path = require('path');
@@ -132,70 +133,21 @@ catch (e) {
 
 getPatients: async (req, res) => {
   try {
+  
+
+
    
+
     const {info: {official}} = await Person.findById(req.cookies.i).select('info');
     let patients = await Person.find().sort({'updatedAt': -1}).lean()
     patients = patients.filter(person => person.info.official.department === null);
-    let names = [];
+
+    
     // record transformation
+    
+    
 
-    let {inventory} = await Client.findOne({'info.city': null}).lean()
-    let meds = []
-    inventory.forEach(stock => {
-      if(!meds.some(n => n.name === stock.stockItem.name)) {
-        meds.push(new Suggestion({
-          name: stock.stockItem.name,
-          category: 'medication' 
-       }))
-     }
-    })
-    await Suggestion.deleteMany({'category':'medication'},(e, doc)=>{
-      if(e) {
-        console.log(e)
-      }
-      console.log(doc)
-    })
-    await Suggestion.insertMany(meds,{ordered: false}, (e,doc) => {
-      if(!e) {
-        console.log(doc)
-      } 
-      console.log(e)
-    })
-
-
-  //   patients = patients.map(patient => {
-  //     return ({
-  //       ...patient, info: {
-  //          ...patient.info,
-  //          stamp: {
-  //            addedBy: null,
-  //            facility: null,
-  //            selected: false,
-  //            dateAdded: patient.dateAdded
-  //           },
-  //           record: {
-  //             ...patient.record,
-  //             medications: []
-  //           }
-  //       }
-  //   }) 
-  // })
-  // for (p of patients) {
-  //     Person.findByIdAndUpdate( 
-  //       mongoose.Types.ObjectId(p._id),{
-  //         "record": p.record
-  //       }, {
-  //         new: true
-  //       }, (e, patient) => {
-  //         console.log(patient)
-  //       if(e) {
-  //         console.log(e)
-  //       }
-  //     })
-  // }
-
-
-
+   
     switch(official.role) {
       case 'Doctor':
         patients = patients.filter(
@@ -254,7 +206,7 @@ getPatients: async (req, res) => {
     }
     res.send(patients)
   }
-  catch(e){
+  catch(e) {
     throw e
   }
    
@@ -268,7 +220,6 @@ addClient: async (req, res) => {
         'info.contact.me.mobile': req.body.client.info.mobile
       }]
     })
-    console.log(client)
     if(client) {
         res.status(400).send(client)
       } else {
@@ -320,11 +271,9 @@ getConnections: (req, res) => {
 getMyAccount: async (req, res) => {
   try {
     const me  = await Person.findById(req.cookies.i,'_id info')
-    let colleagues  = await Person.find({"info.official.role": {$ne: null}})
-   
-    // me.connections = await Connection.findById(me.connections)
-    // .populate({path:'people.person', select:'_id info'})
-    // .exec()
+    let colleagues  = await Person.find({
+      "info.official.role": {$ne: null}
+    })
     res.send({me, colleagues})
   } 
   catch (e) {
@@ -634,20 +583,24 @@ addCard: async (req, res) => {
 },
 getHistory: async (req, res) => {
   try {
-    const suggestions = await Suggestion.find()
+    const s = await Suggestion.find({category: {$ne:'name'}})
     const patient = await Person.findById(req.params.id)
     .populate({
-      path:'record.notes.meta.addedBy', select:'info'
+      path:'record.notes.meta.addedBy', 
+      select:'info'
     })
     .populate({
-      path:'record.conditions.meta.addedBy', select:'info'
+      path:'record.conditions.meta.addedBy', 
+      select:'info'
     })
     .populate({
       path:'record.tests',
-      populate: {path: 'report.meta.addedBy', select: 'info'}
+      populate: {path: 'report.meta.addedBy',
+       select: 'info'
+       }
     })
     .exec()
-    res.send({patient, suggestions}) 
+    res.send({patient, s}) 
   }
   catch(e){
     throw e

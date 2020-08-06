@@ -27,7 +27,8 @@ var ClientSchema = new Schema({
                     category: String,
                     name: String,
                     size: Number,
-                    unit: String
+                    unit: String,
+                    form: String
                     },
                 stockInfo: {
                     price: Number,
@@ -47,7 +48,8 @@ var ClientSchema = new Schema({
                     },
                     selected: Boolean,
                     dateAdded: Date
-                }
+                },
+                signature: String
             }],
         staffs: [
             { type: Schema.Types.ObjectId, ref: 'Person'}

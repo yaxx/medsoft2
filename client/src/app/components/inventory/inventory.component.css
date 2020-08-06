@@ -78,9 +78,8 @@
   padding: 0 1rem;
   cursor:pointer;
 }
-.prod-data {
-  padding: 0px;
-}
+
+
 .bills {
   width: 80%;
   margin: auto;
@@ -281,12 +280,7 @@
   font-size:11px;
   top:12%;
 }
-.small-table-wrap {
-  top:16px;
-  position:relative;
-  width:80%;
-  margin:auto;
-}
+
 
 .shifter-btn {
   height: 25px;

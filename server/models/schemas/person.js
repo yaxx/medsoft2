@@ -71,11 +71,6 @@ const personSchema = new Schema({
             dateAdded: Date
         }
     },
-    connections: {
-        type: Schema.Types.ObjectId,
-        ref: 'Connection'
-    },
-    
     record: {
         complains: [
             [{
@@ -95,11 +90,9 @@ const personSchema = new Schema({
                 }
             }]
         ],
-        histories: [
-            [{
-                condition: String,
-                duration: Number,
-                bearer: String,
+        histories: [{
+            pc: [{
+                name: String,
                 stamp: {
                     addedBy: {
                         type: Schema.Types.ObjectId,
@@ -112,7 +105,89 @@ const personSchema = new Schema({
                     selected: Boolean,
                     dateAdded: Date
                 }
-            }]
+            }],
+            fsh: [{
+                name: String,
+                stamp: {
+                    addedBy: {
+                        type: Schema.Types.ObjectId,
+                        ref: 'Person'
+                    },
+                    facility: {
+                        type: Schema.Types.ObjectId,
+                        ref: 'Client'
+                    },
+                    selected: Boolean,
+                    dateAdded: Date
+                }
+            }],
+            pmh: {
+                allegy: [
+                    {
+                        name: String,
+                        stamp: {
+                            addedBy: {
+                                type: Schema.Types.ObjectId,
+                                ref: 'Person'
+                            },
+                            facility: {
+                                type: Schema.Types.ObjectId,
+                                ref: 'Client'
+                            },
+                            selected: Boolean,
+                            dateAdded: Date
+                        }
+                    }
+                ],
+                medHist: [
+                    {
+                        name: String,
+                        stamp: {
+                            addedBy: {
+                                type: Schema.Types.ObjectId,
+                                ref: 'Person'
+                            },
+                            facility: {
+                                type: Schema.Types.ObjectId,
+                                ref: 'Client'
+                            },
+                            selected: Boolean,
+                            dateAdded: Date
+                        }
+                    }
+                ]
+            },
+            stamp: {
+                addedBy: {
+                    type: Schema.Types.ObjectId,
+                    ref: 'Person'
+                },
+                facility: {
+                    type: Schema.Types.ObjectId,
+                    ref: 'Client'
+                },
+                selected: Boolean,
+                dateAdded: Date
+            }
+        }],
+        examinations: [
+            [
+                {
+                    name: String,
+                    stamp: {
+                        addedBy: {
+                            type: Schema.Types.ObjectId,
+                            ref: 'Person'
+                        },
+                        facility: {
+                            type: Schema.Types.ObjectId,
+                            ref: 'Client'
+                        },
+                        selected: Boolean,
+                        dateAdded: Date
+                    }
+                }
+            ]
         ],
         notes: [{
             note: String,
@@ -244,21 +319,6 @@ const personSchema = new Schema({
                 }
             }]
         ],
-        allegies: [{
-            allegy: String,
-            stamp: {
-                addedBy: {
-                    type: Schema.Types.ObjectId,
-                    ref: 'Person'
-                },
-                facility: {
-                    type: Schema.Types.ObjectId,
-                    ref: 'Client'
-                },
-                selected: Boolean,
-                dateAdded: Date
-            }
-        }],
         visits: [
             [{
                 hospital: {
@@ -275,23 +335,6 @@ const personSchema = new Schema({
                 bedNo: Number
             }]
         ],
-
-        cards: [{
-            category: String,
-            pin: String,
-            stamp: {
-                addedBy: {
-                    type: Schema.Types.ObjectId,
-                    ref: 'Person'
-                },
-                facility: {
-                    type: Schema.Types.ObjectId,
-                    ref: 'Client'
-                },
-                selected: Boolean,
-                dateAdded: Date
-            }
-        }],
         appointments: [{
             title: String,
             setOn: Date,
@@ -314,15 +357,17 @@ const personSchema = new Schema({
         medications: [
             [{
                 product: {
+                    category: String,
                     name: String,
                     size: Number,
                     unit: String,
+                    form: String
                 },
                 priscription: {
                     intake: Number,
                     freq: String,
                     piriod: Number,
-                    extend: String
+                    duration: String
                 },
                 lastTaken: Date,
                 paused: Boolean,
@@ -341,50 +386,29 @@ const personSchema = new Schema({
                 }
             }]
         ],
-        scans: [
-            [{
-                name: String,
-                dept: String,
-                treated: Boolean,
-                bodyPart: String,
-                stamp: {
-                    addedBy: {
-                        type: Schema.Types.ObjectId,
-                        ref: 'Person'
+        investigations:{
+            tests: [
+                [{
+                    name: String,
+                    dept: String,
+                    urgency: String,
+                    treated: Boolean,
+                    report: {
+                        comment: String,
+                        attachments: [],
+                        stamp: {
+                            addedBy: {
+                                type: Schema.Types.ObjectId,
+                                ref: 'Person'
+                            },
+                            facility: {
+                                type: Schema.Types.ObjectId,
+                                ref: 'Client'
+                            },
+                            selected: Boolean,
+                            dateAdded: Date
+                        }
                     },
-                    facility: {
-                        type: Schema.Types.ObjectId,
-                        ref: 'Client'
-                    },
-                    selected: Boolean,
-                    dateAdded: Date
-                },
-                report: {
-                    comment: String,
-                    attachments: [],
-                    stamp: {
-                        addedBy: {
-                            type: Schema.Types.ObjectId,
-                            ref: 'Person'
-                        },
-                        facility: {
-                            type: Schema.Types.ObjectId,
-                            ref: 'Client'
-                        },
-                        selected: Boolean,
-                        dateAdded: Date
-                    },
-                }
-            }]
-        ],
-        tests: [
-            [{
-                name: String,
-                dept: String,
-                treated: Boolean,
-                report: {
-                    comment: String,
-                    attachments: [],
                     stamp: {
                         addedBy: {
                             type: Schema.Types.ObjectId,
@@ -397,21 +421,47 @@ const personSchema = new Schema({
                         selected: Boolean,
                         dateAdded: Date
                     }
-                },
-                stamp: {
-                    addedBy: {
-                        type: Schema.Types.ObjectId,
-                        ref: 'Person'
+                }]
+            ],
+            scans: [
+                [{
+                    name: String,
+                    dept: String,
+                    urgency: String,
+                    treated: Boolean,
+                    bodyPart: String,
+                    stamp: {
+                        addedBy: {
+                            type: Schema.Types.ObjectId,
+                            ref: 'Person'
+                        },
+                        facility: {
+                            type: Schema.Types.ObjectId,
+                            ref: 'Client'
+                        },
+                        selected: Boolean,
+                        dateAdded: Date
                     },
-                    facility: {
-                        type: Schema.Types.ObjectId,
-                        ref: 'Client'
-                    },
-                    selected: Boolean,
-                    dateAdded: Date
-                }
-            }]
-        ],
+                    report: {
+                        comment: String,
+                        attachments: [],
+                        stamp: {
+                            addedBy: {
+                                type: Schema.Types.ObjectId,
+                                ref: 'Person'
+                            },
+                            facility: {
+                                type: Schema.Types.ObjectId,
+                                ref: 'Client'
+                            },
+                            selected: Boolean,
+                            dateAdded: Date
+                        }
+                    }
+                }]
+            ]
+        },
+        cards:[],
         surgeries: [
             [{
                 name: String,
@@ -447,7 +497,6 @@ const personSchema = new Schema({
                 }
             }]
         ],
-      
         immunization: {
             vaccins: [
                 [{
@@ -478,7 +527,7 @@ const personSchema = new Schema({
                 credit: Boolean,
                 processed: Boolean,
                 datePaid: String,
-                paymentComfirmer: {
+                comfirmer: {
                     type: Schema.Types.ObjectId,
                     ref: 'Person'
                 },
@@ -495,7 +544,8 @@ const personSchema = new Schema({
                     dateAdded: Date
                 }
             }]
-        ]
+        ],
+        deathNote: {}
     },
     messages: [{
         contactId: String,
@@ -515,9 +565,6 @@ const personSchema = new Schema({
   ]
 });
 
-
-
-    
 
 const Person = mongoose.model('Person', personSchema);
 module.exports = Person;

@@ -1,10 +1,10 @@
-
+import {CookieService } from 'ngx-cookie-service';
 export class Stamp {
   constructor(
-  public addedBy: string = null,
-  public facility: any = null,
-  public selected: boolean = false,
-  public dateAdded: Date = new Date()
+    public addedBy: any = null,
+    public facility: any = null,
+    public selected: boolean = false,
+    public dateAdded: Date = new Date()
   ) {}
 }
 export class Suggestion {
@@ -29,7 +29,8 @@ export class StockItem {
     public category: string = null,
     public name: string = null,
     public size: number = 1,
-    public unit: string = 'g'
+    public form: string = null,
+    public unit: string = null
     ) {}
 }
 export class Service {
@@ -45,6 +46,7 @@ export class Stock {
     public stockItem: StockItem = new StockItem(),
     public stockInfo: StockInfo = new StockInfo(),
     public stamp: Stamp = new Stamp(),
+    public signature: string = null,
     public _id?: string
   ) {}
 }
@@ -59,7 +61,7 @@ export class Invoice {
     public quantity: number = 1,
     public datePaid: string = null,
     public processed: boolean = true,
-    public paymentComfirmer: Stamp = new Stamp(),
+    public comfirmedBy: Stamp = new Stamp(),
     public stamp: Stamp = new Stamp(),
     public _id?: string
   ) {}

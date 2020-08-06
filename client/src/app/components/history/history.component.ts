@@ -1,13 +1,11 @@
 import { Component, OnInit, ElementRef, AfterViewInit, ViewChild} from '@angular/core';
 import { Person} from '../../models/person.model';
-import {Tests, Scannings} from '../../data/request';
-import { Surgeries} from '../../data/surgeries';
 import {Client, Department} from '../../models/client.model';
-import {Conditions} from '../../data/conditions';
 import {Vaccins} from '../../data/immunization';
 import {DataService} from '../../services/data.service';
 import * as cloneDeep from 'lodash/cloneDeep';
 import {SocketService} from '../../services/socket.service';
+import {sortInventory, signStock} from '../../util/functions';
 import 'simplebar';
 import 'simplebar/dist/simplebar.css';
 import {CookieService } from 'ngx-cookie-service';
@@ -17,12 +15,13 @@ import {Inventory, Suggestion, StockInfo, Stock, Card, Invoice, Stamp} from '../
 import {
     Record, Medication, Height, Weight, Bg, Condition,
     Note, Visit, Session, Test, Surgery, Scan, History, Complain,
-    Bp, Resp, Pulse, Temp, Vitals, Vaccin
+    Bp, Resp, Pulse, Temp, Vitals, Vaccin, RecordItem
   } from '../../models/record.model';
 
 import {Chart} from 'chart.js';
 import {saveAs} from 'file-saver';
 import {host} from '../../util/url';
+import { CONTEXT_NAME } from '@angular/compiler/src/render3/view/util';
 
 // import { truncateSync } from 'fs';
 
@@ -49,14 +48,11 @@ export class HistoryComponent implements OnInit {
   client: Client = new Client();
   scans = [];
   clonedTest = [];
+  newSuggestions = [];
   images = [];
   editing = null;
-  elm = null;
+  elem = null;
   logout = false;
-  tests = Tests;
-  scannings = Scannings;
-  surgeries = Surgeries;
-  conditions = Conditions;
   ctx = null;
   imgCount = 0;
   step = null;
@@ -64,14 +60,17 @@ export class HistoryComponent implements OnInit {
   showing = 'BP';
   unit = 'mmHg';
   vit = null;
+  duration = new Array<number>(30);
   sortMenu = false;
   histories = [];
   complains = [];
   medications = [];
-  vital = 'Blood Presure';
+  vital = 1;
   form = '';
   vitals = [];
   matches = [];
+  invst = 'Test';
+  historyItem = 1;
   patient: Person = new Person();
   loading = false;
   processing = false;
@@ -82,6 +81,7 @@ export class HistoryComponent implements OnInit {
   bpChart = [];
   chartData = [60, 20, 45, 65, 80, 30, 50];
   notes: Note[] = [];
+  stamp = new Stamp();
   chartLabels = new Array<string>(10);
   // @ViewChild('bpChart',{static: false}) e: ElementRef;
   // this.ctx = this.e.nativeElement.getContext('2d');
@@ -95,6 +95,7 @@ export class HistoryComponent implements OnInit {
     ) { }
 
   ngOnInit() {
+    this.stamp = new Stamp(this.cookies.get('i'), this.cookies.get('h'));
     // this.ctx = this.e.nativeElement.querySelector('bpChart').getContext('2d');
     // this.bpChart = new Chart('bpChart', {
     //   type: 'bar',
@@ -173,39 +174,11 @@ export class HistoryComponent implements OnInit {
     this.loading = true;
     this.dataService.getHistory(this.route.snapshot.params.id).subscribe((res: any) => {
       this.loading = false;
-      res.suggestions.forEach(suggestion => {
-        switch (suggestion.category) {
-          case 'complain':
-            this.complains.unshift(suggestion.name);
-            break;
-          case 'condition':
-            this.conditions.unshift(suggestion.name);
-            break;
-          case 'history':
-            this.histories.unshift(suggestion.name);
-            break;
-          case 'test':
-            this.tests.unshift(suggestion.name);
-            break;
-          case 'scan':
-            this.scans.unshift(suggestion.name);
-            break;
-          case 'surgery':
-            this.surgeries.unshift(suggestion.name);
-            break;
-          case 'medication':
-            this.medications.unshift(suggestion.name);
-            break;
-          case 'allegy':
-            this.allegies.unshift(suggestion.name);
-            break;
-          default:
-            break;
-        }
-      });
+      this.suggestions = res.s;
       this.notes = res.patient.record.notes;
       this.patient = res.patient;
-      this.patient.record.notes = res.patient.record.notes.map(note => ({
+      this.patient.record.notes = res.patient.record.notes
+      .map(note => ({
         ...note,
         note: note.note.length > 150 ? note.note.substr(0, 150) : note.note
       }));
@@ -213,10 +186,6 @@ export class HistoryComponent implements OnInit {
       this.message = '...Network Error';
       this.loading = false;
     });
-    // this.patient.record.vitals.bp.forEach((bp, i) => {
-    //     this.chartData.push(bp.systolic);
-    //     this.chartLabels[i] = new Date(bp.stamp.dateAdded).getDate().toString() + months[new Date(bp.stamp.dateAdded).getMonth()];
-    //   });
 
   }
 
@@ -230,8 +199,8 @@ export class HistoryComponent implements OnInit {
     return this.getDp(this.cookies.get('d'));
   }
   pullImages(i, j, item) {
-    this.images = (item === 'test') ? this.patient.record.tests[i][j]
-    .report.attachments : this.patient.record.scans[i][j].report.attachments;
+    this.images = (item === 'test') ? this.patient.record.investigations.tests[i][j]
+    .report.attachments : this.patient.record.investigations.scans[i][j].report.attachments;
   }
 
   getLabs() {
@@ -261,72 +230,8 @@ export class HistoryComponent implements OnInit {
   getDocDp(avatar: string) {
       return `${host}/api/dp/${avatar}`;
   }
-  addVital() {
-    const i = this.vitals.findIndex(v => v.name === this.vital);
-    switch (this.vital) {
-      case 'Blood Presure':
-        if (i >= 0) {
-          this.vitals[i] = {
-            name: 'Blood Presure',
-            val: this.session.vitals.bp.systolic + '/'
-          + this.session.vitals.bp.diastolic + 'mm Hg'
-          };
-        } else {
-          this.vitals.unshift({
-            name: 'Blood Presure',
-            val: this.session.vitals.bp.systolic + '/'
-          + this.session.vitals.bp.diastolic + 'mm Hg'
-          });
-          console.log(this.vitals);
-        }
-        break;
-      case 'Tempreture':
-          if (i >= 0) {
-            this.vitals[i] = {
-              name: 'Tempreture',
-              val: this.session.vitals.tempreture.value + 'C'
-            };
-          } else {
-            this.vitals.unshift({
-              name: 'Tempreture',
-              val: this.session.vitals.tempreture.value + 'C'
-            });
-          }
-          break;
-      case 'Respiratory Rate':
-        if (i >= 0) {
-          this.vitals[i] = {
-            name: 'Respiratory Rate',
-            val: this.session.vitals.resp.value + 'bpm'
-          };
-        } else {
-          this.vitals.unshift({
-            name: 'Respiratory Rate',
-            val: this.session.vitals.resp.value + 'bpm'
-          });
-        }
-        break;
-      case 'Pulse Rate':
-        if (i >= 0) {
-          this.vitals[i] = {
-            name: 'Pulse Rate',
-            val: this.session.vitals.pulse.value + 'bpm'
-          };
-        } else {
-          this.vitals.unshift({
-            name: 'Pulse Rate',
-            val: this.session.vitals.pulse.value + 'bpm'
-          });
-        }
-        break;
-      default:
-        break;
-    }
 
-  }
-  resolver() {
-    // this is a commen
-  }
+
   getFlags(vital, name) {
     switch (name) {
       case 'bp':
@@ -365,7 +270,7 @@ export class HistoryComponent implements OnInit {
     (this.unit === 'Kilograms' && this.patient.record.vitals.weight.length) ||
     (this.unit === 'Celcius' && this.patient.record.vitals.tempreture.length) ||
     (this.unit === 'bpm' && this.patient.record.vitals.pulse.length) ||
-    (this.unit === 'bpm' && this.patient.record.vitals.resp.length);
+    (this.unit === 'cpm' && this.patient.record.vitals.resp.length);
   }
   removeVital(i, sign) {
     this.vitals.splice(i, 1);
@@ -422,7 +327,7 @@ export class HistoryComponent implements OnInit {
        if (vcn.selected) {
         s.push({
           name: vcn.name,
-           stamp: new Stamp(this.cookies.get('i'), this.cookies.get('h'))
+           stamp: this.stamp
           });
         vcn.selected = false;
        }
@@ -453,21 +358,21 @@ export class HistoryComponent implements OnInit {
 
   checkProfiles() {
     if (this.session.vitals.height.value) {
-          this.patient.record.vitals.height.unshift({
-            ...this.session.vitals.height,
-            stamp: new Stamp(this.cookies.get('i'), this.cookies.get('h'))
-          });
+        this.patient.record.vitals.height.unshift({
+          ...this.session.vitals.height,
+          stamp: this.stamp
+        });
     }
     if (this.session.vitals.weight.value) {
           this.patient.record.vitals.weight.unshift({
             ...this.session.vitals.weight,
-            stamp: new Stamp(this.cookies.get('i'), this.cookies.get('h'))
+            stamp: this.stamp
           });
         }
     if (this.session.vitals.bloodGl.value) {
           this.patient.record.vitals.bloodGl[0] = {
             ...this.session.vitals.bloodGl,
-            stamp: new Stamp(this.cookies.get('i'), this.cookies.get('h'))
+            stamp: this.stamp
           };
       }
   }
@@ -540,24 +445,7 @@ export class HistoryComponent implements OnInit {
     !this.router.url.includes('admin');
   }
 
-getDescriptions() {
-  // switch (this.session.reqItem.category) {
-  //   case 'Surgery':
-  //   this.session.desc = this.surgeries;
-  //   this.clearSuggestions();
-  //   break;
-  // case 'Scan':
-  //   this.session.desc  = this.scannings;
-  //   this.clearSuggestions();
-  //   break;
-  // case 'Test':
-  //   this.session.desc  = this.tests;
-  //   this.clearSuggestions();
-  //   break;
-  //   default:
-  //   break;
-  // }
-}
+
 
 removeMedication(i: number) {
   this.session.medications.splice(i, 1);
@@ -568,8 +456,8 @@ removeComplain(complain: string, i: number) {
   this.suggestions.splice(this.suggestions.findIndex(c => c.name ===  complain), 1);
 }
 removeHistory(complain: string, i: number) {
-  this.session.histories.splice(i, 1);
-  this.suggestions.splice(this.suggestions.findIndex(c => c.name ===  complain), 1);
+  // this.session.histories.splice(i, 1);
+  // this.newSuggestions.splice(this.suggestions.findIndex(c => c.name ===  complain), 1);
 }
 removeCondition(condition: string, i: number) {
   this.session.conditions.splice(i, 1);
@@ -580,127 +468,60 @@ removePriscription(i: number) {
   this.session.medInvoices.splice(i, 1);
 }
 removeTest(i) {
- this.tests.splice(i, 1);
- this.session.invoices.splice(i, 1);
+//  this.tests.splice(i, 1);
+//  this.session.invoices.splice(i, 1);
 }
-searchAllegies() {
-  this.matches = [];
-  if (!this.session.allegies.allegy) {
-     this.matches = [];
-  } else {
-      this.matches = this.allegies.filter((name) => {
-      return new RegExp('\^' + this.session.allegies.allegy, 'i').test(name);
-    });
+
+switchHistory(i) {
+  this.historyItem = i;
+}
+switchVital(i) {
+  this.vital = i
+}
+
+
+
+pickMatch(match) {
+  switch (this.elem) {
+    case 'test':
+      this.session.test.name = match;
+      break;
+    case 'scan':
+      this.session.scan.name = match;
+      break;
+    case 'surgery':
+      this.session.test.name = match;
+      break;
+    case 'condition':
+      this.session.condition.name = match;
+      break;
+    case 'complain':
+      this.session.complain.complain = match;
+      break;
+    case 'medication':
+      this.session.medication.product.name = match;
+      break;
+    case 'allegy':
+      this.session.allegy.name = match;
+      break;
+    case 'pmh':
+      this.session.pmh.name = match;
+      break;
+    case 'fsh':
+      this.session.fsh.name = match;
+      break;
+    default:
+      break;
   }
-}
-searchTest() {
   this.matches = [];
-  if (!this.session.test.name) {
-     this.matches = [];
-  } else {
-      this.matches = this.tests.filter((name) => {
-      return new RegExp('\^' + this.session.test.name , 'i').test(name);
-    });
-  }
+  this.elem = null;
 }
-searchHistory() {
-  if (!this.session.history.condition) {
-    this.matches = [];
-  } else {
-      this.matches = this.histories.filter((name) => {
-      const patern =  new RegExp('\^' + this.session.history.condition , 'i');
-      return patern.test(name);
-    });
-  }
-}
-searchScans() {
-  if (!this.session.scan.name) {
-    this.matches = [];
-  } else {
-      this.matches = this.scans.filter((name) => {
-      const patern =  new RegExp('\^' + this.session.scan.name , 'i');
-      return patern.test(name);
-    });
-  }
-}
-searchSurgeries() {
-  if (!this.session.surgery.name) {
-    this.matches = [];
-  } else {
-      this.matches = this.surgeries.filter((name) => {
-      const patern =  new RegExp('\^' + this.session.surgery.name , 'i');
-      return patern.test(name);
-    });
-  }
-}
-searchCond() {
-  if (!this.session.condition.condition) {
-    this.matches = [];
-  } else {
-      this.matches = this.conditions.filter((name) => {
-      const patern =  new RegExp('\^' + this.session.condition.condition, 'i');
-      return patern.test(name);
-    });
-  }
-}
-searchComplains() {
-  if (!this.session.complain.complain) {
-    this.matches = [];
-  } else {
-      this.matches = this.complains.filter((name) => {
-      const patern =  new RegExp('\^' + this.session.complain.complain, 'i');
-      return patern.test(name);
-    });
-  }
-}
-searchMedications() {
-  // if (!this.session.medication.stockItemname) {
-  //   this.matches = [];
-  // } else {
-  //     this.matches = this.medications.filter((name) => {
-  //     const patern =  new RegExp('\^' + this.session.medication.stockItemname, 'i');
-  //     return patern.test(name);
-  //   });
-  // }
-}
-selectAllegy(match) {
-  this.session.allegies.allegy = match;
-  this.matches = [];
-}
-selectMedic(match) {
-  // this.session.medication.stockItemname = match;
-  // this.matches = [];
-}
-selectTest(match) {
-  this.session.test.name = match;
-  this.matches = [];
-}
-selectHistory(match) {
-  this.session.history.condition = match;
-  this.matches = [];
-}
-selectSurgery(match) {
-  this.session.surgery.name = match;
-  this.matches = [];
-}
-selectScan(match) {
-  this.session.scan.name = match;
-  this.matches = [];
-}
-selectCond(match) {
-  this.session.condition.condition = match;
-  this.matches = [];
-}
-selectComplains(match) {
-  this.session.complain.complain = match;
-  this.matches = [];
-}
+
+
 isEmptySession() {
   return !this.session.invoices.length &&
   !this.session.complains.length &&
   !this.session.conditions.length &&
-  !this.session.allegies.allegy &&
-  !this.session.histories.length &&
   !this.session.note.note &&
   !this.session.medications.length &&
   !this.vitals.length;
@@ -729,35 +550,6 @@ getClient() {
   this.dataService.getClient().subscribe((res: any) => {
     this.client = res.client;
     this.inventory = res.client.inventory;
-    res.client.inventory.forEach(p => {
-      switch (p.item.category) {
-        case 'test':
-          if (!this.tests.find(t => t === p.item.category)) {
-            this.tests.unshift(p.item.name);
-          }
-          break;
-        case 'surgery':
-          if (!this.surgeries.find(s => s === p.item.category)) {
-            this.surgeries.unshift(p.item.name);
-          }
-          break;
-        case 'scanning':
-          if  (!this.scans.find(sc => sc === p.item.category)) {
-            this.scans.unshift(p.item.name);
-          }
-          this.scans.unshift(p.item.name);
-          break;
-        default:
-          break;
-      }
-    });
-    this.scans = res.client.inventory
-    .filter(prod => prod.type === 'Services' &&
-    prod.item.category === 'Scanning').map(scan => scan.item.name);
-    this.medications = res.client.inventory
-    .filter(prod => prod.type === 'Products').map(med => med.item.name);
-    this.cardTypes = res.client.inventory
-    .filter(p => p.type === 'Cards');
 });
 }
 next() {
@@ -775,10 +567,10 @@ prevImage() {
   this.currentImage = this.currentImage - 1;
 }
 toggleComment(i, j, action) {
-  this.patient.record.tests[i][j].report.stamp.selected = (action === 'open') ? true : false;
+  this.patient.record.investigations.tests[i][j].report.stamp.selected = (action === 'open') ? true : false;
 }
 toggleScanComment(i, j, action) {
-  this.patient.record.scans[i][j].report.stamp.selected = (action === 'open') ? true : false;
+  this.patient.record.investigations.scans[i][j].report.stamp.selected = (action === 'open') ? true : false;
 }
 getLength(length) {
   return (length > 1 ) ? 's' : '';
@@ -799,431 +591,325 @@ hideLogOut() {
 checkItems(type: string) {
   // return this.temItems.some(item => item.type === type);
 }
-composeInvoices() {
-  const invoices = cloneDeep([
-    ...this.session.invoices, ...this.session.medInvoices
-  ]);
-  if (invoices.length) {
-  if (this.patient.record.invoices.length) {
-    if (new Date(this.patient.record.invoices[0][0].stamp.dateAdded)
-    .toLocaleDateString() === new Date()
-    .toLocaleDateString()) {
-      for (const i of invoices) {
-        this.patient.record.invoices[0].unshift(i);
-      }
-     } else {
-        this.patient.record.invoices.unshift(invoices);
-     }
-    } else {
-      this.patient.record.invoices = [invoices];
-    }
-  }
-}
-composeMedications() {
-  if (this.session.medications.length) {
-    this.session.bills.push('Medication');
-    if (this.patient.record.medications.length) {
-    if (new Date(this.patient.record.medications[0][0].stamp.dateAdded)
-    .toLocaleDateString() === new Date()
-    .toLocaleDateString()) {
-      for (const m of this.session.medications) {
-        this.patient.record.medications[0].unshift(m);
-      }
-     } else {
-        this.patient.record.medications.unshift(this.session.medications);
-     }
-    } else {
-      this.patient.record.medications = [this.session.medications];
-    }
-  }
-}
-composeTests() {
-  if (this.session.tests.length) {
-    this.session.bills.push('cashier');
-    if (this.patient.record.tests.length) {
-    if (new Date(this.patient.record.tests[0][0].stamp.dateAdded)
-    .toLocaleDateString() === new Date().toLocaleDateString()) {
-      for (const t of this.session.tests) {
-        this.patient.record.tests[0].unshift(t);
-      }
-     } else {
-        this.patient.record.tests.unshift(this.session.tests);
-     }
-    } else {
-       this.patient.record.tests = [this.session.tests];
-    }
-  }
-}
-composeScans() {
-  if (this.session.scans.length) {
-    this.session.bills.push('cashier');
-    if (this.patient.record.scans.length) {
-    if (new Date(this.patient.record.scans[0][0].stamp.dateAdded)
-    .toLocaleDateString() === new Date().toLocaleDateString()) {
-      for (const t of this.session.scans) {
-        this.patient.record.scans[0].unshift(t);
-      }
-     } else {
-        this.patient.record.scans.unshift(this.session.scans);
-     }
-    } else {
-      this.patient.record.scans = [this.session.scans];
-    }
-  }
-}
-composeSurgeries() {
-  if (this.session.surgeries.length) {
-    this.session.bills.push('cashier');
-    if (this.patient.record.surgeries.length) {
-    if (new Date(this.patient.record.surgeries[0][0].stamp.dateAdded)
-    .toLocaleDateString() === new Date().toLocaleDateString()) {
-      for (const t of this.session.surgeries) {
-        this.patient.record.surgeries[0].unshift(t);
-      }
-     } else {
-        this.patient.record.surgeries.unshift(this.session.surgeries);
-     }
-    } else {
-      this.patient.record.surgeries = [this.session.surgeries];
-    }
-  }
-}
-composeComplains() {
-  if (this.session.complains.length) {
-  if (this.patient.record.complains.length) {
-    if (new Date(this.patient.record.complains[0][0].stamp.dateAdded)
-    .toLocaleDateString() === new Date().toLocaleDateString()) {
-      for (const c of this.session.complains) {
-        this.patient.record.complains[0].unshift(c);
-      }
-     } else {
-        this.patient.record.complains.unshift(this.session.complains);
-     }
-    } else {
-       this.patient.record.complains = [this.session.complains];
-    }
-  }
-}
-composeHistory() {
-  if (this.session.histories.length) {
-  if (this.patient.record.histories.length) {
-    if (new Date(this.patient.record.histories[0][0].stamp.dateAdded)
-    .toLocaleDateString() === new Date().toLocaleDateString()) {
-      for (const c of this.session.complains) {
-        this.patient.record.histories[0].unshift(c);
-      }
-     } else {
-        this.patient.record.histories.unshift(this.session.histories);
-     }
-    } else {
-       this.patient.record.histories = [this.session.histories];
-    }
-  }
-}
-composeConditions() {
-  if (this.session.conditions.length) {
-  if (this.patient.record.conditions.length) {
-    if (new Date(this.patient.record.conditions[0][0].stamp.dateAdded)
-    .toLocaleDateString() === new Date().toLocaleDateString()) {
-      for (const c of this.session.conditions) {
-        this.patient.record.conditions[0].unshift(c);
-      }
-     } else {
-      this.patient.record.conditions.unshift(this.session.conditions);
-     }
-    } else {
-      this.patient.record.conditions = [this.session.conditions];
-    }
-  }
-}
 
-addInvoice(name: string, itemType: string) {
-  const p = this.inventory.find(stock => stock.stockItem.name === name);
-  if (p) {
-    if (itemType === 'Medication') {
-      this.session.medInvoices.unshift({
-        ...new Invoice(),
-        name,
-        price: p.stockInfo.price,
-        processed: false,
-        desc: itemType,
-        // tslint:disable-next-line:max-line-length
-        kind: `${this.session.medication.priscription.intake}-${this.session.medication.priscription.freq}-${this.session.medication.priscription.piriod}`,
-        stamp: new Stamp(this.cookies.get('i'), this.cookies.get('h'))
-      });
-    } else {
-      this.session.invoices.unshift({
-        ...new Invoice(),
-        name,
-        price: p.stockInfo.price,
-        desc: itemType,
-        kind: itemType,
-        stamp: new Stamp(this.cookies.get('i'), this.cookies.get('h'))
-      });
-    }
-  } else {
-    if (itemType === 'Medication') {
-      this.session.medInvoices.unshift({
-        ...new Invoice(),
-        name,
-        desc: itemType,
-        // tslint:disable-next-line:max-line-length
-        kind: `${this.session.medication.priscription.intake}-${this.session.medication.priscription.freq}-${this.session.medication.priscription.piriod}`,
-        processed: false,
-        stamp: new Stamp(this.cookies.get('i'), this.cookies.get('h'))
-      });
-    } else {
-      this.session.invoices.unshift({
-        ...new Invoice(),
-        name,
-        desc: itemType,
-        kind: itemType,
-        stamp: new Stamp(this.cookies.get('i'), this.cookies.get('h'))
-      });
-    }
-  }
+addInvoice(items, itemType) {
+  // if (itemType === 'medication') {
+  //   items.forEach(m => {
+  //     const p = this.inventory.find(stock => stock.signature === signStock(m.product));
+  //     this.session.invoices.unshift({
+  //       ...new Invoice(),
+  //       name: this.formatMedication(m),
+  //       price: (p) ? p.stockInfo.price : 0,
+  //       desc: `${m.priscription.piriod} ${this.formatDuration(m.priscription.piriod, m.priscription.duration)}`,
+  //       kind: itemType,
+  //       processed: false,
+  //       stamp: this.stamp
+  //     });
+  //   });
+  // } else {
+  //   items.forEach(m => {
+  //     const s = this.inventory.find(stock => stock.signature === signStock(m.product));
+  //     this.session.invoices.unshift({
+  //       ...new Invoice(),
+  //       name: m.stockItem.name,
+  //       price: (s) ? s.stockInfo.price : 0,
+  //       desc: itemType,
+  //       kind: 'Services',
+  //       processed: false,
+  //       stamp: this.stamp
+  //     });
+  //   });
+  // }
 }
 clearSuggestions() {
   this.matches = [];
 }
 showSuggestions(field) {
-  this.elm = (field === 'history' || field === 'allegy') ? field : null;
+  this.elem = field;
   this.errLine = null;
-  switch (field) {
-    case 'tests':
-      this.matches = this.tests.slice(0, 50);
-      break;
-    case 'complains':
-      this.matches = this.complains.slice(0, 50);
-      break;
-    case 'history':
-      this.matches = this.histories.slice(0, 50);
-      break;
-    case 'conditions':
-      this.matches = this.conditions.slice(0, 50);
-      break;
-    case 'surgeries':
-      this.matches = this.surgeries.slice(0, 50);
-      break;
-    case 'scans':
-      this.matches = this.scans.slice(0, 50);
-      break;
-    case 'medications':
-      this.matches = this.medications.slice(0, 50);
-      break;
-    case 'allegy':
-      this.matches = this.allegies.slice(0, 50);
-      break;
-      default:
-      break;
-  }
-  console.log(this.matches)
+  this.matches = this.suggestions.filter(e => e.category === field).map(i => i.name);
+  return this.matches.slice(0, 50);
 }
-invoiceExist(name) {
-  return this.session.invoices.some(invoice => invoice.name === name);
-}
-addMedication() {
 
-//   if (this.session.medications.some(medic => medic.stockItemname === this.session.medication.stockItemname)) {
-//     this.errLine = 'Medication already added';
-//   } else {
-//   this.session.medications.unshift({
-//     ...this.session.medication,
-//     stamp: new Stamp(this.cookies.get('i'),
-//     this.cookies.get('h')
-//     )
-//   });
-//   this.addInvoice(this.session.medication.stockItemname, 'Medication');
-//   this.addSuggestion('medication');
-//   this.session.medication = new Medication();
-// }
-}
-addTest() {
-  if (this.invoiceExist(this.session.test.name)) {
-    this.errLine = 'Request already added';
-  } else {
-    this.session.tests.unshift({
-      ...this.session.test,
-      stamp: new Stamp(this.cookies.get('i'),
-      this.cookies.get('h')
-      )
-    });
-    this.addInvoice(this.session.test.name, 'Test');
-    this.addSuggestion('test');
-    this.session.test = new Test();
+searchMatch(term, name) {
+  this.elem = name;
+  this.matches = [];
+  if (term.trim().length === 0) {
+     this.matches = [];
+     this.elem = null;
   }
+  this.matches = this.suggestions.filter(i => new RegExp('\^' + term , 'i').test(i.name) && i.category === this.elem).map(s => s.name);
 }
-addSurgery() {
-  if (this.invoiceExist(this.session.surgery.name)) {
-    this.errLine = 'Request already added';
-  } else {
-     this.session.surgeries.unshift({
-      ...this.session.surgery,
-      stamp: new Stamp(this.cookies.get('i'),
-      this.cookies.get('h')
-      )
-  });
-     this.addSuggestion('surgery');
-     this.addInvoice(this.session.surgery.name, 'Surgery');
-     this.session.surgery = new Surgery();
-  }
- }
-addScanning() {
-  if (this.invoiceExist(this.session.scan.name)) {
-    this.errLine = 'Request already added';
-  } else {
-     this.session.scans.unshift({
-    ...this.session.scan,
-    stamp: new Stamp(this.cookies.get('i'), this.cookies.get('h'))
-  });
-     this.addSuggestion('scan');
-     this.addInvoice(this.session.scan.name, 'Scan');
-     this.session.scan = new Scan();
-  }
+
+invoiceExist(name) {
+  return this.session.invoices
+  .some(invoice => invoice.name === name);
 }
+
 getStyle(medication) {
   return {
     textDecoration: medication.paused ? 'line-through' : 'none',
     color: medication.paused ? 'light-grey' : 'black'
   };
 }
-addComplain() {
-  if (!this.session.complains.some(c => c.complain === this.session.complain.complain)) {
-     this.session.complains.unshift({
+
+addSuggestions(items, cat) {
+    switch (cat) {
+      case 'complain':
+        items.forEach(i => {
+          if (!this.suggestions.some(s => s.name === i.complain)) {
+            this.newSuggestions.unshift({name: i.complain, category: cat});
+          }
+        });
+        break;
+      case 'condition':
+        items.forEach(i => {
+          if (!this.suggestions.some(s => s.name === i.name)) {
+            this.newSuggestions.unshift({name: i.name, category: cat});
+          }
+        });
+        break;
+      case 'test':
+        items.forEach(i => {
+          if (!this.suggestions.some(s => s.name === i.name)) {
+            this.newSuggestions.unshift({name: i.name, category: cat});
+          }
+        });
+        break;
+      case 'scan':
+        items.forEach(i => {
+          if (!this.suggestions.some(s => s.name === i.name)) {
+            this.newSuggestions.unshift({name: i.name, category: cat});
+          }
+        });
+        break;
+      case 'medication':
+        items.forEach(i => {
+          if (!this.suggestions.some(s => s.name === i.product.name)) {
+            this.newSuggestions.unshift({name: i.product.name, category: cat});
+          }
+        });
+        break;
+      case 'pmh':
+        items.forEach(i => {
+          if (!this.suggestions.some(s => s.name === i.name)) {
+            this.newSuggestions.unshift({name: i.name, category: cat});
+          }
+        });
+        break;
+      case 'pc':
+        items.forEach(i => {
+          if (!this.suggestions.some(s => s.name === i.name)) {
+            this.newSuggestions.unshift({name: i.name, category: cat});
+          }
+        });
+        break;
+      case 'allegy':
+        items.forEach(i => {
+          if (!this.suggestions.some(s => s.name === i.name)) {
+            this.newSuggestions.unshift({name: i.name, category: cat});
+          }
+        });
+        break;
+      case 'fsh':
+        items.forEach(i => {
+          if (!this.suggestions.some(s => s.name === i.name)) {
+            this.newSuggestions.unshift({name: i.name, category: cat});
+          }
+        });
+        break;
+      default:
+        break;
+    }
+}
+addRecord(name) {
+  switch (name) {
+    case 'complain':
+       this.session.complains.unshift({
      ...this.session.complain,
-     stamp: new Stamp(this.cookies.get('i'), this.cookies.get('h'))
-   });
-     this.addSuggestion('complain');
-     this.session.complain = new Complain();
-  } else {
-    this.errLine = 'Complain already added';
-  }
- }
-addHistory() {
-  if (!this.session.histories.some(h => h.condition === this.session.history.condition)) {
-     this.session.histories.unshift({
-     ...this.session.history,
-     stamp: new Stamp(this.cookies.get('i'), this.cookies.get('h'))
-   });
-     this.addSuggestion('history');
-     this.session.history = new History();
-  } else {
-    this.errLine = 'History already added';
-  }
- }
- addCondition() {
-  if (!this.session.conditions
-    .some(c => c.condition === this.session.condition.condition)
-    ) {
-     this.session.conditions.unshift({
+     stamp: this.stamp
+    });
+       this.session.complain = new Complain();
+       break;
+     case 'condition':
+       this.session.conditions.unshift({
      ...this.session.condition,
-     stamp: new Stamp(this.cookies.get('i'), this.cookies.get('h'))
-     });
-     this.addSuggestion('condition');
-     this.session.condition = new Condition();
+     stamp: this.stamp
+    });
+       this.session.condition = new RecordItem();
+       break;
+    case 'request':
+      if (this.session.test.name) {
+        this.session.tests.unshift({
+          ...this.session.test,
+          stamp: this.stamp
+         });
+        this.session.requests.unshift({
+          ...this.session.test,
+          stamp: this.stamp
+        });
+        this.session.test.name = null;
+      } else {
+        this.session.scans.unshift({
+          ...this.session.scan,
+          dept: this.session.test.dept,
+          urgency: this.session.test.urgency,
+          stamp: this.stamp
+        });
+        this.session.requests.unshift({
+          ...this.session.scan,
+          dept: this.session.test.dept,
+          urgency: this.session.test.urgency,
+        });
+        this.session.scan.name = null;
+        this.session.test.name = null;
+      }
+      break;
+    case 'medication':
+       this.session.medications.unshift({
+        ...this.session.medication,
+        stamp: this.stamp
+      });
+       this.session.medication = new Medication();
+       break;
+    case 'pmh':
+      this.session.history.pmh.medHist.unshift({
+      ...this.session.pmh,
+      stamp: this.stamp
+      });
+      this.session.pmh = new RecordItem();
+      break;
+    case 'allegy':
+      this.session.history.pmh.allegies.unshift({
+      ...this.session.allegy,
+      stamp: this.stamp
+      });
+      break;
+    case 'fsh':
+      this.session.history.fsh.unshift({
+      ...this.session.fsh,
+      stamp: this.stamp
+      });
+      this.session.fsh = new RecordItem();
+      break;
+    default:
+      break;
+  }
+}
+formatMedication(med: Medication) {
+  return med.product.name + ' ' + med.product.size + med.product.unit;
+}
+formatDuration(p, d) {
+  let m = null;
+  switch (d) {
+    case 'h':
+      m = 'h';
+      break;
+    case 'd':
+      m = '/7';
+      break;
+    case 'w':
+      m = '/52';
+      break;
+    case 'm':
+      m = '/12';
+      break;
+    case 'y':
+      m = 'y';
+      break;
+    default:
+      break;
+  }
+  return `${p}${m}`;
+}
+removeRecord(type, i, name?: string) {
+  switch (type) {
+    case 'complain':
+       this.session.complains.splice(i, 1);
+       break;
+    case 'condition':
+       this.session.conditions.splice(i, 1);
+       break;
+    case 'request':
+      this.session.requests.splice(i, 1);
+      this.session.tests = this.session.tests.filter(t => t.name !== name);
+      this.session.scans = this.session.scans.filter(t => t.name !== name);
+      break;
+    case 'medication':
+       this.session.medications.splice(i, 1);
+       break;
+    case 'pmh':
+      this.session.history.pmh.medHist.splice(i, 1);
+      break;
+    case 'allegy':
+      this.session.history.pmh.allegies.splice(i, 1);
+      break;
+    case 'fsh':
+      this.session.history.fsh.splice(i, 1);
+      break;
+    default:
+      break;
+  }
+
+}
+isAdded(name) {
+  let i = null;
+  switch (name) {
+    case 'complain':
+      i = this.session.complains.some(c => c.complain === this.session.complain.complain);
+      break;
+    case 'condition':
+      i = this.session.conditions.some(c => c.name === this.session.condition.name);
+      break;
+    case 'test':
+      i = this.session.tests.some(t => t.name === this.session.test.name);
+      break;
+    case 'scan':
+      i = this.session.scans.some(s => s.name === this.session.scan.name);
+      break;
+    case 'medication':
+      i = this.session.medications.some(m => m.product.name === this.session.medication.product.name);
+      break;
+    case 'pmh':
+      i = this.session.history.pmh.medHist.some(p => p.name === this.session.pmh.name);
+      break;
+    case 'allegy':
+      i = this.session.history.pmh.allegies.some(p => p.name === this.session.allegy.name);
+      break;
+    case 'fsh':
+      i = this.session.history.fsh.some(p => p.name === this.session.fsh.name);
+      break;
+    default:
+      break;
+  }
+  return i;
+}
+addMoreItem(name) {
+  if (!this.isAdded(name)) {
+      this.addRecord(name);
   } else {
-    this.errLine = 'Condition already added';
+    this.errLine = `${this.elem} already added`;
   }
  }
-addSuggestion(suggestion: string) {
-  // switch (suggestion) {
-  //   case 'complain':
-  //     if (!this.complains.find(complain => complain === this.session.complain.complain) ) {
-  //       this.suggestions.unshift({
-  //         category: suggestion,
-  //         name: this.session.complain.complain
-  //       });
-  //     }
-  //     break;
-  //   case 'history':
-  //     if (!this.histories.find(h => h.condition === this.session.history.condition) ) {
-  //       this.suggestions.unshift({
-  //         category: suggestion,
-  //         name: this.session.history.condition
-  //       });
-  //     }
-  //     break;
-  //   case 'surgery':
-  //     if ( !this.surgeries.find(name => name === this.session.surgery.name)) {
-  //       this.suggestions.unshift({
-  //         category: suggestion,
-  //         name: this.session.surgery.name
-  //       });
-  //     }
-  //     break;
-  //   case 'scan':
-  //     if (!this.scans.find(name => name === this.session.scan.name)) {
-  //       this.suggestions.unshift({
-  //         category: suggestion,
-  //         name: this.session.scan.name
-  //       });
-  //     }
-  //     break;
-  //   case 'test':
-  //     if ( !this.tests.find(name => name === this.session.test.name)) {
-  //       this.suggestions.unshift({
-  //         category: suggestion,
-  //         name: this.session.test.name
-  //       });
-  //     }
-  //     break;
-  //   case 'condition':
-  //     if (!this.conditions.find(condition => condition === this.session.condition.condition)) {
-  //       this.suggestions.unshift({
-  //         category: suggestion,
-  //         name: this.session.condition.condition
-  //       });
-  //     }
-  //     break;
-  //   case 'medication':
-  //     if(!this.medications.find(name => name === this.session.medication.stockItemname)) {
-  //       this.suggestions.unshift({
-  //         category: suggestion,
-  //         name: this.session.medication.stockItemname
-  //       });
-  //     }
-  //   case 'allegy':
-  //     if (!this.allegies.find(name => name === this.session.allegies.allegy)) {
-  //       this.suggestions.unshift({
-  //         category: 'allegy',
-  //         name: this.session.allegies.allegy
-  //       });
-  //     }
-  //     break;
-  //   default:
-  //     break;
-  // }
-}
-refresh() {
-  // this.message = null;
-  // this.getPatients('queued');
-  // this.getClient();
-}
+
+
  getPriscription(med) {
    return med.kind;
  }
-addRequest() {
-  // switch (this.session.reqItem.category) {
-  //   case 'Surgery':
-  //   this.addSurgery();
-  //   this.session.reqItem = new Item();
-  //   this.session.desc = [];
-  //   break;
-  // case 'Scan':
-  //   this.addScanning();
-  //   this.session.reqItem = new Item();
-  //   this.session.desc = [];
-  //   break;
-  // case 'Test':
-  //   this.addTest();
-  //   this.session.reqItem = new Item();
-  //   this.session.desc = [];
-  //   default:
-  //   break;
-  // }
+ refresh() {
 
+ }
+
+searchScans() {
+  if (!this.session.scan.name) {
+    this.matches = [];
+  } else {
+      this.matches = this.scans.filter((name) => {
+      const patern =  new RegExp('\^' + this.session.scan.name , 'i');
+      return patern.test(name);
+    });
+  }
 }
-
 clearMsg() {
   this.errLine = null;
 }
@@ -1234,43 +920,9 @@ goTo(count: number) {
   this.count = count;
   this.clearSuggestions();
 }
-removeData(invoice: Invoice) {
-if (invoice.desc === 'Test') {
-  const i  = this.session.tests.findIndex(tst => tst.name === invoice.name);
-  this.session.tests.splice(i, 1);
-} else if (invoice.desc === 'Surgery') {
-  this.session.surgeries.splice(
-    this.session.surgeries
-    .findIndex(sgr => sgr.name === invoice.name), 1);
-}
-this.session.scans.splice(this.session.scans
-  .findIndex(scn => scn.name === invoice.name), 1);
-}
-removeRequest(i: number, invoice: Invoice) {
-  // this.session.reqItems.splice(i, 1);
-  // this.session.invoices.splice(i, 1);
-  // this.removeData(invoice);
-}
 
-checkScalars() {
-  if (this.session.note.note) {
-    this.patient.record.notes.unshift({
-      ...this.session.note,
-      stamp: new Stamp(this.cookies.get('i'),
-      this.cookies.get('h'))
-    });
-  } else {}
-  if (this.session.allegies.allegy) {
-    this.patient.record.allegies.unshift({
-      ...this.session.allegies,
-      stamp: new Stamp(this.cookies.get('i'),
-      this.cookies.get('h'))
-    });
-    this.addSuggestion('allegy');
-    console.log(this.suggestions)
-  }
 
-}
+
 sendRecord() {
   this.errLine = null;
   this.processing = true;
@@ -1295,19 +947,7 @@ sendRecord() {
   });
 }
 
-updateRecord() {
-  this.composeVitals();
-  this.composeTests();
-  this.composeScans();
-  this.composeSurgeries();
-  this.composeComplains();
-  this.composeHistory();
-  this.composeConditions();
-  this.composeMedications();
-  this.composeInvoices();
-  this.checkScalars();
-  this.sendRecord();
-}
+
 nextImg() {
     this.btn = 'next';
     if (this.imgCount < this.images.length - 1) {
@@ -1385,6 +1025,206 @@ nextImg() {
   }
   getImage(name) {
     return `${host}/api/dp/${name}`;
+  }
+
+  composeInvoices() {
+    const invoices = cloneDeep([
+      ...this.session.invoices,
+      ...this.session.medInvoices
+    ]);
+    if (invoices.length) {
+      if (this.patient.record.invoices.length) {
+        if (new Date(this.patient.record.invoices[0][0].stamp.dateAdded)
+        .toLocaleDateString() === new Date()
+        .toLocaleDateString()) {
+          for (const i of invoices) {
+            this.patient.record.invoices[0].unshift(i);
+          }
+        } else {
+            this.patient.record.invoices.unshift(invoices);
+        }
+        } else {
+          this.patient.record.invoices = [invoices];
+        }
+      }
+  }
+  composeMedications() {
+    if (this.session.medications.length) {
+      // this.session.bills.push('Medication');
+      if (this.patient.record.medications.length) {
+      if (new Date(this.patient.record.medications[0][0].stamp.dateAdded)
+      .toLocaleDateString() === new Date()
+      .toLocaleDateString()) {
+        for (const m of this.session.medications) {
+          this.patient.record.medications[0].unshift(m);
+        }
+       } else {
+          this.patient.record.medications.unshift(this.session.medications);
+       }
+      } else {
+        this.patient.record.medications = [this.session.medications];
+      }
+      this.addInvoice(this.session.medications, 'medication');
+      this.addSuggestions(this.session.medications, 'medication');
+    }
+  }
+  composeTests() {
+    if (this.session.tests.length) {
+      // this.session.bills.push('cashier');
+      if (this.patient.record.investigations.tests.length) {
+      if (new Date(this.patient.record.investigations.tests[0][0].stamp.dateAdded)
+      .toLocaleDateString() === new Date().toLocaleDateString()) {
+        for (const t of this.session.tests) {
+          this.patient.record.investigations.tests[0].unshift(t);
+        }
+       } else {
+          this.patient.record.investigations.tests.unshift(this.session.tests);
+       }
+      } else {
+         this.patient.record.investigations.tests = [this.session.tests];
+      }
+      this.addInvoice(this.session.tests, 'test');
+      this.addSuggestions(this.session.tests, 'test');
+    }
+  }
+  composeScans() {
+    if (this.session.scans.length) {
+      if (this.patient.record.investigations.scans.length) {
+      if (new Date(this.patient.record.investigations.scans[0][0].stamp.dateAdded)
+      .toLocaleDateString() === new Date().toLocaleDateString()) {
+        this.patient.record.investigations.scans[0] = [...this.session.scans, ...this.patient.record.investigations.scans[0]];
+       } else {
+          this.patient.record.investigations.scans.unshift(this.session.scans);
+       }
+      } else {
+        this.patient.record.investigations.scans = [this.session.scans];
+      }
+      this.addInvoice(this.session.scans, 'Scaning');
+      this.addSuggestions(this.session.scans, 'scan');
+    }
+  }
+  composeSurgeries() {
+    if (this.session.surgeries.length) {
+      this.session.bills.push('cashier');
+      if (this.patient.record.surgeries.length) {
+      if (new Date(this.patient.record.surgeries[0][0].stamp.dateAdded)
+      .toLocaleDateString() === new Date().toLocaleDateString()) {
+        for (const t of this.session.surgeries) {
+          this.patient.record.surgeries[0].unshift(t);
+        }
+       } else {
+          this.patient.record.surgeries.unshift(this.session.surgeries);
+       }
+      } else {
+        this.patient.record.surgeries = [this.session.surgeries];
+      }
+    }
+  }
+  composeComplains() {
+    if (this.session.complains.length) {
+    if (this.patient.record.complains.length) {
+      if (new Date(this.patient.record.complains[0][0].stamp.dateAdded)
+      .toLocaleDateString() === new Date().toLocaleDateString()) {
+        for (const c of this.session.complains) {
+          this.patient.record.complains[0].unshift(c);
+        }
+       } else {
+          this.patient.record.complains.unshift(this.session.complains);
+       }
+      } else {
+         this.patient.record.complains = [this.session.complains];
+      }
+    this.addSuggestions(this.session.complains, 'complain');
+    }
+  }
+  composeHistory() {
+    if (this.patient.record.histories.length) {
+      if (new Date(this.patient.record.histories[0].stamp.dateAdded)
+      .toLocaleDateString() === new Date().toLocaleDateString()) {
+        this.patient.record.histories[0].fsh = [
+          ...this.session.history.fsh,
+          ...this.patient.record.histories[0].fsh
+        ];
+        this.patient.record.histories[0].pmh.allegies = [
+          ...this.session.history.pmh.allegies,
+          ...this.patient.record.histories[0].pmh.allegies
+        ];
+        this.patient.record.histories[0].pmh.medHist = [
+          ...this.session.history.pmh.medHist,
+           ...this.patient.record.histories[0].pmh.medHist
+        ];
+      }
+      this.patient.record.histories.unshift(this.session.history);
+
+    } else {
+       this.patient.record.histories.unshift(this.session.history);
+    }
+    this.addSuggestions(this.session.history.fsh, 'fsh');
+    this.addSuggestions(this.session.history.pmh.allegies, 'allegy');
+    this.addSuggestions(this.session.history.pmh.medHist, 'pmh');
+  }
+  composeConditions() {
+    if (this.session.conditions.length) {
+    if (this.patient.record.conditions.length) {
+      if (new Date(this.patient.record.conditions[0][0].stamp.dateAdded)
+      .toLocaleDateString() === new Date().toLocaleDateString()) {
+        for (const c of this.session.conditions) {
+          this.patient.record.conditions[0].unshift(c);
+        }
+       } else {
+        this.patient.record.conditions.unshift(this.session.conditions);
+       }
+      } else {
+        this.patient.record.conditions = [this.session.conditions];
+      }
+    }
+  }
+  composeScalars() {
+    if (this.session.note.note) {
+      this.patient.record.notes.unshift({
+        ...this.session.note,
+        stamp: this.stamp
+      });
+    } else {}
+    if (this.session.pc.name) {
+       this.session.history.pc.push({
+         ...this.session.pc,
+         stamp: this.stamp
+      });
+       this.addSuggestions([this.session.pc], 'pc');
+    }
+  }
+  composeExams() {
+    if (this.session.examination.name) {
+      if (this.patient.record.examinations.length) {
+      if (new Date(this.patient.record.examinations[0][0].stamp.dateAdded)
+      .toLocaleDateString() === new Date().toLocaleDateString()) {
+        this.patient.record.examinations[0] = [{...this.session.examination, stamp: this.stamp}, ...this.patient.record.examinations[0]];
+       } else {
+          this.patient.record.examinations.unshift([{...this.session.examination, stamp: this.stamp}]);
+       }
+      } else {
+        this.patient.record.examinations = [[{...this.session.examination, stamp: this.stamp}]];
+      }
+      this.addSuggestions([this.session.examination], 'exam');
+    }
+  }
+
+  updateRecord() {
+    this.composeVitals();
+    this.composeTests();
+    this.composeScans();
+    this.composeSurgeries();
+    this.composeComplains();
+    this.composeHistory();
+    this.composeConditions();
+    this.composeMedications();
+    this.composeInvoices();
+    this.composeScalars();
+    this.composeExams();
+    console.log(this.patient);
+    console.log(this.newSuggestions);
+    // this.sendRecord();
   }
 }
 

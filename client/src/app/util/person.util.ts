@@ -70,53 +70,53 @@ export  class PersonUtil {
         this.person.record.visits = [[new Visit()]];
     }
     addInitials() {
-    this.person.record.cards.unshift({
-        ...this.card,
-        stamp: new Stamp(this.cookies.get('i'))
-    });
-    this.person.record.visits = [[new Visit()]];
-    this.person.record.invoices = [[{
-        ...new Invoice(),
-        name: 'Card',
-        desc: this.card.category,
-        processed: true,
-        stamp: new Stamp(this.cookies.get('i'))
-    }]];
+        // this.person.record.cards.unshift({
+        //     ...this.card,
+        //     stamp: new Stamp(this.cookies.get('i'))
+        // });
+        // this.person.record.visits = [[new Visit()]];
+        // this.person.record.invoices = [[{
+        //     ...new Invoice(),
+        //     name: 'Card',
+        //     desc: this.card.category,
+        //     processed: true,
+        //     stamp: new Stamp(this.cookies.get('i'))
+        // }]];
     }
     addCard() {
-        if (this.person.record.cards.length) {
-            if (this.person.record.cards[0].pin) {
-                this.person.record.cards.unshift(this.card);
-                this.person.record.visits.unshift([new Visit()]);
-                this.person.record.invoices.unshift([{
-                    ...new Invoice(),
-                    desc: 'Card',
-                    name: this.card.category,
-                    processed: true,
-                    stamp: new Stamp(this.cookies.get('i'))
-                }]);
-            } else {
-                this.person.record.cards[0] = this.card;
-                this.person.record.visits[0] = [{...new Visit()}];
-                this.person.record.invoices[0] = [{
-                    ...new Invoice(),
-                    name: 'Card',
-                    desc: this.card.category,
-                    processed: true,
-                    stamp: new Stamp(this.cookies.get('i'))
-                }];
-            }
-        } else {
-            this.person.record.cards.push(this.card);
-            this.person.record.visits.push([new Visit()]);
-            this.person.record.invoices.push([{
-                ...new Invoice(),
-                name: 'Card',
-                desc: this.card.category,
-                processed: true,
-                stamp: new Stamp(this.cookies.get('i'))
-            }]);
-        }
+        // if (this.person.record.cards.length) {
+        //     if (this.person.record.cards[0].pin) {
+        //         this.person.record.cards.unshift(this.card);
+        //         this.person.record.visits.unshift([new Visit()]);
+        //         this.person.record.invoices.unshift([{
+        //             ...new Invoice(),
+        //             desc: 'Card',
+        //             name: this.card.category,
+        //             processed: true,
+        //             stamp: new Stamp(this.cookies.get('i'))
+        //         }]);
+        //     } else {
+        //         this.person.record.cards[0] = this.card;
+        //         this.person.record.visits[0] = [{...new Visit()}];
+        //         this.person.record.invoices[0] = [{
+        //             ...new Invoice(),
+        //             name: 'Card',
+        //             desc: this.card.category,
+        //             processed: true,
+        //             stamp: new Stamp(this.cookies.get('i'))
+        //         }];
+        //     }
+        // } else {
+        //     this.person.record.cards.push(this.card);
+        //     this.person.record.visits.push([new Visit()]);
+        //     this.person.record.invoices.push([{
+        //         ...new Invoice(),
+        //         name: 'Card',
+        //         desc: this.card.category,
+        //         processed: true,
+        //         stamp: new Stamp(this.cookies.get('i'))
+        //     }]);
+        // }
     }
 
     update() : Info {

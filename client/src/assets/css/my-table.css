@@ -41,7 +41,7 @@ th {
   font-size: 11px;
   font-weight: normal;
   padding: 12px 2px 12px 2px;
-  color: #4285f4;
+  color: dodgerblue;
 }
 .prevtopth{
   padding: 10px 2px 10px 2px;
@@ -54,8 +54,8 @@ th:hover
   cursor:pointer;
 }
 
-.sorter:hover{
-cursor: pointer;
+.sorter:hover {
+  cursor: pointer;
 }
 
 caption {
@@ -65,7 +65,6 @@ caption {
 }
 
 thead {
-  /* background: #ccc url(images/bar.gif) repeat-x left center; */
   background: #f9fafb;
   font-weight: bold;
 }
@@ -90,7 +89,9 @@ tbody tr {
 }
  tbody tr:hover {
   background: #f1f6fc;
-
+}
+.drugs-table tbody tr:hover {
+  background: inherit;
 }
 .selected {
   background: #f1f6fc;
@@ -105,11 +106,6 @@ tbody tr {
   font-size: large;
   color:rgb(235, 232, 232);
   align-self: center;
-  /* margin-right: 10px; */
-  /* vertical-align: top; */
-
-  /* position: absolute; */
-  /* bottom: 4px; */
 }
 .above
 {
@@ -141,8 +137,8 @@ left:4px;
 .staff-row{
   border-bottom:0px;
 }
-.staff-th th{
-  padding: 6px 0px 6px 0px;
+.staff-th th {
+  padding: 6px;
   font-size:10px;
   background:rgb(253, 253, 253);
   font-weight: bold;
@@ -165,7 +161,7 @@ td {
   width:.1%;
 }
 .data{
-  font-size:12px;
+  font-size:13px;
   padding: 3px 0px 3px 0px;
   color: rgb(58, 57, 57);
 }

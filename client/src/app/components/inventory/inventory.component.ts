@@ -8,7 +8,7 @@ import {SocketService} from '../../services/socket.service';
 import * as cloneDeep from 'lodash/cloneDeep';
 import {host, appName} from '../../util/url';
 import Simplebar from 'simplebar';
-import {sortInventory} from '../../util/functions';
+import {sortInventory, signStock} from '../../util/functions';
 import 'simplebar/dist/simplebar.css';
 @Component({
   selector: 'app-inventory',
@@ -239,18 +239,21 @@ export class InventoryComponent implements OnInit {
     return this.missingField();
   }
   addMoreStock() {
-    // if (this.isValidStock()) {
       if (this.inventory.stocks.every(
-      stock => stock.stockItem !== this.stock.stockItem)) {
+      stock => stock.signature !== signStock(this.stock.stockItem))) {
         this.temStocks.unshift({
           ...this.stock,
-          stamp: {...this.stock.stamp, selected: false},
-          category: this.tableView
+          signature: signStock(this.stock.stockItem),
+          category: this.tableView,
+          stamp: {
+            ...this.stock.stamp,
+            selected: false
+          }
         });
         if (this.tempSuggestions.some(s => s.name !== this.stock.stockItem.name)) {
         this.tempSuggestions.unshift({
-        ...this.suggestion,
-        category: this.tableView
+          ...this.suggestion,
+          category: this.tableView
         });
       }
         this.fieldMissing = false;
@@ -259,11 +262,8 @@ export class InventoryComponent implements OnInit {
     } else {
       this.errLine = 'Stock already added';
     }
-  // } else {
-  //   this.fieldMissing = true;
-  //   this.errLine = 'Please fill in all required fields';
-  // }
 }
+
 
   serviceFormCompleted() {
     return this.stock.stockInfo.price && this.stock.stockItem.name && this.stock.stockInfo.category;

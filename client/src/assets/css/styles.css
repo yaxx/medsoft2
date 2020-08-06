@@ -570,6 +570,9 @@ html {
 .group-wrap .form-group {
   width: 95%;
 }
+.group-wrap.merged .form-group .input {
+  width: 100%;
+}
 .group-wrap .form-group:last-child {
   justify-content: end;
 }
@@ -663,7 +666,7 @@ html {
 .itemsList {
     list-style: none;
     padding: 0px;
-    border-radius:4px;
+    border-radius:8px;
     height: 300px;
     background-color: white;
     border:1px solid whitesmoke
@@ -674,10 +677,10 @@ html {
 }
 
 .drugItem {
-  font-size:14px;
+  font-size:13px;
   padding-left: 10px;
   padding-right: 10px;
-  margin-bottom: 1px;
+  margin-bottom: 2px;
 }
 .drugItem:hover {
     background: dodgerblue;
@@ -1465,10 +1468,10 @@ option {
   border: none;
   top:68px;
   background: white;
-  -webkit-border-radius: 4px;
-  -moz-border-radius: 4px;
-  -ms-border-radius: 4px;
-  -o-border-radius: 4px;
+  -webkit-border-radius: 8px;
+  -moz-border-radius: 8px;
+  -ms-border-radius: 8px;
+  -o-border-radius: 8px;
 }
 .slideIn {
   top: 30px;
@@ -1520,4 +1523,39 @@ option {
 }
 .curent-step {
   border-color: dodgerblue;
+}
+.labels {
+  font-size: 9px;
+}
+.small-table-wrap {
+  top:16px;
+  position:relative;
+  width:80%;
+  margin:auto;
+}
+.prod-data {
+  padding: 0px;
+  /* font-size: 14px; */
+}
+.submit-group button {
+  height: 26px;
+  width: auto;
+  width: 26px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid whitesmoke;
+  border-radius: 0px;
+  border-top-right-radius: 4px;
+  border-bottom-right-radius: 4px;
+  font-size: 23px;
+  outline: none;
+  box-shadow: none;
+  border-left: none;
+  border-left: 1px solid ghostwhite;
+}
+.btn-outline-primary:active {
+  outline: none;
+  box-shadow: none;
 }
