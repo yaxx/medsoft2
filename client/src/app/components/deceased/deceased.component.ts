@@ -7,6 +7,7 @@ import {ActivatedRoute, Router} from '@angular/router';
 import * as cloneDeep from 'lodash/cloneDeep';
 import {Person, Info} from '../../models/person.model';
 import {Visit} from '../../models/record.model';
+import { AuthService } from '../../services/auth.service';
 import {Client, Department} from '../../models/client.model';
 import {CookieService } from 'ngx-cookie-service';
 import {host} from '../../util/url';
@@ -133,9 +134,6 @@ loadMore() {
       this.patients = this.clonedPatients;
     }
   }
-  logOut() {
-    this.dataService.logOut();
-  }
   showLogOut() {
     this.logout = true;
   }
@@ -143,6 +141,6 @@ loadMore() {
     this.logout = false;
   }
    getMe() {
-     return this.cookies.get('a');
+    //  return this.cookies.get('a');
    }
 }

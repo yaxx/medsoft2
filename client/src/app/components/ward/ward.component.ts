@@ -6,12 +6,12 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {CookieService } from 'ngx-cookie-service';
 import { Priscription, Scan, Session, Vital, Medication, Note, Bp, Resp, Pulse, Temp} from '../../models/record.model';
 import { Person } from '../../models/person.model';
-import { Stock, Inventory, Suggestion, Invoice} from '../../models/inventory.model';
+import { Stock, Inventory, Suggestion, Invoice, Stamp} from '../../models/inventory.model';
 import { Client} from '../../models/client.model';
 import * as cloneDeep from 'lodash/cloneDeep';
 import {sorter, searchPatients} from '../../util/functions';
 import {host, appName} from '../../util/url';
-
+import { AuthService } from '../../services/auth.service';
 
 
 const uri = `${host}/api/upload`;
@@ -66,6 +66,7 @@ export class WardComponent implements OnInit {
   page = 0;
   pageCount = 0;
   message = null;
+  stamp = new Stamp();
   url = '';
   logout = false;
   cardCount = null;
@@ -86,8 +87,12 @@ export class WardComponent implements OnInit {
       private route: ActivatedRoute,
       private cookies: CookieService,
       private router: Router,
-      private socket: SocketService ) { }
+      private socket: SocketService,
+      private authService: AuthService
+      ) { }
   ngOnInit() {
+
+    this.stamp = new Stamp(localStorage.getItem('i'), localStorage.getItem('h'));
     this.myDepartment = this.route.snapshot.params.dept;
     this.getClient();
     this.getPatients('Admit');
@@ -108,7 +113,7 @@ export class WardComponent implements OnInit {
                this.patients.splice(i, 1);
                this.message = ( this.patients.length) ? null : 'No Record So Far';
              }
-            }  else if (update.patient.record.visits[0][0].dept === this.cookies.get('dpt')) {
+            }  else if (update.patient.record.visits[0][0].dept === JSON.parse(localStorage.getItem('user')).info.official.departmnet) {
               this.patients.unshift({
                  ...update.patient,
                  card: {
@@ -156,10 +161,10 @@ export class WardComponent implements OnInit {
 
   }
   getDp(avatar: string) {
-    return `${host}/api/dp/${avatar}`;
+    return `${host}/dp/${avatar}`;
   }
   getMyDp() {
-    return this.getDp(this.cookies.get('d'));
+    return localStorage.getItem('dp');
   }
   getClient() {
     this.dataService.getClient().subscribe((res: any) => {
@@ -251,7 +256,8 @@ export class WardComponent implements OnInit {
     this.patients[i].card.more = false;
   }
   logOut() {
-    this.dataService.logOut();
+    this.authService.logOut();
+    // this.router.navigate(['/login']);
   }
   showLogOut() {
     this.logout = true;
@@ -336,7 +342,7 @@ export class WardComponent implements OnInit {
   }
   onScroll() {
     this.page = this.page + 1;
-    if(this.reserved.length) {
+    if (this.reserved.length) {
       if(this.reserved.length >  12 ) {
         this.patients = [...this.patients, ...this.reserved.slice(0, 12)];
         this.reserved.splice(0,  12);
@@ -359,14 +365,18 @@ export class WardComponent implements OnInit {
     this.curIndex = i;
     this.patients[i].card.view = face;
     switch (face) {
-       case 'ap': this.cardCount = 'dispose';
-                  break;
-       case 'appointment': this.cardCount = 'ap';
-                           break;
-       case 'dispose': this.cardCount = 'dispose';
-                       break;
-       default: this.cardCount = null;
-                break;
+       case 'ap':
+        this.cardCount = 'dispose';
+        break;
+       case 'appointment':
+        this.cardCount = 'ap';
+        break;
+       case 'dispose':
+        this.cardCount = 'dispose';
+        break;
+       default:
+        this.cardCount = null;
+        break;
      }
    }
   allocateRoom(i) {
@@ -389,113 +399,14 @@ export class WardComponent implements OnInit {
   }
 
   clearVital(name) {
-    this.clearError();
-    switch (name) {
-      case 'Blood Presure':
-        if (!this.session.vitals.bp.systolic || !this.session.vitals.bp.diastolic) {
-          this.vitals = this.vitals.filter(v => v.name !== name);
-        }
-        break;
-      case 'Tempreture':
-          if (!this.session.vitals.tempreture.value) {
-            this.vitals = this.vitals.filter(t => t.name !== name);
-          }
-          break;
-      case 'Pulse Rate':
-          if (!this.session.vitals.pulse.value) {
-            this.vitals = this.vitals.filter(p => p.name !== name);
-          }
-          break;
-      case 'Respiratory Rate':
-          if (!this.session.vitals.resp.value) {
-            this.vitals = this.vitals.filter(r => r.name !== name);
-          }
-          break;
-      default:
-        break;
-    }
+
   }
   addVital() {
-    const i = this.vitals.findIndex(v => v.name === this.vital);
-    switch (this.vital) {
-      case 'Blood Presure':
-        if (i >= 0) {
-          this.vitals[i] = {
-            name: 'Blood Presure',
-            val: this.session.vitals.bp.systolic + '/'
-          + this.session.vitals.bp.diastolic + 'mm Hg'
-          };
-        } else {
-          this.vitals.unshift({
-            name: 'Blood Presure',
-            val: this.session.vitals.bp.systolic + '/'
-          + this.session.vitals.bp.diastolic + 'mm Hg'
-          });
-          console.log(this.vitals);
-        }
-        break;
-      case 'Tempreture':
-          if (i >= 0) {
-            this.vitals[i] = {
-              name: 'Tempreture',
-              val: this.session.vitals.tempreture.value + 'C'
-            };
-          } else {
-            this.vitals.unshift({
-              name: 'Tempreture',
-              val: this.session.vitals.tempreture.value + 'C'
-            });
-          }
-          break;
-      case 'Respiratory Rate':
-        if (i >= 0) {
-          this.vitals[i] = {
-            name: 'Respiratory Rate',
-            val: this.session.vitals.resp.value + 'bpm'
-          };
-        } else {
-          this.vitals.unshift({
-            name: 'Respiratory Rate',
-            val: this.session.vitals.resp.value + 'bpm'
-          });
-        }
-        break;
-      case 'Pulse Rate':
-        if (i >= 0) {
-          this.vitals[i] = {
-            name: 'Pulse Rate',
-            val: this.session.vitals.pulse.value + 'bpm'
-          };
-        } else {
-          this.vitals.unshift({
-            name: 'Pulse Rate',
-            val: this.session.vitals.pulse.value + 'bpm'
-          });
-        }
-        break;
-      default:
-        break;
-    }
 
   }
   removeVital(i, sign) {
-    this.vitals.splice(i, 1);
-    switch (sign.name) {
-      case 'Blood Presure':
-        this.session.vitals.bp = new Bp();
-        break;
-      case 'Tempreture':
-        this.session.vitals.tempreture = new Temp();
-        break;
-      case 'Pulse Rate':
-        this.session.vitals.pulse = new Pulse();
-        break;
-      case 'Respiratory Rate':
-        this.session.vitals.resp = new Resp();
-        break;
-      default:
-        break;
-    }
+
+
   }
   composeVitals() {
     if (this.session.vitals.tempreture.value) {

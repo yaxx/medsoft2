@@ -88,10 +88,10 @@ tbody tr {
   border-left: 0px;
 }
  tbody tr:hover {
-  background: #f1f6fc;
+  /* background: #f1f6fc; */
 }
 .drugs-table tbody tr:hover {
-  background: inherit;
+  /* background: inherit; */
 }
 .selected {
   background: #f1f6fc;
@@ -132,7 +132,7 @@ left:4px;
   border-bottom:0px;
 }
 .staff-row:hover{
-  background:none;
+  /* background:none; */
 }
 .staff-row{
   border-bottom:0px;
@@ -265,11 +265,11 @@ td {
   opacity: 1;
 }
 .check:hover svg {
-  stroke: #4285f4;
+  stroke: #6a6f77;
 }
 
 .cbx:checked + .check svg {
-  stroke: #4285f4;
+  stroke: dodgerblue;
 }
 .cbx:checked + .check svg path {
   stroke-dashoffset: 60;
@@ -283,7 +283,7 @@ td {
 }
 
 .cbxx:checked + .check svg {
-  stroke: #4285f4;
+  stroke: dodgerblue;
 }
 .cbxx:checked + .check svg path {
   stroke-dashoffset: 60;

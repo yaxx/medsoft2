@@ -37,7 +37,7 @@
 
 }
 .follow:hover {
-    color:#1da1f2;
+    color:dodgerblue;
 }
 .bio {
   font-size:13px;
@@ -165,7 +165,7 @@
 }
 #msgLine:focus {
   background:white;
-  border:1px solid #007bff;
+  border:1px solid dodgerblue;
 }
 .attachment {
   align-content: center;
@@ -182,7 +182,7 @@
 }
 .attachment i, .attachment.send i {
   font-size: 23px;
-  color: rgb(159, 189, 243);
+  color: dodgerblue;
   left: 6px;
   position: relative;
 }

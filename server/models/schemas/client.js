@@ -29,7 +29,7 @@ var ClientSchema = new Schema({
                     size: Number,
                     unit: String,
                     form: String
-                    },
+                },
                 stockInfo: {
                     price: Number,
                     category: String,

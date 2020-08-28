@@ -24,34 +24,37 @@
                 </div>
                     <div *ngIf='!billing && !cardView.editing' class="card-body orderbody" style=" width:55%; margin:auto;">
                         <div style="border-left:2px solid #1da1f2;height:290px; width:100%;">
-                            <div style='border:none' *ngFor="let invoices of invoices; let i = index" class="carditem priscriptioncontainer order">
+                            <div style='border:none' *ngFor="let invoice of invoices; let i = index" class="carditem priscriptioncontainer order">
                                 <div style='left:-3%' class="timeline condition drugtimeline">
-                                    <p class="timelinedate">{{invoices[0]?.meta.dateAdded|date:'dd'}}</p>
-                                    <p class="timelinedate month">{{invoices[0]?.meta.dateAdded|date:'MMM'|uppercase}}</p>
+                                    <p class="timelinedate">{{invoice[0]?.stamp.dateAdded|date:'dd'}}</p>
+                                    <p class="timelinedate month">{{invoice[0]?.stamp.dateAdded|date:'MMM'|uppercase}}</p>
                                 </div>
-                                <div *ngFor="let invoice of invoices; let j = index" class="priscription drug">
-                                <h6 class="dept">{{invoice.name}}&nbsp;
-                                    <span *ngIf="invoice.paid" class="predata priceval">
+                                <div *ngFor="let item of invoice; let j = index" class="priscription drug">
+                                <h6 class="dept">{{item.name}}&nbsp;
+                                    <span *ngIf="item.paid" class="predata priceval">
                                         <i  class="icon ion-ios-checkmark-empty paid-icon"></i>
                                     </span>
-                                    <span *ngIf="!invoice.paid" class="predata priceval">
-                                        <i (click)="selectItem(i,j)" style=' color:lightgrey;'  *ngIf="invoice.meta.selected" class="icon ion-ios-checkmark-empty paid-icon" ></i>
-                                        <div  style='border-color:rgb(228, 227, 227)'
+                                    <span *ngIf="!item.paid" class="predata priceval">
+                                        <i title = 'Deselect' (click)="selectItem(i,j)" style=' color:lightgrey;'  *ngIf="item.stamp.selected" 
+                                        class="icon ion-ios-checkmark-empty paid-icon" ></i>
+                                        <!-- <div  style='border-color:rgb(228, 227, 227)'
                                         *ngIf="!invoice.price" class="mycheckbox">
-                                        </div>
-                                        <div class="mycheckbox" *ngIf="!invoice.meta.selected && invoice.price" (click)="selectItem(i,j)">
+                                        </div> -->
+                                        <div title = 'Select' class="mycheckbox" *ngIf="!item.stamp.selected" (click)="selectItem(i,j)">
                                         </div>
                                     </span>
                                     </h6>
                                     <h6 class="dept previnfo">Description&nbsp;
                                         <span class="predata">
-                                        {{invoice.desc}}&nbsp;|&nbsp;</span>
-                                        <span class="predata">{{invoice.meta.dateAdded|date:'hh:mma'|lowercase}}</span></h6>
+                                        {{item.desc}}&nbsp;|&nbsp;</span>
+                                        <span class="predata">{{item.stamp.dateAdded|date:'hh:mma'|lowercase}}</span></h6>
                                     <h6 class="dept previnfo" style="color:lightgrey">Price&nbsp;
-                                        <span [ngStyle]='getStyle(invoice)' style="text-align:right;
-                                        left:84%;display: inline-block;width:50px" *ngIf='invoice.price '     class="predata priceval">{{invoice.price * invoice.quantity}}
+                                        <span [ngStyle]='getStyle(item)'
+                                        style="text-align:right;
+                                        left:84%;display:inline-block;width:50px" *ngIf='item.price '
+                                        class="predata priceval">{{item.price * item.quantity}}
                                         </span>
-                                        <span *ngIf='!invoice.price' class="predata priceval">---</span>
+                                        <span *ngIf='!item.price' class="predata priceval">---</span>
                                     </h6>
                                 </div>
                             </div>
@@ -63,48 +66,42 @@
                             </span>
                         </p> -->
                     </div>
-                    <div *ngIf='cardView.editing' class="card-body orderbody" style="width:55%;margin:auto;">
+                    <div *ngIf='cardView.editing' class="card-body orderbody" style="width:65%;margin:auto;">
                         <form style="top:15%;" class=" staffsform">
-                            <div style="top:1px; margin-bottom:25px; min-height: 80px;max-height: 120;" class="form-group vitals-section setGroup">
+                            <div style="top:1px; margin-bottom:25px; min-height: 80px;max-height: 120;" class="form-group">
                                 <table *ngIf="edited.length" cellspacing="0" class="data-table drugs-table" style="width:100%;left:0%;">
                                     <thead class='productHead'>
                                         <tr style="padding-left: 4px" class="staff-th">
-                                            <th style="padding:3px 8px;font-weight: bold;color:#1da1f2;" class="headlbl staff-th">BILL</th>
-                                            <th style='text-align:right;padding:3px 8px;font-weight: bold;color:#1da1f2;' class="headlbl staff-th">PRICE</th>
-                                            <!-- <th style='padding: 4px;font-size:10px;color: #6c757d; text-align: right;' class="headlbl patient-th">CREDIT</th> -->
+                                            <th style="padding:3px 8px;font-weight: bold;font-size:12px;color:dodgerblue;" class="headlbl staff-th">BILL</th>
+                                            <th style='text-align:right;padding:3px 8px;font-size:12px; font-weight: bold;color:dodgerblue;' class="headlbl staff-th">PRICE</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr *ngFor="let invoice of edited; let i = index; let odd = odd;" style="border-bottom:2px solid white;" [class.even]=odd class="ro staff-row">
+                                        <tr *ngFor="let invoice of edited; let i = index; let odd = odd;" 
+                                        style="border-bottom:2px solid white;" 
+                                        [class.even]=odd class="ro staff-row">
                                             <td style="padding:2px 4px; " class="data"> {{invoice.name}}</td>
-                                            <td style='font-size:11px;text-align:right;padding:2px 6px;' class="data">
-                                                {{invoice.quantity * invoice.price}}
+                                            <td style='font-size:11px;text-align:right;padding:2px 6px;' 
+                                            class="data">
+                                            <span class='t_span'>
+                                              <input [(ngModel)]="edited[i].price" [ngModelOptions] = {standalone:true}
+                                               class="form-control inputs t_input">
+                                            </span>
                                             </td>
-                                            <!-- <td style="text-align: right; padding-left:3px" class="data">
-                                                <div title="Credit Payment" *ngIf="!invoice.credit" (click)='markAsCreadit(i,true)' style='position:relative;bottom:0px; left: 75%;' class="mycheckbox">
-                                                </div>
-                                                <span *ngIf="invoice.credit" style="left: -24%;position: relative;  text-align: center;
-                                                bottom: 12px;" class="predata priceval">
-                                                    <i title="Unmark"  (click)='markAsCreadit(i,false) '  style=' color:lightgrey;'  class="icon ion-ios-checkmark-empty paid-icon" title="Deselect "></i>
-                                                </span>
-                                            </td> -->
                                         </tr>
                                     </tbody>
-                                    <tfoot col-span='4' style='font-size:11px; text-align:right; position:absolute; font-weight:bold;padding-right: 5px; border-top: 1px solid whitesmoke;width:100%'>Total: <span>{{getPriceTotal()}}</span>
-                                    </tfoot>
+                                    <tfoot class="t__footer" col-span='4'>Total: <span>{{getPriceTotal()}}</span></tfoot>
                                 </table>
                             </div>
-                            <button (click)='comfirmPayment()' style=" width: 170px;font-size: 10px; height:27px;left:28%; bottom:24%;" class="btn btn-sm btn-outline-primary mainbtn"> COMFIRM PAYMENT
+                            <button (click)='comfirmPayment()'
+                                style="width: 170px;font-size: 12px; height:27px;left:28%; bottom:-94%;"
+                                class="btn btn-sm btn-outline-primary mainbtn">Comfirm Payment
                                 <span style="position: absolute; bottom: -7%;left: 80%;">
-                                <i *ngIf="processing" class="fa fa-circle-o-notch fa-spin fa-10x slow-spin " style="position:absolute;bottom:5px;left:5px;font-size:19px;color: #1da1f2;"> </i>
+                                    <i *ngIf="processing" class="fa fa-circle-o-notch fa-spin fa-10x slow-spin "
+                                    style="position:absolute;bottom:5px;left:5px;font-size:19px;color: #1da1f2;"> </i>
                                 </span>
                             </button>
                         </form>
-                        <div class="form-group vitals-section formGroup credit-form">
-                          <label style='font-size:8px;left: 32px;top:-15%;' for="desc" class="labelss complain">CREADIT
-                          </label>
-                          <input  [min]='0' type="number" [(ngModel)]='credit.price' autocomplete ='off'  class="form-control patientdata inputs dataInfo credit-val">
-                        </div>
                     </div>
                     <div *ngIf='billing' class="card-body orderbody" style="width:55%;margin:auto;">
                         <form style="top:15%;" class=" staffsform">
@@ -160,13 +157,12 @@
                                         </tbody>
                                   </table>
                               </div>
-
                           </form>
                            <button [disabled]='!bills.length' (click)='addBills()' style=" width: 170px;font-size: 10px; height:27px;left:28%; bottom:20%;" class="btn btn-sm btn-outline-primary mainbtn">ADD INVOICE
                                 <span style="position: absolute; bottom: -7%;left: 80%;">
                                 <i *ngIf="processing" class="fa fa-circle-o-notch fa-spin fa-10x slow-spin " style="position:absolute;bottom:5px;left:5px;font-size:19px;color: #1da1f2;"> </i>
                                 </span>
-                        </button>
+                          </button>
                       </div>
                     <div *ngIf='cardView.editing || cardView.reversing' style="left:7%; top:45%;position: absolute;
                         width: 7%;" class="btn-group disposition">
@@ -290,9 +286,9 @@
                             <div style="top:-3px" class="priscription basic-subinfo">
                                 <div  class="sub-container">
                                     <h6 style="width:100%;text-align:center" class="dept basic-secondary basic-value">
-                                        {{patient.record.invoices[0][0].meta.dateAdded|date:'dd-MM-y'}}&nbsp;
+                                        {{patient.record.invoices[0][0].stamp.dateAdded|date:'dd-MM-y'}}&nbsp;
                                         <span>
-                                            {{patient.record.invoices[0][0].meta.dateAdded|date:'hh:mma'|lowercase}}
+                                            {{patient.record.invoices[0][0].stamp.dateAdded|date:'hh:mma'|lowercase}}
                                         </span>
                                     </h6>
                                 </div>

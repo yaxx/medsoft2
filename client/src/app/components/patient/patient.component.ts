@@ -13,7 +13,7 @@ import * as cloneDeep from 'lodash/cloneDeep';
 import {PersonUtil} from '../../util/person.util';
 import {host, appName} from '../../util/url';
 import {sorter, searchPatients} from '../../util/functions';
-
+import { AuthService } from '../../services/auth.service';
 const uri = `${host}/api/upload`;
 @Component({
   selector: 'app-patient',
@@ -64,6 +64,7 @@ export class PatientComponent implements OnInit {
   curIndex = 0;
   count = 0;
   page = 0;
+  stamp: Stamp = new Stamp();
   url = '';
   dept = null;
   cardCount = null;
@@ -81,9 +82,11 @@ export class PatientComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     public psn: PersonUtil,
+    private authService: AuthService,
     private cookies: CookieService
   ) { }
   ngOnInit() {
+    this.stamp = new Stamp(localStorage.getItem('i'), localStorage.getItem('h'));
     this.getClient();
     this.myDepartment = this.route.snapshot.params['dept'];
     this.getPatients('Admit');
@@ -160,7 +163,7 @@ export class PatientComponent implements OnInit {
     this.bills.unshift({
       ...this.invoice,
       paid: true,
-      stamp: new Stamp(this.cookies.get('i'), this.cookies.get('h'))
+      stamp:this.stamp
     });
     this.invoice = new Invoice();
   }
@@ -343,17 +346,17 @@ viewOrders(i: number) {
   // });
 }
   getDp(avatar: string) {
-    return `${host}/api/dp/${avatar}`;
+    return `${host}/dp/${avatar}`;
   }
   linked() {
     return !this.router.url.includes('information');
   }
 
   logOut() {
-    this.dataService.logOut();
+    this.authService.logOut();
   }
   getMyDp() {
-    return this.getDp(this.cookies.get('d'));
+    return localStorage.getItem('dp');
   }
   getRefDept() {
     return this.client.departments.filter(dept => dept.hasWard && dept.name !== this.dept);
@@ -379,9 +382,9 @@ viewOrders(i: number) {
   getPatients(type?: string) {
     this.loading = (this.page === 0) ? true : false;
     this.dataService.getPatients(type, this.page)
-    .subscribe((patients: Person[]) => {
-      if (patients.length) {
-        patients.forEach(p => {
+    .subscribe((res: any) => {
+      if (res.patients.length) {
+        res.patients.forEach(p => { 
         p.card = {
           menu: false,
           view: 'front',
@@ -390,7 +393,7 @@ viewOrders(i: number) {
           more: false
         };
       });
-        this.populate(patients);
+        this.populate(res.patients);
         this.loading = false;
         this.message = null;
       } else {
@@ -442,19 +445,23 @@ viewOrders(i: number) {
     this.patients[i].record.visits[0][0].status = 'out';
     this.patients[i].card.view = face;
     switch (face) {
-       case 'ap': this.cardCount = 'dispose';
-          break;
-       case 'appointment': this.cardCount = 'ap';
-          break;
-       case 'dispose': this.cardCount = 'dispose';
-            this.patients[i].card.btn = 'discharge';
-            this.dept = this.patients[i].record.visits[0][0].dept;
-          break;
-       default: this.cardCount = null;
-            this.patients[i].record.visits[0][0].status = 'queued';
-            this.patients[i].record.visits[0][0].dept = this.dept;
-            this.patients[i].card.btn = 'discharge';
-          break;
+       case 'ap':
+       this.cardCount = 'dispose';
+       break;
+       case 'appointment':
+       this.cardCount = 'ap';
+       break;
+       case 'dispose':
+        this.cardCount = 'dispose';
+        this.patients[i].card.btn = 'discharge';
+        this.dept = this.patients[i].record.visits[0][0].dept;
+        break;
+       default:
+       this.cardCount = null;
+       this.patients[i].record.visits[0][0].status = 'queued';
+       this.patients[i].record.visits[0][0].dept = this.dept;
+       this.patients[i].card.btn = 'discharge';
+       break;
      }
    }
    comfirmDesposition(i: number) {

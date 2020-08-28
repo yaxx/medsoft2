@@ -9,7 +9,6 @@
                         <div style='padding-left: 30px;border-top-right-radius:32px;border-top-left-radius:32px;border-bottom: 0px;height:40px;margin-bottom: 15px;' class="card-header profileheader small-header">
                             <div style="left:23px;top:13px" class="timeline lastdoc priscriber headerdp small-dp">
                                 <img [src]=getDp(patients[curIndex].info.personal.avatar)/>
-
                             </div>
                             <p style="top:5px"  href="#" class="patien-name small-name">
                             {{patients[curIndex]?.info.personal.firstName + ' ' + patients[curIndex].info.personal.lastName}}<span class="small-headericon"></span>
@@ -26,14 +25,16 @@
                                 <div *ngFor="let m of medic; let j = index" class="priscription drug">
                                     <h6 class="dept">{{m.name}}&nbsp;<span class="predata">|&nbsp;{{m.stamp.dateAdded|date:'hh:mma'|lowercase}}</span>
                                         <span *ngIf="m.paid" class="predata priceval">
-                                        <i class="icon ion-ios-checkmark-empty paid-icon"></i></span>
+                                        <i class="icon ion-ios-checkmark-empty paid-icon"></i>
+                                      </span>
                                         <span *ngIf="!m.paid" class="predata priceval">
-                                        <i (click)="selectItem(i,j)" style=' color:lightgrey;' *ngIf="m.stamp.selected" class="icon ion-ios-checkmark-empty paid-icon" title="Deselect "></i>
+                                          <i (click)="selectItem(i,j)" style=' color:lightgrey;' *ngIf="m.stamp.selected" class="icon ion-ios-checkmark-empty paid-icon" title="Deselect "></i>
                                         <div  style='border-color:rgb(216, 216, 216)' *ngIf ="!m.price" class="mycheckbox"></div>
                                         <div [ngStyle]=getCostedStyle(m) class="mycheckbox" *ngIf="(!m.stamp.selected) && (m.price)"  (click)="selectItem(i,j)" ></div>
                                         </span>
                                     </h6>
-                                    <h6 class="dept previnfo">Dosage&nbsp;<span class="predata">{{m.kind}}</span>
+                                    <h6 class="dept previnfo">Priscription&nbsp;
+                                      <span class="predata">{{m.desc}}</span>
                                     </h6>
                                     <h6 class="dept previnfo" style="color:lightgrey">
                                         Price&nbsp;<span [ngStyle]=getStyle(m) style="text-align:right;left:84%;display: inline-block;width:50px" *ngIf=m.price class="predata priceval">{{(m.price) * (m.quantity)}}</span>
@@ -45,38 +46,45 @@
                         </div>
 
                     </div>
-                    <div *ngIf='cardView.editing' class="card-body orderbody" style="width:55%;margin:auto;">
-                            <div style="top:1px; margin-bottom:25px; min-height: 80px;max-height: 120;" class="form-group vitals-section setGroup">
-                                <table *ngIf="edited.length" cellspacing="0" class="data-table drugs-table" style="width:100%;left:0%;">
-                                    <thead class='productHead'>
-                                        <tr class="staff-th">
-                                            <th style="padding-left:4px;" class="headlbl staff-th">PRODUCT</th>
-                                            <th class="headlbl staff-th">DOSAGE</th>
-                                            <!-- <th class="headlbl staff-th">QTY</th> -->
-                                            <th style='text-align:center' class="headlbl staff-th">QTY</th>
-                                            <th style='text-align:right;padding-right: 15px' class="headlbl staff-th">PRICE</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr *ngFor="let med of edited; let i = index; let odd = odd;" style="border-bottom:2px solid white;" [class.even]=odd class="ro staff-row">
-                                            <td style="padding-left:4px;" class="data">
-                                                {{med.name}}
-                                                <span class="predata"></span>
-                                            </td>
-                                            <td style='font-size:11px' class="data">{{med.kind}}</td>
-                                            <td  style='font-size:11px;text-align: right' class="data"><span><input [(ngModel)]="med.quantity" type="number" name="dos" [min]='1' [max] = 'getMaxQty(med)' class="patientdata inputs dataInfo qty-btn"></span>
-                                            </td>
-                                            <td style='font-size:11px;text-align: right;padding-right: 15px' class="data">
-                                                {{med.price * med.quantity}}
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                    <tfoot col-span='4' style='font-size:11px; text-align:right; position:absolute; color:lightgrey; font-weight:bold;padding-right: 15px; border-top: 1px solid whitesmoke;width:100%'>Total:&nbsp;<span style="color: black">{{getPriceTotal()}}</span> </tfoot>
-                                </table>
-                            </div>
-                            <button (click) = updateInvoices()   style=" width: 170px;font-size: 10px; height:27px;left:28%; bottom:24%;" class="btn btn-sm btn-outline-primary mainbtn"> UPDATE INVOICE
+                    <div *ngIf='cardView.editing' class="card-body orderbody" style="width:65%;margin:auto;">
+                        <div style="top:1px; margin-bottom:25px; min-height: 80px;max-height: 120;" class="form-group vitals-section setGroup">
+                            <table *ngIf="edited.length" cellspacing="0" class="data-table drugs-table" style="width:100%;left:0%;">
+                                <thead class='productHead'>
+                                    <tr class="staff-th">
+                                        <th style="padding-left:4px;" class="headlbl staff-th">PRODUCT</th>
+                                        <th class="headlbl staff-th">DOSAGE</th>
+                                        <th style='text-align:center' class="headlbl staff-th">QTY</th>
+                                        <th style='text-align:right;padding-right: 15px' class="headlbl staff-th">PRICE</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let med of edited; let i = index; let odd = odd;" style="border-bottom:2px solid white;" [class.even]=odd class="ro staff-row">
+                                        <td style="padding-left:4px;width: 267px;" class="data">{{med.name}}<span class="predata"></span></td>
+                                        <td style='text-align:right' class="data">{{med.desc}}</td>
+                                        <td col-span ='2' class="data">
+                                            <input autocomplete='off' 
+                                              [(ngModel)]="med.quantity"  
+                                              name="dos"  
+                                              class="form-control inputs t_input">
+                                        </td>
+                                        <td class="data">
+                                            <input autocomplete='off' 
+                                            [(ngModel)]="med.price"  
+                                            [ngModelOptions] = {standalone:true}
+                                            name="dos"  
+                                            class="form-control inputs t_input"
+                                            style='text-align:right; padding-right:10px'
+                                            >
+                                        </td>
+                                    </tr>
+                                </tbody>
+                                <tfoot class ='t__footer' col-span='4' >Total:&nbsp;<span >{{getPriceTotal()}}</span> </tfoot>
+                            </table>
+                        </div>
+                            <button (click) = updateInvoices()   style="
+                             width: 170px;font-size: 13px; height:27px;left:35%; bottom:24%;" class="btn btn-sm btn-outline-primary mainbtn">Update invoice
                                 <span style="position: absolute; bottom: -7%;left: 80%;">
-                                <i *ngIf="processing" class="fa fa-circle-o-notch fa-spin fa-10x slow-spin " style="position:absolute;bottom:5px;left:5px;font-size:19px;color: #1da1f2;"> </i>
+                                <i *ngIf="processing" class="fa fa-circle-o-notch fa-spin fa-10x slow-spin " style="position:absolute;bottom:5px;left:5px;font-size:19px;color: dodgerblue;"> </i>
                                 </span>
                             </button>
                     </div>
@@ -189,8 +197,8 @@
                         </div>
                     </div>
                 </div>
-                <button (click)='viewOrders(i)'  data-toggle="modal" data-target="#medicModal" style=" width: 120px;font-size: 10px; height:27px;left: 26%;
-                bottom: 9%;" class="btn btn-sm btn-outline-primary mainbtn">SHOW ORDERS</button>
+                <button (click)='viewOrders(i)'  data-toggle="modal" data-target="#medicModal" style=" width: 120px;font-size: 12px; height:27px;left: 26%;
+                bottom: 9%;" class="btn btn-sm btn-outline-primary mainbtn">View Orders</button>
             </div>
         </div>
     </div>

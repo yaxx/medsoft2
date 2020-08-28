@@ -113,8 +113,8 @@
 }
 
 .card.card-secondary.historycard.rightcard.medication {
-    min-height: 372px;
-    max-height: 400px;
+    min-height: 350px;
+    max-height: 350px;
 }
 
 .card.card-secondary.historycard.leftcard.visits {
@@ -386,7 +386,7 @@
 }
 
 .card.card-secondary.historycard.leftcard {
-    height: 424px;
+  height: 382px;
 }
 
 p {

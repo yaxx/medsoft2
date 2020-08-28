@@ -11,6 +11,7 @@ import {sorter, searchPatients} from '../../util/functions';
 import { PrintDriver } from 'ng-thermal-print/lib/drivers/PrintDriver';
 import { PrintService, UsbDriver, WebPrintDriver } from 'ng-thermal-print';
 import { timeout } from 'q';
+import { AuthService } from '../../services/auth.service';
 import { fromEvent } from 'rxjs';
 import {host, appName} from '../../util/url';
 @Component({
@@ -54,6 +55,7 @@ export class CashierComponent implements OnInit {
     editing: false,
     reversing: false
   };
+stamp = new Stamp();
   sortBy = 'added';
   sortMenu = false;
   nowSorting = 'Date';
@@ -81,9 +83,12 @@ export class CashierComponent implements OnInit {
     private cookies: CookieService,
     private router: Router,
     private printService: PrintService,
-    private socket: SocketService) { }
+    private socket: SocketService,
+    private authService: AuthService
+    ) { }
 
   ngOnInit() {
+    this.stamp = new Stamp(localStorage.getItem('i'), localStorage.getItem('h'));
     this.getPatients('billing');
     this.getStocks();
     this.socket.io.on('record update', (update) => {
@@ -216,12 +221,12 @@ export class CashierComponent implements OnInit {
   }
   getPatients(type?: string) {
     this.loading = (this.page === 0) ? true : false;
-    this.dataService.getPatients(type, this.page).subscribe((patients: Person[]) => {
-      if (patients.length) {
-        patients.forEach(p => {
+    this.dataService.getPatients(type, this.page).subscribe((res:any) => {
+      if (res.patients.length) {
+        res.patients.forEach(p => {
           p.card = {menu: false, view: 'front'};
         });
-        this.populate(patients);
+        this.populate(res.patients);
         this.loading = false;
         this.message = null;
       } else {
@@ -236,8 +241,8 @@ export class CashierComponent implements OnInit {
   }
   onScroll() {
     this.page = this.page + 1;
-    if(this.reserved.length) {
-      if(this.reserved.length >  12 ) {
+    if (this.reserved.length) {
+      if (this.reserved.length >  12 ) {
         this.patients = [...this.patients, ...this.reserved.slice(0, 12)];
         this.reserved.splice(0,  12);
       } else {
@@ -263,16 +268,16 @@ export class CashierComponent implements OnInit {
     return Math.floor(Math.random() * (10000 - 1000 + 1) + 1000).toString();
   }
  switchToEdit() {
-  // this.invoices.forEach(inner => {
-  //   inner.forEach(invoice => {
-  //     if (invoice.stamp.selected) {
-  //      invoice.stamp.selected = !invoice.stamp.selected;
-  //      this.edited.push(invoice);
-  //     }
-  //   });
-  // });
-  // this.billing = false;
-  // this.switchViews('editing');
+this.invoices.forEach(inner => {
+    inner.forEach(invoice => {
+      if (invoice.stamp.selected) {
+       invoice.stamp.selected = !invoice.stamp.selected;
+       this.edited.push(invoice);
+      }
+    });
+  });
+this.billing = false;
+this.switchViews('editing');
 }
 switchCardView(i , view) {
   this.curIndex = i;
@@ -283,29 +288,26 @@ switchCardView(i , view) {
   // this.card = this.patient.record.cards[0] || new Card();
 }
 updateInvoices() {
-    // this.edited.forEach(invoice => {
-    //   if(invoice.name !=='Credit') {
-    //     this.patients[this.curIndex].record.invoices.forEach((m) => {
-    //       m[m.findIndex(i => i._id === invoice._id)] = {
-    //         ...invoice,
-    //         paid: true,
-    //         datePaid: new Date().toLocaleDateString(),
-    //         comfirmedBy: this.cookies.get('i')
-    //       };
-    //     });
-    //     this.products.forEach(prod => {
-    //       if (prod.item.name === invoice.name || prod.item.name === invoice.desc) {
-    //         if (invoice.name === 'Card' || invoice.name === 'Consultation') {
-    //         } else {
-    //           prod.stockInfo.quantity = prod.stockInfo.quantity - invoice.quantity;
-    //           prod.stockInfo.sold = prod.stockInfo.sold + invoice.quantity;
-    //         }
-    //         this.cart.push(prod);
-    //       }
-    //     });
-    //   }
-
-    // });
+    this.edited.forEach(invoice => {
+        this.patients[this.curIndex].record.invoices.forEach((m) => {
+          m[m.findIndex(i => i._id === invoice._id)] = {
+            ...invoice,
+            paid: true,
+            datePaid: new Date().toLocaleDateString(),
+            comfirmedBy: this.cookies.get('i')
+          };
+        });
+        // this.products.forEach(prod => {
+        //   if (prod.stockItem.name === invoice.name || prod.stockItem.name === invoice.desc) {
+        //     if (invoice.name === 'Consultation') {
+        //     } else {
+        //       prod.stockInfo.quantity = prod.stockInfo.quantity - invoice.quantity;
+        //       prod.stockInfo.sold = prod.stockInfo.sold + invoice.quantity;
+        //     }
+        //     this.cart.push(prod);
+        //   }
+        // });
+    });
  }
 updatePrices(invoices: Invoice[], i: number) {
   // if (invoices.length) {
@@ -324,26 +326,26 @@ updatePrices(invoices: Invoice[], i: number) {
 }
 
 viewOrders(i: number) {
-  // this.credit = new Invoice()
-  // this.curIndex = i;
-  // this.patients[i].card.indicate = false;
-  // this.switchViews('orders');
-  // this.patient = cloneDeep(this.patients[i]);
-  // this.invoices = cloneDeep(this.patients[i].record.invoices);
-  // this.invoices.forEach((invoices , row) => {
-  //   const items = [];
-  //   invoices.forEach((invoice, col) => {
-  //     if (invoice.processed) {
-  //       items.push(invoice);
-  //     } else {}
-  //     if (invoice.name === 'Credit') {
-  //       this.credit = invoice;
-  //       this.invoices.splice(row, 1);
-  //       this.invoices.unshift([this.credit]);
-  //     }
-  //     });
-  //   this.updatePrices(items, row);
-  // });
+  // this.credit = new Invoice();
+  this.curIndex = i;
+  this.patients[i].card.indicate = false;
+  this.switchViews('orders');
+  this.patient = cloneDeep(this.patients[i]);
+  this.invoices = cloneDeep(this.patients[i].record.invoices);
+  this.invoices.forEach((invoices , row) => {
+    const items = [];
+    invoices.forEach((invoice, col) => {
+      if (invoice.processed) {
+        items.push(invoice);
+      } else {}
+      if (invoice.name === 'Credit') {
+        this.credit = invoice;
+        this.invoices.splice(row, 1);
+        this.invoices.unshift([this.credit]);
+      }
+      });
+    this.updatePrices(items, row);
+  });
 }
 runTransaction(type: string, patient) {
   this.errorMsg = null;
@@ -365,35 +367,18 @@ runTransaction(type: string, patient) {
     this.processing = false;
   });
 }
-processCredit() {
-  // if (this.credit.price) {
-  //   if (this.invoices[0][0].name === 'Credit') {
-  //     this.invoices[0][0]  = this.credit;
-  //   } else {
-  //     this.invoices.unshift([{
-  //       ...this.credit,
-  //       name: 'Credit',
-  //       desc: 'To pay later',
-  //       kind: 'Credit',
-  //       stamp: new Stamp(this.cookies.get('i'), this.cookies.get('h'))
-  //     }
-  //   ]);
-  //   }
 
-  // } else if (this.invoices[0][0].name === 'Credit') {
-  //   this.invoices.splice(0, 1);
-  // }
-}
 comfirmPayment() {
-  // this.processCredit();
-  // if ( this.edited.some(i => i.name === 'Card' || i.name === 'Consultation')) {
-  //   this.patients[this.curIndex].record.visits[0][0].status = 'queued';
-  // } else {}
-  // this.patients[this.curIndex].record.invoices = this.invoices;
-  // this.updateInvoices();
-  // this.runTransaction('purchase', this.patients[this.curIndex]);
+  if ( this.edited.some(i => i.name === 'Consultation')) {
+    this.patients[this.curIndex].record.visits[0][0].status = 'queued';
+  } else {}
+  this.patients[this.curIndex].record.invoices = this.invoices;
+  this.updateInvoices();
+  this.runTransaction('purchase', this.patients[this.curIndex]);
  }
-
+selectItem(i, j) {
+  this.invoices[i][j].stamp.selected = (this.invoices[i][j].stamp.selected) ? false : true;
+}
 switchViews(view) {
   switch (view) {
     case 'orders':
@@ -417,50 +402,21 @@ switchViews(view) {
   }
 }
 
-  assignCard() {
-  // const i = this.products.findIndex(p => p.item.description === this.card.pin);
-  // if (i !== -1) {
-  //   if (this.products[i].stockInfo.status) {
-  //       this.products[i].stockInfo.status = false;
-  //       this.patient.record.invoices[0][0] = {
-  //       ...this.patient.record.invoices[0][0],
-  //       paid: true,
-  //       price: this.products[i].stockInfo.price,
-  //       datePaid: new Date().toLocaleDateString(),
-  //       comfirmedBy: this.cookies.get('i')
-  //   };
-  //       this.cart.push(this.products[i]);
-  //       this.patient.record.visits[0][0].status = 'queued';
-  //       this.runTransaction('purchase', this.patient);
-  //   } else {
-  //     this.errorMsg = 'Card Unavailable';
-  //   }
-
-  // } else {
-  //   this.errorMsg = 'Card Unavailable';
-  // }
-
-}
-
-  getReversables(i: number, j: number) {
-    // this.curIndex = i;
-    // this.edited.push(this.patient.record.medications[i][j]);
-    // this.switchViews('reversing');
-  }
   sortPatients(order: string) {
     this.sortMenu = false;
     this.nowSorting = order;
-    this.patients = sorter(this.patients, order)
+    this.patients = sorter(this.patients, order);
   }
 
   selectSuggestion(i: number, j: number) {
    this.invoices[i][j].stamp.selected = !this.invoices[i][j].stamp.selected;
   }
   selectCard(i) {
-    this.patient.record.cards[i].stamp.selected =  !this.patient.record.cards[i].stamp.selected;
+    // this.patient.record.cards[i].stamp.selected =  !this.patient.record.cards[i].stamp.selected;
   }
   invoiceSelcted() {
-    return this.invoices.some(invoices => invoices.some(i => i.stamp.selected));
+    return this.invoices.some(invoices => invoices
+      .some(i => i.stamp.selected));
   }
 
   resetOrders() {
@@ -506,16 +462,16 @@ switchViews(view) {
     return total.toFixed(2);
   }
     getDp(avatar: string) {
-      return `${host}/api/dp/${avatar}`;
+      return `${host}/dp/${avatar}`;
   }
   getStyle(i) {
-    return {color: i.paid ? 'black' : 'lightgrey'};
+    return {color: i.paid ? 'lightgreen' : 'lightgrey'};
   }
   markAsCreadit(i: number, optn: boolean) {
     this.edited[i].credit = optn;
   }
   getMyDp() {
-    return this.getDp(this.cookies.get('d'));
+    return localStorage.getItem('dp');
   }
   getStocks() {
     this.dataService.getStocks().subscribe((res: any) => {
@@ -523,7 +479,7 @@ switchViews(view) {
     });
   }
   logOut() {
-    this.dataService.logOut();
+    this.authService.logOut();
   }
   isInfo() {
     return this.router.url.includes('information');
@@ -612,10 +568,12 @@ switchViews(view) {
     });
   }
   switchBilling() {
+    // this.switchViews('billing');
     this.billing = !this.billing;
   }
   removeBill(i) {
     this.bills.splice(i, 1);
   }
+
   }
 

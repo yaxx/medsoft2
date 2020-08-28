@@ -4,10 +4,12 @@ import {Router} from '@angular/router';
 import {DataService} from '../../services/data.service';
 import {Client, Department, Bed, Room} from '../../models/client.model';
 import {Connection, Connections, Info, Person} from '../../models/person.model';
+import {Stamp} from '../../models/inventory.model';
 import {CookieService } from 'ngx-cookie-service';
 import {states, lgas} from '../../data/states';
 import {departments} from '../../data/departments';
 import * as cloneDeep from 'lodash/cloneDeep';
+import { AuthService } from '../../services/auth.service';
 import {host, appName} from '../../util/url';
 @Component({
   selector: 'app-settings',
@@ -59,13 +61,17 @@ export class SettingsComponent implements OnInit {
   succs = true;
   errLine = null;
   appName = appName;
+  stamp: Stamp = new Stamp();
 
   constructor(
     private dataService: DataService,
     private cookies: CookieService,
-    private router: Router) { }
+    private authService: AuthService,
+    private router: Router
+    ) { }
 
   ngOnInit() {
+    this.stamp = new Stamp(localStorage.getItem('i'), localStorage.getItem('h'));
     this.getSettings();
   }
 
@@ -91,7 +97,7 @@ export class SettingsComponent implements OnInit {
     this.client.departments[i].menu = false;
   }
   getDp(avatar: string) {
-    return `${host}/api/dp/${avatar}`;
+    return `${host}/dp/${avatar}`;
   }
   showLogOut() {
     this.logout = true;
@@ -100,10 +106,10 @@ export class SettingsComponent implements OnInit {
     this.logout = false;
   }
   logOut() {
-    this.dataService.logOut();
+    this.authService.logOut();
   }
   getMyDp() {
-    return this.getDp(this.cookies.get('d'));
+    return localStorage.getItem('dp');
   }
   getBackgrounds() {
     const url = this.getMyDp();
@@ -193,15 +199,18 @@ export class SettingsComponent implements OnInit {
   createAccount() {
     this.errLine = null;
     this.processing = true;
+    this.staff.stamp = this.stamp;
+    console.log(this.stamp)
     this.staff.info.personal.password = this.generatePassword();
     this.staff.info.personal.username = this.staff.info.personal.firstName.toLowerCase();
     this.staff.info.official.hospital = this.client._id;
-    this.dataService.addPerson(this.staff).subscribe((staff: Person) => {
-     this.processing = false;
-     this.staffs.unshift(staff);
-     this.transMsg = 'Staff added successfully';
-     setTimeout(() => {
-      this.transMsg = null;
+    this.dataService.addPerson(this.staff)
+    .subscribe((staff: Person) => {
+      this.processing = false;
+      this.staffs.unshift(staff);
+      this.transMsg = 'Staff added successfully';
+      setTimeout(() => {
+        this.transMsg = null;
   }, 3000);
      this.staff = new Person();
    }, (e) => {
@@ -270,24 +279,6 @@ export class SettingsComponent implements OnInit {
     }
     );
   }
-  deleteAccount() {
-    this.processing = true;
-    this.message = null;
-    this.dataService.deleteAccount(this.staff._id).subscribe((res) => {
-      this.client.staffs = this.client.staffs.filter(staff => staff._id !== this.staff._id);
-      this.processing = false;
-      this.transMsg = 'Account deleted successfully';
-      this.succs = true;
-      setTimeout(() => {
-        this.resetVariables();
-    }, 4000);
-    }, (e) => {
-      this.transMsg = 'Could not delete account';
-      this.succs = false;
-      this.processing = false;
-    }
-    );
-  }
-
+ 
 }
 

@@ -56,7 +56,7 @@
     font-weight: bold;
   }
 
-
+.empty-record-state {color:lightgrey; right: 10px; width:100%; text-align:center;top:40%;position:absolute;}
 
   .odd {
     background-color: white;
@@ -75,7 +75,7 @@
   .prevtablebody tr:hover{
     border-left: 0px;
   }
-  
+
   .selection{
     background:#f8f8f8;
     border-bottom-color:#f8f8f8;
@@ -817,7 +817,7 @@ option {
   font-weight: normal;
   text-align: center;
   width: 100%;
-  
+
 }
 .check__group {
   border: 1px solid ghostwhite;
@@ -835,4 +835,55 @@ option {
 }
 .acitve {
   color: dodgerblue;
+}
+.sub-header {
+  font-size: 10px;
+}
+.list-wrap .dept {
+  font-size: 11px;
+  margin: 0px;
+  width: 90%;
+  margin-bottom: 10px;
+  position: relative;
+  line-height: 1.1rem;
+  padding-bottom: 6px;
+  border-bottom: 1px solid ghostwhite;
+}
+.list-wrap .dept.dept-list {
+  line-height: .5rem;
+  border-bottom: none;
+  padding-bottom: 0px;
+}
+.list-wrap .dept.dept-list:last-child {
+  border-bottom: 1px solid ghostwhite;
+  padding-bottom: 4px;
+}
+
+
+.note-form {
+  top: 3%;
+  width:60%;
+  margin:auto;
+  position: relative;
+  border-bottom: 1px solid whitesmoke;
+}
+.menu.vitals {
+  position: absolute; 
+  width: 100px;
+  top: -1px;
+  height: auto;
+  left: 368px;
+}
+.v-menu {
+  text-align: right;
+  padding-right: 31px;
+  position: absolute; 
+  top: 6px;
+  right:2px;
+}
+.v-menu .shevron {
+  top: -3px;
+  position: absolute;
+  color: lightgrey;
+  margin-left: 5px;
 }

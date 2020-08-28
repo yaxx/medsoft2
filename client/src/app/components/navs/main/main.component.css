@@ -18,7 +18,7 @@
   position: relative;
   height: .11em;
   width: 100%;
-  background-color: #007bff;
+  background-color: dodgerblue;
   display: block;
 }
 .handbuger span::after {
@@ -32,4 +32,8 @@
 
 .no-display {
   display: none;
+}
+.homeicon {
+  font-size: 26px;
+  position:relative;
 }

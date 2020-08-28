@@ -57,25 +57,14 @@ const personSchema = new Schema({
             id: String,
             department: String,
             role: String
-        },
-        stamp: {
-            addedBy: {
-                type: Schema.Types.ObjectId,
-                ref: 'Person'
-            },
-            facility: {
-                type: Schema.Types.ObjectId,
-                ref: 'Client'
-            },
-            selected: Boolean,
-            dateAdded: Date
         }
     },
     record: {
         complains: [
             [{
                 complain: String,
-                duration: Number,
+                piriod: String,
+                duration: String,
                 stamp: {
                     addedBy: {
                         type: Schema.Types.ObjectId,
@@ -122,7 +111,7 @@ const personSchema = new Schema({
                 }
             }],
             pmh: {
-                allegy: [
+                allegies: [
                     {
                         name: String,
                         stamp: {
@@ -519,6 +508,7 @@ const personSchema = new Schema({
         },
         invoices: [
             [{
+                name: String,
                 desc: String,
                 kind: String,
                 price: Number,
@@ -562,8 +552,20 @@ const personSchema = new Schema({
             ]
         ]
     }
-  ]
-});
+  ],
+  stamp: {
+            addedBy: {
+                type: Schema.Types.ObjectId,
+                ref: 'Person'
+            },
+            facility: {
+                type: Schema.Types.ObjectId,
+                ref: 'Client'
+            },
+            selected: Boolean,
+            dateAdded: Date
+        }
+},{timestamps: true});
 
 
 const Person = mongoose.model('Person', personSchema);

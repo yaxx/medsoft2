@@ -115,3 +115,61 @@ let {inventory} = await Client.findById(req.cookies.h).lean()
     //   } 
     //   console.log(e)
     // })
+addCard: async (req, res) => {
+  try {
+    let patient = null;
+    const person = await Person.findOne({'info.personal.cardNum': req.body.card.pin})
+    if(person) {
+      if (person.info.persnal.cardType === 'Family' && req.body.card.category === 'Family') {
+        if(!req.body.patient.record.cards.some(c => c.pin === req.body.card.pin)) {
+          req.body.patient.record.cards.unshift(req.body.card)
+        } else {
+          
+        }
+        req.body.patient.record.invoices.unshift({
+          ...req.body.invoice, 
+          name: 'Consultation', 
+          desc: req.body.card.category,
+          kind: req.body.card.pin
+        })
+        req.body.patient.info.personal.cardType = req.body.card.category
+        req.body.patient.info.personal.cardNum = req.body.card.pin
+      } else {
+        res.status(400).send('Error validating card');
+      }
+    } else {
+      req.body.patient.record.cards.unshift(req.body.card)
+      req.body.patient.info.personal.cardType = req.body.card.category
+      req.body.patient.info.personal.cardNum = req.body.card.pin
+      if (req.body.entry === 'new') {
+        req.body.patient.record.invoices.unshift([
+          {
+            ...req.body.invoice,
+            name: 'Card', 
+            desc: req.body.card.category,
+            kind: req.body.card.pin
+          }, {
+            ...req.body.invoice,
+            name: 'Consultation', 
+            desc: req.body.card.category,
+            kind: req.body.card.pin
+          }]
+        )
+      } else {
+        req.body.patient.record.invoices.unshift({
+          ...req.body.invoice,
+           name: 'Consultation', 
+           desc: req.body.card.category,
+           kind: req.body.card.pin
+          })
+       }
+      }
+      patient = await Person.findByIdAndUpdate(
+        req.body.patient._id, req.body.patient, {new: true}
+      )
+      res.send(patient);
+    
+  } catch (error) {
+    res.status(400).send('Error validating card');
+  }
+},

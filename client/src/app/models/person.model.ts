@@ -60,7 +60,7 @@ export class Personal {
 }
 export class Me {
   constructor (
-    public mobile: number = null,
+    public mobile: string = null,
     public email: string = null,
     public address: string = null,
     public kinName: string = null,
@@ -107,7 +107,7 @@ export class Info {
     public contact: Contact = new Contact(),
     public insurance: Insurance = new Insurance(),
     public lastLogin: Date = new Date(),
-    public online: boolean = true
+    public online: boolean = true,
   ) {}
 }
 export class Colleque {
@@ -120,9 +120,9 @@ export class Colleque {
 export class Person {
   constructor(
     public info: Info = new Info(),
-    public messages: any[] = [],
-    public connections: any   = null,
     public record: Record = new Record(),
+    public messages: any[] = [],
+    public stamp: Stamp = new Stamp(),
     public createdAt?: Date,
     public updatedAt?: Date,
     public _id?: string,

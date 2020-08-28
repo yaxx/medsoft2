@@ -1,12 +1,14 @@
 import { Component, OnInit, OnDestroy} from '@angular/core';
 import {DataService} from '../../services/data.service';
-import {Inventory, Suggestion, Service, Stock, StockInfo} from '../../models/inventory.model';
+import {Inventory, Suggestion, Service, Stock, StockInfo, Stamp} from '../../models/inventory.model';
 import {Tests, Scannings, Surgeries} from '../../data/request';
 import {Person} from '../../models/person.model';
 import {CookieService } from 'ngx-cookie-service';
 import {SocketService} from '../../services/socket.service';
 import * as cloneDeep from 'lodash/cloneDeep';
+import { AuthService } from '../../services/auth.service';
 import {host, appName} from '../../util/url';
+import {ActivatedRoute, Router} from '@angular/router';
 import Simplebar from 'simplebar';
 import {sortInventory, signStock} from '../../util/functions';
 import 'simplebar/dist/simplebar.css';
@@ -56,6 +58,7 @@ export class InventoryComponent implements OnInit {
   stocksForm = [1, 1, 1, 1, 1, 1];
   cat = 'Stocks';
   errLine = null;
+  stamp = new Stamp();
   header = 2;
   cardType = 'Standard';
   inventory: Inventory = new Inventory();
@@ -69,10 +72,14 @@ export class InventoryComponent implements OnInit {
   constructor(
     private dataService: DataService,
     private cookies: CookieService,
-    private socket: SocketService) {
+    private socket: SocketService,
+    private router: Router,
+    private authService: AuthService
+    ) {
    }
 
   ngOnInit() {
+    this.stamp = new Stamp(localStorage.getItem('i'), localStorage.getItem('h'));
     this.getStocks();
     this.socket.io.on('record update', changes => {
      if (changes.action === 'payment') {
@@ -109,14 +116,15 @@ export class InventoryComponent implements OnInit {
   }
   switchToEdit() {
   }
-  getDp(avatar: string) {
-    return `${host}/api/dp/${avatar}`;
+ getDp(avatar: string) {
+    return `${host}/dp/${avatar}`;
   }
+
   getMyDp() {
-    return this.getDp(this.cookies.get('d'));
+    return localStorage.getItem('dp');
   }
   logOut() {
-    this.dataService.logOut();
+    this.authService.logOut();
   }
   showLogOut() {
     this.logout = true;

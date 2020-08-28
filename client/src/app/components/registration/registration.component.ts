@@ -13,6 +13,7 @@ import {Visit, Session} from '../../models/record.model';
 import {Client, Department} from '../../models/client.model';
 import {sorter, searchPatients} from '../../util/functions';
 import {CookieService } from 'ngx-cookie-service';
+import { AuthService } from '../../services/auth.service';
 import {host, appName} from '../../util/url';
 const uri = `${host}/api/upload`;
 @Component({
@@ -45,6 +46,7 @@ export class RegistrationComponent implements OnInit {
   logout = false;
   curIndex = 0;
   session: Session = new Session();
+  suggestions = [];
   message = null;
   feedback = null;
   entry = null;
@@ -57,11 +59,14 @@ export class RegistrationComponent implements OnInit {
   temp: Person[] = [];
   processing = false;
   sortBy = 'added';
+  elem = null;
+  matches = [];
   cardCount = null;
   sortMenu = false;
   loading = false;
   count = 0;
   page = 0;
+  stamp: Stamp = new Stamp();
   nowSorting = 'Date';
   view = 'info';
   pin = null;
@@ -71,6 +76,7 @@ export class RegistrationComponent implements OnInit {
   constructor(
     private dataService: DataService,
     private cookies: CookieService,
+    private authService: AuthService,
     private socket: SocketService,
     private route: ActivatedRoute,
     private router: Router,
@@ -78,39 +84,40 @@ export class RegistrationComponent implements OnInit {
     ) { }
 
   ngOnInit() {
+    this.stamp = new Stamp(localStorage.getItem('i'), localStorage.getItem('h'));
     this.getPatients('out');
     this.getClient();
-    // this.socket.io.on('record update', (update) => {
-    //   const i = this.patients.findIndex(p => p._id === update.patient._id);
-    //   switch (update.action) {
-    //     case 'payment':
-    //       if (i !== -1 ) {
-    //         this.patients.splice(i, 1);
-    //         this.message = ( this.patients.length) ? null : 'No Record So Far';
-    //       }
-    //       break;
-    //     case 'enroled':
-    //       if (i !== -1 ) {
-    //         this.patients.splice(i, 1);
-    //         this.message = ( this.patients.length) ? null : 'No Record So Far';
-    //       }
-    //       break;
-    //     case 'disposition':
-    //       if (update.patient.record.visits[0][0].status === 'out' ) {
-    //         this.patients.unshift({
-    //           ...update.patient,
-    //           card: {
-    //             menu: false,
-    //             view: 'front',
-    //             indicate: true
-    //           }
-    //         });
-    //       }
-    //       break;
-    //     default:
-    //       break;
-    //   }
-    // });
+    this.socket.io.on('record update', (update) => {
+      const i = this.patients.findIndex(p => p._id === update.patient._id);
+      switch (update.action) {
+        case 'payment':
+          if (i !== -1 ) {
+            this.patients.splice(i, 1);
+            this.message = ( this.patients.length) ? null : 'No Record So Far';
+          }
+          break;
+        case 'enroled':
+          if (i !== -1 ) {
+            this.patients.splice(i, 1);
+            this.message = ( this.patients.length) ? null : 'No Record So Far';
+          }
+          break;
+        case 'disposition':
+          if (update.patient.record.visits[0][0].status === 'out' ) {
+            this.patients.unshift({
+              ...update.patient,
+              card: {
+                menu: false,
+                view: 'front',
+                indicate: true
+              }
+            });
+          }
+          break;
+        default:
+          break;
+      }
+    });
   }
   routeHas(path) {
     return this.router.url.includes(path);
@@ -119,32 +126,34 @@ export class RegistrationComponent implements OnInit {
     return Math.floor(Math.random() * (10000 - 1000 + 1) + 1000).toString();
   }
   switchCardView(i , view) {
-    // this.patients[this.curIndex].card.view = 'front';
-    // this.curIndex = i;
-    // this.entry = null;
-    // this.cardCount = view;
-    // this.patients[i].card.view = view;
-    // this.patient = cloneDeep(this.patients[i]);
+    this.patients[this.curIndex].card.view = 'front';
+    this.curIndex = i;
+    this.entry = null;
+    this.cardCount = view;
+    this.patients[i].card.view = view;
+    this.patient = cloneDeep(this.patients[i]);
     // this.card.pin = this.generatePin();
   }
 
+
   showMoreIcon(i) {
-    // this.patients[i].card.more = true;
+    this.patients[i].card.more = true;
   }
   hideMoreIcon(i) {
     this.patients[i].card.more = false;
   }
+
   getDp(avatar: string) {
-    return `${host}/api/dp/${avatar}`;
+    return `${host}/dp/${avatar}`;
   }
   toggleSortMenu() {
     this.sortMenu = !this.sortMenu;
   }
   getRefDept() {
-    return this.client.departments.filter(dept => dept.hasWard);
+    // return this.client.departments.filter(dept => dept.hasWard);
   }
   getMyDp() {
-    return this.getDp(this.cookies.get('d'));
+    return localStorage.getItem('dp');
   }
   getBackgrounds() {
     const url = this.getMyDp();
@@ -153,7 +162,7 @@ export class RegistrationComponent implements OnInit {
     };
   }
   logOut() {
-    this.dataService.logOut();
+    this.authService.logOut();
   }
   showLogOut() {
     this.logout = true;
@@ -207,16 +216,17 @@ export class RegistrationComponent implements OnInit {
   getPatients(type?: string) {
     this.loading = (this.page === 0) ? true : false;
     this.dataService.getPatients(type, this.page)
-    .subscribe((patients: Person[]) => {
-      if (patients.length) {
-        patients.forEach(p => {
+    .subscribe((res: any) => {
+      this.suggestions = res.suggestions;
+      if (res.patients.length) {
+        res.patients.forEach(p => {
           p.card = {
             menu: false,
             view: 'front',
             more: false
           };
         });
-        this.populate(patients);
+        this.populate(res.patients);
         this.loading = false;
         this.message = null;
       } else {
@@ -241,8 +251,28 @@ export class RegistrationComponent implements OnInit {
       }
     }
   }
+  showSuggestions(fieldName) {
+    this.elem = fieldName;
+    this.errLine = null;
+    this.matches = this.suggestions.map(i => i.name)
+    .sort((n, m) => n.localeCompare(m));
+    return this.matches.slice(0, 50);
+  }
+  searchMatch(term, name) {
+    this.elem = name;
+    this.matches = [];
+    if (term.trim().length === 0) {
+       this.matches = [];
+       this.elem = null;
+    }
+    this.matches = this.suggestions
+    .filter(i => new RegExp('\^' + term , 'i')
+    .test(i.name))
+    .map(s => s.name)
+    .sort((i, j) => i.localeCompare(j));
+  }
   showMenu(i: number) {
-    this.hideMenu();
+    // this.hideMenu();
     this.patients[i].card.menu = true;
   }
   hideMenu() {
@@ -254,56 +284,49 @@ export class RegistrationComponent implements OnInit {
     return !(this.isValidInfo());
   }
   enrolePatient(i: number)  {
-  //   const c = this.patient.record.cards.find(cd => cd.pin === this.pin);
-  //   if (c && c.pin === this.pin) {
-  //     this.processing = true;
-  //     const service = this.inventory.find(s => s.stockItem.name === 'Consultation');
-  //     if (service) {
-  //       this.patient.record.invoices.unshift([{
-  //         ...new Invoice(),
-  //         name: 'Consultation',
-  //         price: service.stockInfo.price,
-  //         desc: `${c.category} Card | ${c.pin}`,
-  //         processed: true,
-  //         stamp: new Stamp(this.cookies.get('i'), this.cookies.get('h'))
-  //     }]);
-  //       this.patient.record.visits.unshift([
-  //       this.visit
-  //     ]);
-  //     } else {
-  //       this.patient.record.visits.unshift([{
-  //         ...this.visit,
-  //         status: 'queued'
-  //       }]);
-  //     }
-  //     this.dataService.updateRecord(this.patient).subscribe((patient) => {
-  //     this.successMsg = 'Patient Successfully Enroled';
-  //     this.processing = false;
-  //     this.socket.io.emit('record update', {action: 'enroled', patient});
-  //     setTimeout(() => {
-  //       this.successMsg = null;
-  //     }, 3000);
-  //     setTimeout(() => {
-  //       this.switchCardView(i, 'front');
-  //     }, 6000);
-  //   }, (e) => {
-  //    this.processing = false;
-  //    this.errorMsg = 'Unable to Enroled Patient';
-  //  });
-  // } else {
-  //     this.errorMsg = 'Invalid Card Number';
-  //   }
+    if (this.patient.record.visits[0][0].status === 'ap') {
+      this.patient.record.visits[0][0].status === 'queued';
+    } else {
+      this.patient.record.invoices.unshift([{
+        ...new Invoice(),
+        name: 'Consultation',
+        price: null,
+        desc: 'Consultation',
+        processed: true,
+        stamp: this.stamp
+    }]);
+      this.patient.record.visits.unshift([{
+      ...this.visit,
+      status: 'queued'
+    }]);
   }
-  clearError() {
+    this.dataService.updateRecord(this.patient).subscribe((patient) => {
+    this.successMsg = 'Patient Successfully Enroled';
+    this.processing = false;
+    this.socket.io.emit('record update', {action: 'enroled', patient});
+    setTimeout(() => {
+        this.successMsg = null;
+      }, 3000);
+    setTimeout(() => {
+        this.switchCardView(i, 'front');
+      }, 6000);
+    if (this.patient.record.visits[0][0].status === 'ap') {
+        this.patients.splice(i, 1);
+      }
+
+    }, (e) => {
+     this.processing = false;
+     this.errorMsg = 'Unable to Enroled Patient';
+   });
+  }
+clearError() {
     this.errorMsg = null;
   }
-  addDefaults() {
-    // this.patient.stamp = new Stamp(
-    //   this.cookies.get('i'), this.cookies.get('h')
-    //   );
-    // this.patient.record.visits = [[new Visit()]];
+addDefaults() {
+    this.patient.stamp = this.stamp;
+    this.patient.record.visits = [[new Visit()]];
   }
-  returnFolder(i) {
+returnFolder(i) {
     this.patient.record.visits[0][0].status = 'queued';
     this.dataService.updateRecord(this.patient).subscribe((patient) => {
       this.successMsg = 'Folder successfully returned';
@@ -322,7 +345,7 @@ export class RegistrationComponent implements OnInit {
    });
   }
 
-  addRecord() {
+addRecord() {
     if (!this.errorMsg) {
         this.addDefaults();
     }
@@ -343,28 +366,28 @@ export class RegistrationComponent implements OnInit {
         this.creating = false;
     });
 }
-  switchToBack(i: number) {
+switchToBack(i: number) {
     this.patients[i].card.view = 'back';
   }
-  switchToFront(i: number) {
+switchToFront(i: number) {
     this.patients[i].card.view = 'front';
   }
-  selectPatient(i: number) {
+selectPatient(i: number) {
     this.curIndex = i;
     this.clonedPatient = cloneDeep(this.patients[i]);
     this.patient = this.patients[i];
   }
-  getLgas() {
+getLgas() {
     return this.lgas[this.states.indexOf(this.patient.info.contact.me.state)];
 }
-  switchViews() {
+switchViews() {
     if (this.view === 'details') {
        this.view = '';
     } else {
       this.view = 'details';
     }
   }
-  searchPatient(name: string) {
+searchPatient(name: string) {
     if (!this.temp.length) {
       this.temp = cloneDeep(this.patients);
     }
@@ -378,7 +401,7 @@ export class RegistrationComponent implements OnInit {
       this.temp = [];
    }
   }
-  selectResult(person) {
+selectResult(person) {
     const i = this.patients.findIndex(p => p._id === person._id);
     if (i !== -1) {
       this.patients.splice(i, 1);
@@ -388,7 +411,7 @@ export class RegistrationComponent implements OnInit {
     this.searchTerm  = null;
   }
 
-  countVisits(i) {
+countVisits(i) {
     const count = [];
     this.patients[i].record.visits.map(vs => vs.map(v => {
     if (v.status === 'out') {
@@ -413,20 +436,20 @@ isConsult() {
   !this.router.url.includes('ward') &&
   !this.router.url.includes('admin');
 }
-  getMe() {
+getMe() {
     return this.cookies.get('a');
   }
-  sortPatients(order: string) {
+sortPatients(order: string) {
     this.sortMenu = false;
     this.nowSorting = order;
     this.patients = sorter(this.patients, order);
   }
 
 
-  next() {
+next() {
     this.count = this.count + 1;
   }
-  prev() {
+prev() {
     this.count = this.count - 1;
   }
    // validWithoutCard() {
@@ -440,53 +463,53 @@ isConsult() {
   //    (this.patient.info.personal.dob) &&
   //    (this.card.cardNum);
   // }
-  viewDetails(i) {
+viewDetails(i) {
     this.reg = false;
     this.curIndex = i;
     this.count = 0;
-    this.card = cloneDeep(this.patients[i].record.cards[0] || new Card());
+    // this.card = cloneDeep(this.patients[i].record.cards[0] || new Card());
     this.patient = cloneDeep(this.patients[i]);
   }
-  clearPatient() {
+clearPatient() {
     this.count = 0;
     this.reg = true;
     this.card = new Card();
     this.patient = new Person();
 }
 checkCard() {
-  if (this.patient.record.cards.length) {
-      if (this.patient.record.cards[0].pin) {
-          this.patient.record.cards.unshift(this.card);
-          this.patient.record.visits.unshift([new Visit()]);
-          this.patient.record.invoices.unshift([{
-              ...new Invoice(),
-              name: 'Card',
-              desc: this.card.category,
-              processed: true,
-              stamp: new Stamp(this.cookies.get('i'), this.cookies.get('h'))
-          }]);
-      } else {
-          this.patient.record.cards[0] = this.card;
-          this.patient.record.visits[0] = [new Visit()];
-          this.patient.record.invoices[0] = [{
-              ...new Invoice(),
-              name: 'Card',
-              desc: this.card.category,
-              processed: true,
-              stamp: new Stamp(this.cookies.get('i'), this.cookies.get('h'))
-          }];
-      }
-  } else {
-      this.patient.record.cards.push(this.card);
-      this.patient.record.visits[0] = [new Visit()];
-      this.patient.record.invoices.push([{
-          ...new Invoice(),
-          name: 'Card',
-          desc: this.card.category,
-          processed: true,
-          stamp: new Stamp(this.cookies.get('i'), this.cookies.get('h'))
-      }]);
-  }
+  // if (this.patient.record.cards.length) {
+  //     if (this.patient.record.cards[0].pin) {
+  //         this.patient.record.cards.unshift(this.card);
+  //         this.patient.record.visits.unshift([new Visit()]);
+  //         this.patient.record.invoices.unshift([{
+  //             ...new Invoice(),
+  //             name: 'Card',
+  //             desc: this.card.category,
+  //             processed: true,
+  //             stamp: new Stamp(this.cookies.get('i'), this.cookies.get('h'))
+  //         }]);
+  //     } else {
+  //         this.patient.record.cards[0] = this.card;
+  //         this.patient.record.visits[0] = [new Visit()];
+  //         this.patient.record.invoices[0] = [{
+  //             ...new Invoice(),
+  //             name: 'Card',
+  //             desc: this.card.category,
+  //             processed: true,
+  //             stamp: new Stamp(this.cookies.get('i'), this.cookies.get('h'))
+  //         }];
+  //     }
+  // } else {
+  //     this.patient.record.cards.push(this.card);
+  //     this.patient.record.visits[0] = [new Visit()];
+  //     this.patient.record.invoices.push([{
+  //         ...new Invoice(),
+  //         name: 'Card',
+  //         desc: this.card.category,
+  //         processed: true,
+  //         stamp: new Stamp(this.cookies.get('i'), this.cookies.get('h'))
+  //     }]);
+  // }
 }
 chargeForConsultation() {
   // const d = this.inventory.services.find(p => s.name === 'Consultation');
@@ -541,26 +564,26 @@ createInvoice() {
   // }
 }
 addCard() {
-  if (!this.errorMsg) {
-    this.createInvoice();
-    this.processing = true;
-    this.dataService.card(this.patient, this.card, this.invoice, this.entry).subscribe((patient) => {
-    this.successMsg = 'Card added successfully';
-    this.processing = false;
-    this.card = new Card();
-    this.entry = null;
-    this.socket.io.emit('record update', {action: 'enroled', patient});
-    setTimeout(() => {
-      this.successMsg = null;
-    }, 3000);
-    setTimeout(() => {
-      this.switchCardView(this.curIndex, 'front');
-    }, 5000);
-   }, (e) => {
-     this.processing = false;
-     this.errorMsg = 'Unable to add card';
-   });
-}
+//   if (!this.errorMsg) {
+//     this.createInvoice();
+//     this.processing = true;
+//     this.dataService.card(this.patient, this.card, this.invoice, this.entry).subscribe((patient) => {
+//     this.successMsg = 'Card added successfully';
+//     this.processing = false;
+//     this.card = new Card();
+//     this.entry = null;
+//     this.socket.io.emit('record update', {action: 'enroled', patient});
+//     setTimeout(() => {
+//       this.successMsg = null;
+//     }, 3000);
+//     setTimeout(() => {
+//       this.switchCardView(this.curIndex, 'front');
+//     }, 5000);
+//    }, (e) => {
+//      this.processing = false;
+//      this.errorMsg = 'Unable to add card';
+//    });
+// }
 
 }
 clearPin() {
@@ -595,12 +618,25 @@ createRecord() {
   }
 
 }
- goTo(count) {
+goTo(count) {
    this.count = count;
  }
 
 
-
+pickMatch(match) {
+  switch (this.elem) {
+    case 'firstname':
+      this.patient.info.personal.firstName = match;
+      break;
+    case 'lastname':
+      this.patient.info.personal.lastName = match;
+      break;
+    default:
+      break;
+  }
+  this.matches = [];
+  this.elem = null;
+}
 
 }
 

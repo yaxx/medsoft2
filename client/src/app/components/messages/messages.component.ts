@@ -5,6 +5,8 @@ import {CookieService } from 'ngx-cookie-service';
 import { FileSelectDirective, FileUploader } from 'ng2-file-upload';
 import { Connection, Colleque, Person, Info, Notification } from '../../models/person.model';
 import {Message } from '../../models/message.model';
+import { AuthService } from '../../services/auth.service';
+
 const uri = 'http://192.168.1.100:5000/api/upload';
 @Component({
   selector: 'app-messages',
@@ -39,12 +41,13 @@ editing = null;
 errLine = false;
 showMenu = false;
 element = null;
-@ViewChild('chatBody', {static: false}) chatBody: ElementRef
+// @ViewChild('chatBody', {static: false})
 oldPwd = null;
   constructor(
     private data: DataService,
     private cookies: CookieService,
     public socket: SocketService,
+    private authService: AuthService,
     private elm: ElementRef
   ) {}
   ngOnInit() {
@@ -144,7 +147,7 @@ oldPwd = null;
         this.me
      )];
     }
-    this.chatBody.nativeElement.scrollTop = this.chatBody.nativeElement.scrollHeight;
+    // this.chatBody.nativeElement.scrollTop = this.chatBody.nativeElement.scrollHeight;
     this.updateMessages();
 
 }
@@ -177,8 +180,8 @@ oldPwd = null;
           chats: []
       });
     }
-    this.chatBody.nativeElement.scrollTop = this.chatBody.nativeElement.scrollHeight;
-    console.log(this.chatBody.nativeElement.scrollTop, this.chatBody.nativeElement.scrollHeight );
+    // this.chatBody.nativeElement.scrollTop = this.chatBody.nativeElement.scrollHeight;
+    // console.log(this.chatBody.nativeElement.scrollTop, this.chatBody.nativeElement.scrollHeight );
   }
   isSender(i) {
     return (this.curPerson.messages[this.curMsgIndex].chats[i][0].sender === this.me) ? true : false;

@@ -92,10 +92,10 @@
                                             <option>Others</option>
                                         </select>
                                     </div>
-                                    <div *ngIf='patient.record.cards.length' class="form-group vitals-section address">
+                                    <!-- <div *ngIf='patient.record.cards.length' class="form-group vitals-section address">
                                         <label style="font-size:8px" for="address" class="labelss">CARD NUMBER</label>
                                         <input (focus) = clearError() [(ngModel)]="patient.record.cards[0].pin" style='font-size:11px' autocomplete="off" type="text" name="address" class="form-control patientdata dystolic inputs dataInfo" />
-                                    </div>
+                                    </div> -->
                                 </form>
                                 <form *ngIf="count===1"  style="top: 3%; height:100%;width:60%;position: relative;margin:auto;padding-top: 10px;" class=" staffsform">
                                     <div class="form-group vitals-section" style="width:49%; margin-right: 5px; display:inline-block">

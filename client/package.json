@@ -19,7 +19,7 @@
   },
   "build": {
     "appId": "com.foldr.app",
-    "productName": "oxengine",
+    "productName": "synaptick",
     "target": "NSIS",
     "files": [
       "main.js",
@@ -39,7 +39,7 @@
     "@angular/platform-browser-dynamic": "~8.2.14",
     "@angular/router": "~8.2.14",
     "@types/w3c-web-usb": "^1.0.3",
-    "bootstrap": "^4.4.1",
+    "bootstrap": "^4.5.2",
     "chart.js": "^2.9.3",
     "clone-deep": "^4.0.1",
     "electron-serve": "^0.4.1",
@@ -50,6 +50,7 @@
     "fs": "0.0.1-security",
     "lodash": "^4.17.15",
     "ng-thermal-print": "^0.1.6",
+    "ng2-charts": "^2.3.3",
     "ng2-file-upload": "^1.4.0",
     "ngx-cookie-service": "^2.2.0",
     "ngx-infinite-scroll": "^8.0.1",

@@ -19,7 +19,7 @@ import { RegistrationComponent } from './components/registration/registration.co
 import { SettingsComponent } from './components/settings/settings.component';
 import { SingupComponent } from './components/singup/singup.component';
 import { WardComponent } from './components/ward/ward.component';
-
+import { AuthGuard } from './util/auth.guard';
 const routes: Routes = [
   {
     path: '',
@@ -32,7 +32,8 @@ const routes: Routes = [
   },
   {
     path: 'messages',
-    component: MessagesComponent
+    component: MessagesComponent,
+    canActivate : [AuthGuard]
   },
   {
     path: 'signup',
@@ -40,11 +41,13 @@ const routes: Routes = [
   },
   {
     path: 'settings',
-    component: SettingsComponent
+    component: SettingsComponent,
+    canActivate : [AuthGuard]
   },
   {
     path: 'pharmacy',
     component: MainComponent,
+    canActivate : [AuthGuard],
     children: [
       {
         path: 'pending',
@@ -75,6 +78,7 @@ const routes: Routes = [
   {
     path: 'lab',
     component: MainComponent,
+    canActivate : [AuthGuard],
     children: [
       {
         path: 'me',
@@ -105,6 +109,7 @@ const routes: Routes = [
   {
     path: 'billing',
     component: MainComponent,
+    canActivate : [AuthGuard],
     children: [
       {
         path: 'me',
@@ -135,6 +140,7 @@ const routes: Routes = [
   {
     path: 'admin',
     component: MainComponent,
+    canActivate : [AuthGuard],
     children: [
       {
         path: 'history/:id',
@@ -197,6 +203,7 @@ const routes: Routes = [
   {
     path: 'information',
     component: MainComponent,
+    canActivate : [AuthGuard],
     children: [
         {
           path: 'appointments',
@@ -243,6 +250,7 @@ const routes: Routes = [
   {
     path: ':dept/ward',
     component: MainComponent,
+    canActivate : [AuthGuard],
       children: [
         {
           path: 'addmisions',
@@ -262,7 +270,8 @@ const routes: Routes = [
         },
         {
           path: '',
-          component: RegistrationComponent}
+          component: RegistrationComponent
+        }
       ]
     },
     {
@@ -271,31 +280,38 @@ const routes: Routes = [
       children: [
         {
           path: 'appointments',
-          component: AppointmentsComponent
+          component: AppointmentsComponent,
+          canActivate : [AuthGuard]
         },
         {
           path: 'addmisions',
-          component: PatientComponent
+          component: PatientComponent,
+          canActivate : [AuthGuard]
         },
         {
           path: 'notifications',
-          component: NotificationsComponent
+          component: NotificationsComponent,
+          canActivate : [AuthGuard]
         },
         {
           path: 'messages',
-          component: MessagesComponent
+          component: MessagesComponent,
+          canActivate : [AuthGuard]
         },
         {
           path: 'discharged',
-          component: RegistrationComponent
+          component: RegistrationComponent,
+          canActivate : [AuthGuard]
         },
         {
           path: 'deceased',
-          component:  DeceasedComponent
+          component:  DeceasedComponent,
+          canActivate : [AuthGuard]
         },
         {
           path: 'history/:id',
-          component: HistoryComponent
+          component: HistoryComponent,
+          canActivate : [AuthGuard]
         },
         {
           path: 'me',
@@ -303,7 +319,8 @@ const routes: Routes = [
         },
         {
           path: '',
-          component: ConsultationComponent
+          component: ConsultationComponent,
+          canActivate : [AuthGuard]
         }
       ]
     },

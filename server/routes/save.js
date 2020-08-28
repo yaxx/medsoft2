@@ -245,3 +245,51 @@
         }
       })
      }
+
+
+
+   
+
+     patients = patients.filter(patient => patient.record.visits[0][0].status === 'ap')
+     patients.forEach(p => {
+       console.log(p.info.personal)
+       p.record.visits[0][0].status === 'discharged';
+     })
+ 
+     
+     for (p of patients) {
+       Person.findByIdAndUpdate( 
+         mongoose.Types.ObjectId(p._id), {
+           "record": p.record
+         }, {
+           new: true
+         }, (e, docs) => {
+           console.log(docs)
+         if(e) {
+           console.log(e)
+         }
+       })
+      }
+     
+
+patients = patients.map(p => {
+      delete p.info.stamp 
+      return {
+        ...p, stamp: {
+          addedBy: '5f398100c2e8342f4c205c6c',
+          facility: '5cb5a3fe4dded22b6cec0669',
+          select: false,
+          dateAdded: Date.now()
+        }
+      }
+    })
+
+     for (p of patients) {
+       Person.findByIdAndUpdate( 
+         mongoose.Types.ObjectId(p._id), p, {new: true},(e, docs) => {
+           console.log(docs)
+         if(e) {
+           console.log(e)
+         }
+       })
+      }

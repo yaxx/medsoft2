@@ -274,16 +274,17 @@
                 <div *ngIf="patient.card.view==='front'"  style='padding-left: 30px; border-top-right-radius: 12px; border-top-left-radius: 12px;  padding-top: 0px;
                 height: 32px;
                 padding-bottom: 0px;' class="card-header profileheader">
-                <div title="More" *ngIf="isConsult() && patient.card.more" class="more-wrap">
-                <i  (click)='showMenu(i)' class="icon ion-android-more-vertical"></i>
+                <div (click)='showMenu(i)' title="More" *ngIf="isConsult() && patient.card.more" class="more-wrap">
+                <i class="icon ion-android-more-horizontal"></i>
               </div>
                 </div>
-                <div *ngIf="patient.card.view ==='dispose'|| patient.card.view === 'ap'" style='padding-left: 37px;   border-top-right-radius: 12px; border-top-left-radius: 12px; padding-top: 0px;
+                <div  *ngIf="patient.card.view ==='dispose'|| patient.card.view === 'ap'" style='padding-left: 37px;   border-top-right-radius: 12px; border-top-left-radius: 12px; padding-top: 0px;
                 position:absolute;  width:100%;padding-bottom: 0px;height:32px' class="card-header profileheader small-header">
-                    <i (click)="switchCards(i,'front')" style='position:absolute;
+                        <i (click)="switchCards(i,'front')"  style='position:absolute;
                           left:3%;top:4px; cursor:pointer;
                           display: inline-block;
-                          color:#1da1f2;' title="Back" class="icon ion-android-arrow-back ">
+                          color:#1da1f2;' title="Back" 
+                          class="icon ion-android-arrow-back ">
                         </i>
                     <div style="left:23px;position: absolute;" class="timeline lastdoc priscriber headerdp small-dp">
                         <img [src]='getDp(patient.info.personal.avatar)'/>
@@ -337,9 +338,9 @@
                     <div class="btn-group disposition">
                         <button (click)="dispose(i, 'out', 'discharge')" [class.active]='patient.record.visits[0][0].status==="out"' class="btn btn-outline-primary  dispo " >Discharge</button>
                         <button (click)="dispose(i,'Admit', 'admit')" [class.active]='patient.record.visits[0][0].status==="Admit"'  class="btn btn-outline-primary dispo">Admit</button>
-                        <button (click)="dispose(i, 'queued', 'foward')"  [class.active]='patient.record.visits[0][0].status==="queued"' class="btn btn-outline-primary  dispo">Foward</button>
+                        <button (click)="dispose(i, 'queued', 'refer')"  [class.active]='patient.record.visits[0][0].status==="queued"' class="btn btn-outline-primary  dispo">Refer</button>
                     </div>
-                    <form [class.in]='patient.record.visits[0][0].status==="queued"' [class.out]='patient.record.visits[0][0].status!=="queued"' style="top:35%;position:absolute;width:100%; padding-left: 4%; padding-right: 6%;" class=" staffsform next-dept">
+                    <form [class.in]='patient.record.visits[0][0].status==="queued"' [class.out]='patient.record.visits[0][0].status!=="queued"' style="top:25%;position:absolute;width:100%; padding-left: 4%; padding-right: 6%;" class=" staffsform next-dept">
                         <div style=" margin-top:2px;   " class="form-group vitals-section formGroup">
                             <label style='font-size:8px;left: 25px;top:-15%;' for="title" class="labelss complain">DEPARTMENT</label>
                             <select  [(ngModel)]="patient.record.visits[0][0].dept" style='font-size:11px; width:100%; padding-left: 5px;'  name="pulse" class="patientdata  dataInfo ref-dept" >
@@ -347,7 +348,9 @@
                             </select>
                         </div>
                     </form>
-                    <button [disabled]='processing' (click)='comfirmDesposition(i)'  style=" width: 170px;font-size: 10px; height:27px;left:15%; bottom:17%;" class="btn btn-sm btn-outline-primary  mainbtn">
+                    <button [disabled]='processing' (click)='comfirmDesposition(i)'  
+                    style=" width: 170px;font-size: 10px; height:27px;left:15%; bottom:17%;" 
+                    class="btn btn-sm btn-outline-primary  mainbtn">
                         {{patient.card.btn|uppercase}} PATIENT
                         <span style="position: absolute; bottom: -7%;left: 80%;">
                         <i *ngIf="processing" class="fa fa-circle-o-notch fa-spin fa-10x slow-spin " style="position:absolute;bottom:5px;left:5px;font-size:19px;color: #1da1f2;"> </i>

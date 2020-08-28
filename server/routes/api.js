@@ -10,6 +10,8 @@ const path = require('path');
 const  truncate  = require ('fs');
 const Notification = require('../models/schemas/noteschema')
 const Connection = require('../models/schemas/connection')
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
 // const escpos = require('escpos');
 // escpos.USB = require('escpos-usb');
 // const device  = new escpos.USB()
@@ -33,30 +35,43 @@ const uploads = multer({
 
 const createPerson = async data => {
   try {
-    let con = null
-    let  person
+    let  person = null;
     if(data.info.official.hospital) {
-      con = await new Connection().save()
-       person = await new Person({
-        info: data.info, 
-        record: data.record,                                                                                   
-        connections:  con._id
-      }).save() 
+      new Person(data).save()
+      .then((p) => {
+        person = p
+        Client.findOneAndUpdate({ _id: person.info.official.hospital }, {
+        $push: {staffs: person._id }}, {new: true}
+        )
+        .then((client) => console.log(client.staffs))
+        .catch((err) => console.log(err)); 
+      })
+      .catch((e) => console.log(e)) 
+
+
+    //  bcrypt.genSalt(10, (err, salt) => {
+    //     bcrypt.hash(data.info.personal.password, salt, (err, hashed) => {
+    //       if (err) {
+    //         throw err
+    //       } else {
+    //         data.info.personal.password = hashed
+    //          new Person(data).save()
+    //          .then((p) => {
+    //             person = p
+    //             Client.findOneAndUpdate({ _id: person.info.official.hospital }, {
+    //             $push: {staffs: person._id }}, {new: true}
+    //             )
+    //             .then((client) => console.log(client.staffs))
+    //             .catch((err) => console.log(err)); 
+    //           })
+    //           .catch((e)=>console.log(e)) 
+    //         }
+    //       })
+    //     })
     } else {
-      person = await new Person({
-        info: data.info, 
-        record: data.record,                                                                                   
-      }).save() 
-    }
-    if(con) {
-        await Client.findOneAndUpdate({
-        _id: person.info.official.hospital
-      },{ 
-        $push: {staffs: person._id }
-      }
-    )
-  } else {}
-  return person
+     person = await new Person(data).save() 
+  }
+  return data
 } catch (e)  {
   throw e
   }
@@ -82,21 +97,7 @@ uploadScans: (req, res) => {
     }
   })
 },
-// postReport: (req, res) => {
-//   console.log(req.body)
-//   uploads(req, res, (err) => {
-//     if(err) {
-//      return res.status(501).jason({error: err})
-//     } else {
-//       console.log(req.files)
-//     for (const file of req.files) {
-//        req.body.patient.record.tests[req.body.fileindex.i][req.body.index.j].push(file.filename)
-//     }
-//     console.log(req.files)
-//      this.updateRecord(req, res)
-//     }
-//   })
-// },
+
 getDp: (req, res) => {
   const filePath = path.join(__dirname, '../uploads') + '/' + req.params.id
   res.sendFile(filePath);
@@ -107,47 +108,33 @@ downloadFile: (req, res) => {
 },
 addPerson: async (req, res) => {
   try {
-  const exist = await Person.findOne({
+  const p = await Person.findOne({
     'info.contact.me.mobile': req.body.info.contact.me.mobile
   })
-  res.send(await createPerson({
-    info: req.body.info,
-    record: req.body.record
-   })
-  )
-  // if(exist) {
-  //     res.status(400).send(exist)
-  //   } else {
-  //     res.send(await createPerson({
-  //      info: req.body.info,
-  //      record: req.body.record
-  //     })
-  //    )
-  //   }
+  if(!p) {
+    let response = await createPerson(req.body) 
+      if(response) {
+        res.send(response)
+      } else {
+        res.sendStatus(403)
+      }
+  } else {
+    res.sendStatus(403)
   }
+}
 catch (e) {
   throw e
-}
-  
+  }
 },
 
 getPatients: async (req, res) => {
   try {
-  
-
-
-   
-
-    const {info: {official}} = await Person.findById(req.cookies.i).select('info');
+    const {info: {official}} = await Person.findById(req.user._id).select('info');
     let patients = await Person.find().sort({'updatedAt': -1}).lean()
     patients = patients.filter(person => person.info.official.department === null);
-
-    
+    let suggestions = []
     // record transformation
-    
-    
 
-   
     switch(official.role) {
       case 'Doctor':
         patients = patients.filter(
@@ -172,7 +159,7 @@ getPatients: async (req, res) => {
             .some(scan => scan.some(s.dept === official.department))
           );
       break;
-      case 'Information':
+      case 'Receptionist':
         if(req.params.type === 'billing') {
           patients = patients.filter(patient => patient.record.invoices.length > 0);
         } else if (req.params.type === 'out') {
@@ -180,7 +167,9 @@ getPatients: async (req, res) => {
             patient => patient.record.visits[0][0].status === req.params.type || 
             !patient.record.visits[0][0].status
             );
+            suggestions = await Suggestion.find({category: 'name'})
         } else {
+          suggestions = await Suggestion.find({category: 'name'})
           patients = patients.filter(
             patient => patient.record.visits[0][0].status === req.params.type
           );
@@ -190,7 +179,7 @@ getPatients: async (req, res) => {
         patients = (req.params.type) ? patients.filter(
           patient => patient.record.visits[0][0].status === req.params.type) : patients.filter(
             patient => patient.record.medications.length
-        ) ;
+        );
       break;
       default:
       if(req.params.type === 'out') {
@@ -204,7 +193,7 @@ getPatients: async (req, res) => {
       }
       break
     }
-    res.send(patients)
+    res.send({patients, suggestions})
   }
   catch(e) {
     throw e
@@ -213,7 +202,7 @@ getPatients: async (req, res) => {
 },
 
 
-addClient: async (req, res) => {
+  addClient: async (req, res) => {
   try {
     const client = await Person.findOne({ $or: [{
       'info.contact.me.email': req.body.client.info.email}, {
@@ -224,7 +213,7 @@ addClient: async (req, res) => {
         res.status(400).send(client)
       } else {
         const client = await new Client(req.body.client).save()
-            let data = {
+            let admin = {
               info: {
                 personal: {
                   firstName: 'Admin',
@@ -243,34 +232,28 @@ addClient: async (req, res) => {
                   hospital: client._id,
                   department:'Admin',
                   role: 'admin'
+                },
+                stamp: {
+                  addedBy: null,
+                  facility: client._id
                 }
               }
             }
-            const person  = await createPerson(data)
-            res.send(person)
+            let person  = await createPerson(admin)
+            person.info.stamp.addedBy = person._id
+            person.info.stamp.facility = client._id
+            res.send(await person.save())
           }
-         
-        }
+      }
   catch(e) {
       throw e
     }
- 
 },
-getConnections: (req, res) => {
-  
-  //   .populate('people.person')
-  //   .exec((err, con) => {
-  //     if (err) {
-  //       console.log(err)
-  //     } else {
-  //       res.send(con)
-  //     }
-  // })
-},
+
 
 getMyAccount: async (req, res) => {
   try {
-    const me  = await Person.findById(req.cookies.i,'_id info')
+    const me  = await Person.findById(req.user._id,'_id info')
     let colleagues  = await Person.find({
       "info.official.role": {$ne: null}
     })
@@ -317,18 +300,9 @@ updateMessages: async (req, res) => {
   }
 },
 
-explore: async (req, res) => {
-  try {
-    const people = await Person.find({'info.official.hospital': req.cookies.h},'info' )
-    res.send(people);
-  }
-  catch(e) {
-    throw e
-  }
-},
 runTransaction: async (req, res) => {
   try {
-     let client = await Client.findByIdAndUpdate(req.cookies.h)
+     let client = await Client.findByIdAndUpdate(req.user.info.official.hospital)
      req.body.cart.forEach(product => {
       client.inventory[client.inventory.findIndex(pro => pro._id.toString() === product._id)] = product;
     });
@@ -377,26 +351,48 @@ runTransaction: async (req, res) => {
   }      
  
 },
+verify: (req, res, next) => {
+  const bearerHeader =  req.headers['authorization'];
+  if(typeof bearerHeader !== 'undefined') {
+   jwt.verify(bearerHeader.split(' ')[1], 'secretKey', (err, data) => {
+    if(!err) {
+      req.user = data.person
+    } else {
+      res.sendStatus(403);
+    }
+  })
+   next()
+  } else {
+    res.sendStatus(403)
+  }
+},
 
 login: async (req, res) => {
   try {
-    const person = await Person.findOne({ $or: [{
-      'info.contact.me.email':req.body.username,
-      'info.personal.password': req.body.password
-    },
-    {
-      'info.personal.username': req.body.username,
-      'info.personal.password': req.body.password
-    },
-    {
-      'info.personal.mobile': req.body.username,
-      'info.personal.password': req.body.password
-    }
-  ]
-})
-
+    const person = await Person.findOne({
+      'info.personal.username': req.body.username, 
+      'info.personal.password': req.body.password 
+    })
   if(person) {
-    res.send(person)
+    jwt.sign({person}, 'secretKey', (err, token) => {
+      res.send({token:`Bearer ${token}`, person})
+    })
+
+
+  //   bcrypt.compare(req.body.password, person.info.personal.password, (err, isMatch) => {
+  //     if(err) {
+  //       res.status(400).send('Invalid credentials');
+  //     } else {}
+  //      if (isMatch) {
+  //       console.log(isMatch);
+  //       jwt.sign({person}, 'secretKey', (err, token) => {
+  //         res.send({token:`Bearer ${token}`, person})
+  //     })
+  //   } else {
+  //     res.status(400).send('Invalid credentials');
+  //   }
+    
+  // })
   } else {
       res.status(400).send('Invalid credentials');
   }
@@ -405,10 +401,10 @@ login: async (req, res) => {
   }
   
 },
-  
+
 getClient: async (req, res) => {
   try {
-    const client  = await Client.findById(req.cookies.h)
+    const client  = await Client.findById(req.user.info.official.hospital)
     .populate('staffs').exec()
     const depts = await Department.find()
     res.send({client: client, departments: depts})
@@ -421,8 +417,7 @@ getClient: async (req, res) => {
 
 updateClient: async (req, res) => {
   try {
-    console.log(req.body)
-      const client = await Client.findByIdAndUpdate(req.cookies.h, {
+      const client = await Client.findByIdAndUpdate(req.user.info.official.hospital, {
       info: req.body.info,
       departments: req.body.departments,
       inventory: req.body.inventory
@@ -436,7 +431,7 @@ updateClient: async (req, res) => {
 },
 updateDept: async (req, res) => {
   try {
-      const client = await Client.findByIdAndUpdate(req.cookies.h)
+      const client = await Client.findByIdAndUpdate(req.user.info.official.hospital)
       client.departments.unshift(req.body)
       client.save()
       res.send(req.body);
@@ -445,62 +440,13 @@ updateDept: async (req, res) => {
     throw e
   } 
 },
-deleteAccount: async (req, res) => {
-  try {
-      await Person.findByIdAndRemove(mongoose.Types.ObjectId(req.body.id))
-      const client = await Client.findByIdAndUpdate(req.cookies.h)
-      client.staffs = client.staffs.filter(s => s !== req.body.id)
-      client.save()
-      res.send(req.body);
-  }
- catch(e) {
-    throw e
-  } 
-},
-getInPatients: (req, res) => {
-    Person.find({'record.visits.status':'admitted'},(e, patients)=>{
-    if(!e){
-      res.send(patients)
-    }
-    else {
-      console.log(e)
-    }
-  })
-},
-getOrders: (req, res)=>{
- Person.find({},(e,patients)=>{
-    if(!e){
-     
-      res.send(patients)
-    }
-    else {
-      console.log(e)
-    }
-  })
-},
 
-updateBed: (req, res)=>{
-  Client.findOneAndUpdate({
-    _id: req.body.client._id,
- },{departments:req.body.client.departments},{ new: true},(e,client) => {
-   if(!e) {
-      Person.findOneAndUpdate({_id:req.body.patient._id},
-        {record:req.body.patient.record},{new:true},(e,patient) => {
-          if(!e){
-            res.send({patient:patient,client:client})
-          } else {
-            console.log(e)
-          }
-        })
-   } else {
-     console.log(e)
-   }
- })
 
-},
+
+
 updateInfo: async (req, res) => {
   try {
-    const person = await Person.findByIdAndUpdate(req.body.id,{
+    const person = await Person.findByIdAndUpdate(req.body.id, {
       info: req.body.info
     }, {new: true})
     res.send(person.info);
@@ -523,64 +469,7 @@ updateRecord: async (req, res) => {
     throw e
   } 
 },
-addCard: async (req, res) => {
-  try {
-    let patient = null;
-    const person = await Person.findOne({'info.personal.cardNum': req.body.card.pin})
-    if(person) {
-      if (person.info.persnal.cardType === 'Family' && req.body.card.category === 'Family') {
-        if(!req.body.patient.record.cards.some(c => c.pin === req.body.card.pin)) {
-          req.body.patient.record.cards.unshift(req.body.card)
-        } else {
-          
-        }
-        req.body.patient.record.invoices.unshift({
-          ...req.body.invoice, 
-          name: 'Consultation', 
-          desc: req.body.card.category,
-          kind: req.body.card.pin
-        })
-        req.body.patient.info.personal.cardType = req.body.card.category
-        req.body.patient.info.personal.cardNum = req.body.card.pin
-      } else {
-        res.status(400).send('Error validating card');
-      }
-    } else {
-      req.body.patient.record.cards.unshift(req.body.card)
-      req.body.patient.info.personal.cardType = req.body.card.category
-      req.body.patient.info.personal.cardNum = req.body.card.pin
-      if (req.body.entry === 'new') {
-        req.body.patient.record.invoices.unshift([
-          {
-            ...req.body.invoice,
-            name: 'Card', 
-            desc: req.body.card.category,
-            kind: req.body.card.pin
-          }, {
-            ...req.body.invoice,
-            name: 'Consultation', 
-            desc: req.body.card.category,
-            kind: req.body.card.pin
-          }]
-        )
-      } else {
-        req.body.patient.record.invoices.unshift({
-          ...req.body.invoice,
-           name: 'Consultation', 
-           desc: req.body.card.category,
-           kind: req.body.card.pin
-          })
-       }
-      }
-      patient = await Person.findByIdAndUpdate(
-        req.body.patient._id, req.body.patient, {new: true}
-      )
-      res.send(patient);
-    
-  } catch (error) {
-    res.status(400).send('Error validating card');
-  }
-},
+
 getHistory: async (req, res) => {
   try {
     const s = await Suggestion.find({category: {$ne:'name'}})
@@ -613,13 +502,12 @@ updateHistory: async(req, res) => {
     const person = await Person.findByIdAndUpdate(
       req.body.patient._id, {
         record: req.body.patient.record
-      },{new: true}
-      )
+      }, {new: true}
+    )
      const patient = await Person.findById(req.body.patient._id)
       .populate({path: 'record.notes.meta.addedBy', select: 'info'})
       .exec()
       res.send(patient);
-    
   }
   catch(e) {
     throw e
@@ -659,35 +547,11 @@ addNotifications: async(req, res)=>{
  }
 },
 
-updateMedication: async (req, res) => {
-  try {
-  let {record:{medications}} = await Person.findByIdAndUpdate(
-    req.cookies.i, {"record.medications": req.body.medications}, {new: true}
-    )
-   res.send(medications)
-  } catch(e) {
-    throw e
-  }
-
- 
-//   Person.findOneAndUpdate({_id:req.body.id },
-//      {
-//        'record.medications': req.body.medication
-//      },{new:true},(e, patient) => {
-//     if(!e){
-//       res.send(patient)
-//   } else {
-//     console.log(e)
-//   }
-// })
-
-},
-
 
 
 addProduct: async (req, res) => {
   try {
-    const client = await Client.findByIdAndUpdate(req.cookies.h, { 
+    const client = await Client.findByIdAndUpdate(req.user.info.official.hospital, { 
       $push: {
         inventory: {
           $each: req.body.products
@@ -702,14 +566,17 @@ addProduct: async (req, res) => {
     throw e
   }
 },
+
+
 getProducts: async (req, res) => {
   try {
-    let {inventory} = await Client.findById(req.cookies.h)
+    let {inventory} = await Client.findById(mongoose.Types.ObjectId(req.user.info.official.hospital))
     let patients = await Person.find({
       "record.invoices": {
         $elemMatch: {
           $elemMatch: {
-            paid: true, datePaid: new Date().toLocaleDateString()
+            paid: true, 
+            datePaid: new Date().toLocaleDateString()
           }
         }
       }
@@ -719,13 +586,13 @@ getProducts: async (req, res) => {
       .map(i => i.filter(invoice => invoice.paid && invoice.datePaid === new Date().toLocaleDateString()))
       .filter(i => i.length > 0)
     })
-    console.log(inventory.length+' '+patients.length)
     res.send({inventory, patients})
   }
   catch(e)  {
     throw e
   }
 },
+
 getTransactions: async (req, res) => {
   try {
     let patients = await Person.find({
@@ -752,7 +619,7 @@ getTransactions: async (req, res) => {
 
 updateStocks: async (req, res) => {
   try {
-    let client = await Client.findById(req.cookies.h).lean()
+    let client = await Client.findById(req.user.info.official.hospital).lean()
     let {inventory} = client;
     switch(req.body.action) {
       case 'add':
@@ -773,7 +640,7 @@ updateStocks: async (req, res) => {
       break
     }
     // client.inventory = inventory
-    client = await Client.findByIdAndUpdate(mongoose.Types.ObjectId(req.cookies.h), {inventory: inventory}, {new: true}, (e,doc) => {
+    client = await Client.findByIdAndUpdate(mongoose.Types.ObjectId(req.user.info.official.hospital), {inventory: inventory}, {new: true}, (e,doc) => {
       if(e) {
         console.log(e)
       }
@@ -790,89 +657,5 @@ updateStocks: async (req, res) => {
   }
 },
 
-
-deleteProducts: async (req, res) => {
-  try {
-    let client = await Client.findByIdAndU
-    date(req.cookies.h)
-    req.body.forEach(product => {
-      client.inventory.splice(client.inventory.findIndex(pro => pro._id.toString() === product._id),1) 
-    });
-    await client.save()
-    res.send()
- }
- catch (e) {
-   throw e
- }
-},
-
-
-
-getPerson: function (req, res) {
-  User.findOne({username: req.params.username}, (err, person) => {
-    if (!err) {
-      res.send(person)
-    } else { console.log(err) }
-  })
-},
-getMessages: function (req, res) {
-  Messages.find({parties: {$in: [req.params.username, req.cookies.username]}}, 'chats', (err, chats) => {
-    if (!err) {
-      console.log(chats)
-      res.send(chats)
-    } else {}
-  })
-},
-
-// getNotifications: function (req, res) {
-//   Notifications.updateMany({to: req.cookies.username}, {$set: {seen: true}}, (err, note) => {
-//     if (err) {
-//       console.log(err)
-//     } else {
-//       console.log(note)
-//     }
-//   })
-//   Notifications.find({to: req.cookies.username}).populate('require', 'name username dp _id').exec((err, notes) => {
-//     if (!err) {
-      
-//       res.send(notes)
-//     } else { console.log(err) }
-//   })
-// },
-// getNewNotifications: function (req, res) {
-//   Notifications.find({to: req.cookies.username, seen: false}, (err, notes) => {
-//     if (!err) {
-    
-//       res.send(notes)
-//     } else { console.log(err) }
-//   })
-// },
-getProfile: function (req, res) {
-  User.find({username: req.cookies.username}, (err, prof) => {
-    if (!err) {
-      res.send(prof)
-    } else { console.log(err) }
-  })
-},
-comments: function (req, res) {
-  res.render('comments')
-},
-getPeople: function (req, res) {
-  User.find({}, 'name username dp address _id', (err, ppl) => {
-    if (!err) {
-      res.send(ppl)
-    } else {
-       console.log(err)
-       }
-  })
-},
-
-index: function (req, res) {
-  res.render('index')
-  if (req.cookies.login === true) {
-
-  }
-  res.redirect(304, 'login')
- }
 
 }

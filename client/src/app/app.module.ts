@@ -12,8 +12,11 @@ import {NotePipe} from './pipes/note.pipe';
 import {FileUploadModule} from 'ng2-file-upload';
 import { ThermalPrintModule } from 'ng-thermal-print';
 import { InfiniteScrollModule } from 'ngx-infinite-scroll';
+import { ChartsModule } from 'ng2-charts';
 import {WebcamModule} from 'ngx-webcam';
 import { FormsModule } from '@angular/forms';
+import { AuthGuard } from './util/auth.guard';
+
 import { DobPipe } from './pipes/dob.pipe';
 import { AppointmentsComponent } from './components/appointments/appointments.component';
 import { CashierComponent } from './components/cashier/cashier.component';
@@ -67,9 +70,10 @@ import { WardComponent } from './components/ward/ward.component';
     WebcamModule,
     HttpClientModule,
     InfiniteScrollModule,
-    FormsModule
+    FormsModule,
+    ChartsModule
   ],
-  providers: [DataService, CookieService, SocketService, PersonUtil],
+  providers: [DataService, AuthGuard, CookieService, SocketService, PersonUtil],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

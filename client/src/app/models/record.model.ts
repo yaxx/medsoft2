@@ -219,8 +219,8 @@ export class Surgery {
   }
 export class Investigation {
   constructor(
-    public tests: Test[][] = [[]],
-    public scans: Scan[][] = [[]],
+    public tests: any[] = [],
+    public scans: any[] = [],
     public stamp: Stamp = new Stamp()
   ) {}
 }
@@ -304,19 +304,20 @@ export class Session {
   }
 export class Record {
     constructor(
-      public complains: Complain[][] = [[]],
+      public complains: any[] = [],
+      public examinations: any[] = [],
+      public conditions: any[] = [],
+      public medications: any[] = [],
+      public invoices: any[] = [],
+      public appointments: Appointment[] = [],
       public histories: History[] = [],
-      public vitals: Vital = new Vital(),
-      public examinations: RecordItem[][] = [[]],
-      public conditions: RecordItem[][] = [[]],
-      public investigations: Investigation = new Investigation(),
-      public medications: Medication[][] = [[]],
+      public surgeries: Surgery[] = [],
       public notes: Note[] = [],
       public visits: any[] = [],
-      public invoices: Invoice[][] = new Array<Invoice[]>(),
-      public appointments: Appointment[] = [],
-      public surgeries: Surgery[] = [],
+      public vitals: Vital = new Vital(),
+      public deathNote: DeathNote = new DeathNote(),
       public immunization: Immunization = new Immunization(),
-      public deathNote: DeathNote = new DeathNote()
+      public investigations: Investigation = new Investigation()
+
     ) {}
   }

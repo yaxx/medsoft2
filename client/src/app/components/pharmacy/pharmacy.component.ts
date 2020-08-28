@@ -9,7 +9,7 @@ import {Priscription, Medication} from '../../models/record.model';
 import * as cloneDeep from 'lodash/cloneDeep';
 import {sorter, searchPatients} from '../../util/functions';
 import {host, appName} from '../../util/url';
-
+import { AuthService } from '../../services/auth.service';
 @Component({
   selector: 'app-pharmacy',
   templateUrl: './pharmacy.component.html',
@@ -52,7 +52,7 @@ export class PharmacyComponent implements OnInit {
   };
   sortBy = 'added';
   sortMenu = false;
-
+  stamp = new Stamp();
   page = 0;
   nowSorting = 'Date';
   view = 'default';
@@ -68,9 +68,12 @@ export class PharmacyComponent implements OnInit {
     private dataService: DataService,
     private cookies: CookieService,
     private router: Router,
-    private socket: SocketService ) { }
+    private authService: AuthService,
+    private socket: SocketService
+     ) { }
 
   ngOnInit() {
+    this.stamp = new Stamp(localStorage.getItem('i'), localStorage.getItem('h'));
     this.getPatients();
     this.getProducts();
     this.socket.io.on('record update', (update) => {
@@ -138,12 +141,12 @@ export class PharmacyComponent implements OnInit {
   }
   getPatients(type?: string) {
     this.loading = (this.page === 0) ? true : false;
-    this.dataService.getPatients(type, this.page).subscribe((patients: Person[]) => {
-      if (patients.length) {
-        patients.forEach(p => {
+    this.dataService.getPatients(type, this.page).subscribe((res:any) => {
+      if (res.patients.length) {
+        res.patients.forEach(p => {
           p.card = {menu: false, view: 'front'};
         });
-        this.populate(patients);
+        this.populate(res.patients);
         this.loading = false;
         this.message = null;
       } else {
@@ -252,9 +255,8 @@ updatePrices() {
     this.invoices = cloneDeep(this.patients[i].record.invoices);
     this.invoices.forEach((i1) => {
       let suggestions = [];
-      suggestions = i1.filter(m => m.desc === 'Medication');
+      suggestions = i1.filter(m => m.kind === 'Medication');
       if (suggestions.length) {
-        console.log(suggestions);
         medications.push(suggestions);
       }
     });
@@ -262,16 +264,16 @@ updatePrices() {
     this.updatePrices();
   }
   reset() {
-    // setTimeout(() => {
-    //   this.transMsg = null;
-    //   this.cart = [];
-    //   this.clonedStore = [];
-    // }, 3000);
-    // setTimeout(() => {
-    //   this.edited = [];
-    //   this.editables = [];
-    //   this.switchViews('orders');
-    // }, 6000);
+    setTimeout(() => {
+      this.transMsg = null;
+      this.cart = [];
+      // this.clonedStore = [];
+    }, 3000);
+    setTimeout(() => {
+      this.edited = [];
+      this.editables = [];
+      this.switchViews('orders');
+    }, 6000);
 
   }
   closeModal() {
@@ -291,17 +293,17 @@ updatePrices() {
     });
   }
    updateInvoices() {
-      // this.edited.forEach(invoice => {
-      //   invoice.processed = true;
-      //   this.patients[this.curIndex].record.invoices.forEach((m) =>  {
-      //     m[m.findIndex(i => i._id === invoice._id)] = invoice;
-      //   });
-      //   this.inventory.stocks.forEach(prod => {
-      //     if(prod.suggestion.name === invoice.name) {
-      //       prod.stockInfo.quantity = prod.stockInfo.quantity - invoice.quantity;
-      //     }
-      //   });
-      // });
+      this.edited.forEach(invoice => {
+        invoice.processed = true;
+        this.patients[this.curIndex].record.invoices.forEach((m) =>  {
+          m[m.findIndex(i => i._id === invoice._id)] = invoice;
+        });
+        // this.inventory.stocks.forEach(prod => {
+        //   if(prod.suggestion.name === invoice.name) {
+        //     prod.stockInfo.quantity = prod.stockInfo.quantity - invoice.quantity;
+        //   }
+        // });
+      });
       this.sendRecord();
    }
   getTransTotal(invoices: Invoice[]) {
@@ -320,13 +322,15 @@ updatePrices() {
   }
 
     getDp(avatar: string) {
-      return `${host}/api/dp/${avatar}`;
+      return `${host}/dp/${avatar}`;
   }
 
-
+  selectItem(i, j) {
+    this.invoices[i][j].stamp.selected = (this.invoices[i][j].stamp.selected) ? false : true;
+  }
 
   getMyDp() {
-    return this.getDp(this.cookies.get('d'));
+    return localStorage.getItem('dp');
   }
   getProducts() {
     this.dataService.getStocks().subscribe((res: any) => {
@@ -335,7 +339,7 @@ updatePrices() {
     });
   }
   logOut() {
-    this.dataService.logOut();
+    this.authService.logOut();
   }
   showLogOut() {
     this.logout = true;

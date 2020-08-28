@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import {Client} from '../../models/client.model';
 import {Person} from '../../models/person.model';
 import {DataService} from '../../services/data.service';
+import { AuthService } from '../../services/auth.service'
 import {SocketService} from '../../services/socket.service';
 import {CookieService } from 'ngx-cookie-service';
 import { FileSelectDirective, FileUploader } from 'ng2-file-upload';
@@ -33,7 +34,6 @@ cred = {
   constructor(
     private accountService: DataService,
     private socket: SocketService,
-    private cookie: CookieService,
     private router: Router
     ) { }
 
@@ -51,40 +51,39 @@ cred = {
   hideError() {
     this.loginError = false;
   }
+  storeUser(res) {
+    localStorage.setItem('isLoggedIn', 'true');
+    console.log(res.token)
+    localStorage.setItem('token', res.token);
+    localStorage.setItem('i', res.person._id);
+    localStorage.setItem('h', res.person.info.official.hospital);
+    localStorage.setItem('d', res.person.info.official.department);
+    localStorage.setItem('dp', res.person.info.personal.avatar);
+  }
   login() {
     this.loading = true;
-    this.accountService.login(this.user).subscribe((person: Person) => {
-      if( person.info.official.role !== 'admin') {
-        this.cookie.set('i', person._id);
-        this.cookie.set('h', person.info.official.hospital);
-        this.cookie.set('d', person.info.personal.avatar);
-        this.cookie.set('dpt', person.info.official.department);
-        this.socket.io.emit('login', {ui: person._id, lastLogin: person.info.lastLogin});
-        let route = null;
-        const role = person.info.official.role;
-        switch (role) {
+    this.accountService.login(this.user).subscribe((res: any) => {
+      const role = `/${res.person.info.official.role}`;
+      let route = null;
+      if ( role !== 'admin') {
+        switch (res.person.info.official.role) {
           case 'Doctor':
-            route = `/${person.info.official.department.toLowerCase()}`;
+            route = `/${res.person.info.official.department.toLowerCase()}`;
             break;
           case 'Nurse':
-            route = `/${person.info.official.department.toLowerCase()}/ward`;
+            route = `/${res.person.info.official.department.toLowerCase()}/ward`;
             break;
           case 'Lab Scientist':
             route = '/lab';
             break;
           default:
-            route = `/${person.info.official.department.toLowerCase()}`;
+            route = `/${res.person.info.official.department.toLowerCase()}`;
             break;
         }
-        this.router.navigate([route]);
-      } else {
-        this.cookie.set('i', person._id);
-        this.cookie.set('h', person.info.official.hospital);
-        this.cookie.set('d', person.info.personal.avatar);
-        this.socket.io.emit('login', {ui: person._id, lastLogin: person.info.lastLogin});
-        this.router.navigate(['/admin']);
-        }
-    },(err) => {
+      } else{ }
+      this.storeUser(res);
+      this.router.navigate([route]);
+    }, (err) => {
         this.loading = false;
         this.loginError = true;
     });
@@ -93,9 +92,7 @@ cred = {
   signup() {
     this.creating = true;
     this.accountService.createClient({client: this.client, cred: this.cred}).subscribe((person: Person) => {
-      this.cookie.set('i', person._id);
-      this.cookie.set('h', person.info.official.hospital);
-      this.cookie.set('d', person.info.personal.avatar);
+      this.storeUser({person})
       this.creating = false;
       this.loading = false;
       this.client = new Client();

@@ -10,10 +10,12 @@ import {Client, Department} from '../../models/client.model';
 import {Visit , Appointment} from '../../models/record.model';
 import {states, lgas } from '../../data/states';
 import {CookieService } from 'ngx-cookie-service';
+import { AuthService } from '../../services/auth.service';
 import { Record,  Session} from '../../models/record.model';
 import * as cloneDeep from 'lodash/cloneDeep';
 import {host, appName} from '../../util/url';
 import {sorter, searchPatients} from '../../util/functions';
+import { Stamp } from 'src/app/models/inventory.model';
 const uri = `${host}/api/upload`;
 @Component({
   selector: 'app-appointments',
@@ -53,6 +55,7 @@ export class AppointmentsComponent implements OnInit {
    view = 'info';
    updating  = false;
    message = null;
+   stamp = new Stamp();
    feedback = null;
    searchTerm = '';
    regMode =  'all';
@@ -66,10 +69,12 @@ export class AppointmentsComponent implements OnInit {
      private cookies: CookieService,
      private route: ActivatedRoute,
      private router: Router,
+     private authService: AuthService,
      private socket: SocketService
   ) { }
 
    ngOnInit() {
+    this.stamp = new Stamp(localStorage.getItem('i'), localStorage.getItem('h'));
       this.myDepartment = this.route.snapshot.url[0].path;
       this.getPatients('ap');
       this.getClient();
@@ -105,10 +110,10 @@ export class AppointmentsComponent implements OnInit {
     }
   }
    getDp(avatar: string) {
-    return `${host}/api/dp/${avatar}`;
+    return `${host}/dp/${avatar}`;
   }
   getMyDp() {
-    return this.getDp(this.cookies.get('d'));
+    return localStorage.getItem('dp');
   }
   getClient() {
     this.dataService.getClient().subscribe((res: any) => {
@@ -221,16 +226,16 @@ populate(patients) {
 getPatients(type?: string) {
   this.loading = (this.page === 0) ? true : false;
   this.dataService.getPatients(type, this.page)
-  .subscribe((patients: Person[]) => {
-    if (patients.length) {
-      patients.forEach(p => {
+  .subscribe((res:any) => {
+    if (res.patients.length) {
+      res.patients.forEach(p => {
         p.card = {
           menu: false,
           view: 'front',
           more: false
         };
       });
-      this.populate(patients);
+      this.populate(res.patients);
       this.loading = false;
       this.message = null;
     } else {
@@ -286,8 +291,8 @@ getPatients(type?: string) {
     this.patients[i].card.view = view;
     this.patient = cloneDeep(this.patients[i]);
   }
-   logOut() {
-    this.dataService.logOut();
+  logOut() {
+    this.authService.logOut();
   }
   showLogOut() {
     this.logout = true;

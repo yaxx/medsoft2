@@ -16,6 +16,9 @@ declare var io: {
 })
 export class DataService {
   uri = `${host}/api`;
+  options = { 
+    headers: new HttpHeaders().set('authorization', localStorage.getItem('token'))
+  }
   socket: Socket;
   staff: Person = new Person();
   patients: Person[] = new Array<Person>();
@@ -23,10 +26,12 @@ export class DataService {
     private http: HttpClient,
     private cookies: CookieService,
     private router: Router
-    ) { }
+    ) {}
+
+
   getHistory(id) {
     return this.http.get(
-      `${this.uri}/history/${id}`, {withCredentials: true}
+      `${this.uri}/history/${id}`, this.options
       );
   }
   logOut() {
@@ -35,7 +40,7 @@ export class DataService {
   }
   getMyAccount() {
     return this.http.get(
-      `${this.uri}/myaccount`, {withCredentials: true}
+      `${this.uri}/myaccount`, this.options
       );
   }
   explore() {
@@ -45,31 +50,31 @@ export class DataService {
   }
   getConnections(id) {
      return this.http.get(
-      `${this.uri}/connections/${id}`, {withCredentials: true} );
+      `${this.uri}/connections/${id}`, this.options );
   }
   getPatients(type?: string, page?: number) {
     return this.http.get(
-      `${this.uri}/patients/${type}`, {withCredentials: true}
-      );
+      `${this.uri}/patients/${type}`, this.options
+    );
   }
   getConsultees(dept) {
     return this.http.get(
-       `${this.uri}/consultation/${dept}`, {withCredentials: true}
+       `${this.uri}/consultation/${dept}`, this.options
        );
   }
   follow(id) {
      return this.http.post(
-      `${this.uri}/follow`, {id}, {withCredentials: true}
+      `${this.uri}/follow`, {id}, this.options
     );
   }
   followBack(id) {
     return this.http.post(
-      `${this.uri}/followback`, {id}, {withCredentials: true}
+      `${this.uri}/followback`, {id}, this.options
       );
   }
   unFollow(me, you) {
     return this.http.post(
-      `${this.uri}/unfollow`, {id: me, yourid: you.person._id, yourcon: you.person.connections}, {withCredentials: true}
+      `${this.uri}/unfollow`, {id: me, yourid: you.person._id, yourcon: you.person.connections}, this.options
       );
   }
 
@@ -78,63 +83,63 @@ export class DataService {
   }
   updateStocks(stocks, action, suggestions) {
     return this.http.post(
-      `${this.uri}/update-stocks`, {stocks, action, suggestions}, {withCredentials: true}
+      `${this.uri}/update-stocks`, {stocks, action, suggestions}, this.options
       );
   }
   runTransaction(pid, record, cart,reciepts) {
     return this.http.post(
-      `${this.uri}/transaction`, {id: pid, record, cart, reciepts}, {withCredentials: true}
+      `${this.uri}/transaction`, {id: pid, record, cart, reciepts}, this.options
       );
   }
   deleteProducts(product) {
-   
+
   }
   login (user) {
     return this.http.post(
-      `${this.uri}/login`, user, {withCredentials: true}
+      `${host}/login`, user, this.options
        );
   }
   searchPatient(id) {
     return this.http.get(
-      `${this.uri}/patient/${id}`, {withCredentials: true} );
+      `${this.uri}/patient/${id}`, this.options );
   }
 
   createClient(client) {
     return this.http.post(
-      `${this.uri}/new-client`, client, {withCredentials: true});
+      `${this.uri}/new-client`, client, this.options);
   }
   saveRecord(record) {
     return this.http.post(
-      `${this.uri}/new-record`, record, {withCredentials: true});
+      `${this.uri}/new-record`, record, this.options);
   }
 
   updateRecord(patient, items = []) {
     return this.http.post(
-      `${this.uri}/update-record`, {patient, items} , {withCredentials: true});
+      `${this.uri}/update-record`, {patient, items} , this.options);
  }
   card(patient, card, invoice, entry) {
     return this.http.post(
-      `${this.uri}/add-card`, {patient, card, invoice, entry} , {withCredentials: true});
+      `${this.uri}/add-card`, {patient, card, invoice, entry} , this.options);
  }
   updateHistory(patient, suggestions = []) {
     return this.http.post(
-      `${this.uri}/update-history`, {patient, suggestions} , {withCredentials: true});
+      `${this.uri}/update-history`, {patient, suggestions} , this.options);
  }
   updateInfo(info, id) {
     return this.http.post(
-      `${this.uri}/update-info`, {info, id}, {withCredentials: true});
+      `${this.uri}/update-info`, {info, id}, this.options);
  }
   uploadScans(formData) {
     return this.http.post(
-      `${this.uri}/upload-scans`, formData, {withCredentials: true});
+      `${this.uri}/upload-scans`, formData, this.options);
   }
   upload(image, pid) {
     return this.http.post(
-      `${this.uri}/upload`, image, {withCredentials: true});
+      `${this.uri}/upload`, image, this.options);
   }
   getTransactions(date) {
     return this.http.get(
-      `${this.uri}/trans/${date}`, {withCredentials: true});
+      `${this.uri}/trans/${date}`, this.options);
   }
   download(file: string) {
     return this.http.post(
@@ -146,84 +151,75 @@ export class DataService {
   }
   updateMedication(m) {
      return this.http.post(
-      `${this.uri}/update-medication`, {medications: m}, {withCredentials: true});
+      `${this.uri}/update-medication`, {medications: m}, this.options);
   }
   updateMessages(msg) {
      return this.http.post(
-      `${this.uri}/update-msg`, msg, {withCredentials: true});
+      `${this.uri}/update-msg`, msg, this.options);
   }
   updateBed(patient, client) {
     return this.http.post(
-      `${this.uri}/updatebed`, {patient, client}, {withCredentials: true});
+      `${this.uri}/updatebed`, {patient, client}, this.options);
   }
   updateNote(i, n) {
     return this.http.post(
-      `${this.uri}/updatenote`, {id: i, note: n}, {withCredentials: true});
+      `${this.uri}/updatenote`, {id: i, note: n}, this.options);
 
   }
   getNotifications() {
     return this.http.get(
-      `${this.uri}/notifications`, {withCredentials: true});
+      `${this.uri}/notifications`, this.options);
   }
   addNotifications(note) {
     return this.http.post(
-      `${this.uri}/addnotification`, note, {withCredentials: true});
+      `${this.uri}/addnotification`, note, this.options);
   }
   getNew() {
     return this.staff;
   }
   getClient() {
     return this.http.get(
-      `${this.uri}/client`, {withCredentials: true}
+      `${this.uri}/client`, this.options
       );
   }
   getStocks() {
     return this.http.get(
-      `${this.uri}/products`, {withCredentials: true}
+      `${this.uri}/products`, this.options
       );
   }
   getItems() {
     return this.http.get(
-      `${this.uri}/items`, {withCredentials: true}
+      `${this.uri}/items`, this.options
       );
   }
-  getInPatients() {
-    return this.http.get(
-      `${this.uri}/inpatients`, {withCredentials: true}
-      );
-  }
-  getOrders() {
-    return this.http.get(
-      `${this.uri}/orders`, {withCredentials: true});
-  }
+
+
   getDepartments() {
     return this.http.get(
-      `${this.uri}/departments`, {withCredentials: true});
+      `${this.uri}/departments`, this.options);
 
   }
 
   addPerson(person: Person) {
      return this.http.post(
-        // `${this.uri}/person`, staff, {withCredentials: true}
-        `${this.uri}/new-patient`, person, {withCredentials: true}
+        // `${this.uri}/person`, staff, this.options
+        `${this.uri}/new-patient`, person, this.options
       );
     }
     addPatient(patient: Person) {
       return this.http.post(
-        `${this.uri}/new-patient`, patient, {withCredentials: true}
+        `${this.uri}/new-patient`, patient, this.options
         );
     }
   updateClient(client) {
     return this.http.post(
-      `${this.uri}/updateclient`, client, {withCredentials: true});
+      `${this.uri}/updateclient`, client, this.options );
   }
   updateDept(dept) {
     return this.http.post(
-      `${this.uri}/update-dept`, dept, {withCredentials: true});
+      `${this.uri}/update-dept`, dept, this.options);
   }
-  deleteAccount(id) {
-    return this.http.post(
-      `${this.uri}/delete-account`, {id}, {withCredentials: true});
-  }
+ 
 }
+
 

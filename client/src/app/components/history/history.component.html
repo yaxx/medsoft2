@@ -262,7 +262,7 @@ max-width:100%;">
                             <form *ngIf="count===1"  style="width:60%;" class=" staffsform">
                                 <div class="form-group check__group">
                                   <div  (click)= 'switchHistory(1)' [class.acitve] = 'historyItem ===1' class="check__box mid1">
-                                      <h6 class="mark__label">Pr. Complain</h6>
+                                      <h6 class="mark__label">History of PC</h6>
                                   </div>
                                   <div (click)= 'switchHistory(2)' [class.acitve] = 'historyItem ===2' class="check__box mid2">
                                       <h6 class="mark__label">Past Medical History</h6>
@@ -272,11 +272,11 @@ max-width:100%;">
                                   </div>
                                 </div>
                                 <div *ngIf="historyItem===1" style="border-bottom:1px solid ghostwhite" class="form-group">
-                                    <textarea  [(ngModel)] = session.history.pc.name
+                                    <textarea  [(ngModel)] = session.pc.name
                                       id='newnote'
                                       style="width:100%; min-height: 150px; font-size: 13px; padding: 5px; border: 0px; "
                                       name="note"
-                                      placeholder="Type in presenting complains">
+                                      placeholder="Type in history of presenting complains">
                                   </textarea>
                                 </div>
                                 <div *ngIf="historyItem===2" class="group-wrap">
@@ -532,43 +532,28 @@ max-width:100%;">
                             </form>
 
                             <form *ngIf="count === 3"  style="width:60%;" class="staffsform">
-                                <!-- <div class="form-group check__group">
-                                    <div (click)= 'switchVital(1)' [class.acitve] = 'vital ===1' class="check__box">
-                                        <h6 class="mark__label">Blood Presure</h6>
-                                    </div>
-                                    <div (click)= 'switchVital(2)' [class.acitve] = 'vital ===2' class="check__box mid">
-                                        <h6 class="mark__label">Pulse Rate</h6>
-                                    </div>
-                                    <div (click)= 'switchVital(3)' [class.acitve] = 'vital ===3' class="check__box mid2">
-                                        <h6 class="mark__label">Respiratory Rate</h6>
-                                    </div>
-                                    <div (click)= 'switchVital(4)' [class.acitve] = 'vital ===4' class="check__box">
-                                        <h6 class="mark__label">Temp.</h6>
-                                    </div>
-                                </div> -->
                                 <div  class="group-wrap merged">
                                   <div class="form-group" >
                                     <label   for="dos" class="labelss complain">B.P</label>
-                                    <input (keyup)="clearVital('Blood Presure')"
+                                    <input
                                       [(ngModel)]="session.vitals.bp.systolic"
                                       placeholder="90/120"   [min]='1'
-                                      type="number" name="systolic"
+                                      name="systolic"
                                       class="form-control input first"
                                       style='border-right:0px'
                                       >
                                   </div>
                                   <div class="form-group" >
                                       <label for="pulse" class="labelss complain">P.R</label>
-                                      <input  (keyup)="clearVital('Pulse Rate')"
+                                      <input
                                       [(ngModel)]="session.vitals.pulse.value"
                                       type="number" [min]='1' name="pulse"
-                                      class="form-control input first last " 
+                                      class="form-control input first last "
                                       placeholder="bpm">
                                   </div>
                                   <div class="form-group submit-group">
                                     <label for="respiratory" class="labelss complain">R.R</label>
                                     <input  type="number" [min]='1'
-                                      (keyup)="clearVital('Respiratory Rate')"
                                       [(ngModel)]="session.vitals.resp.value"
                                       name="resp"
                                       class="form-control input first last"
@@ -578,7 +563,6 @@ max-width:100%;">
                                     <label for="piriod" class="labelss complain">TEMP</label>
                                     <input
                                         class="form-control input"
-                                        (keyup)="clearVital('Tempreture')"
                                         [(ngModel)]="session.vitals.tempreture.value"
                                         type="number" [min]='1'
                                         name="temp"
@@ -636,18 +620,21 @@ max-width:100%;">
 
                             </form>
                             <form *ngIf="count===6"  style="width:60%;" class="staffsform">
-                              <div class="group-wrap">
+                              <div class="group-wrap merged">
                                 <div style='width:35%' class="form-group">
                                   <label   for="freq" class="labelss complain">FORM</label>
                                   <select [(ngModel)]=session.medication.product.form  id=select (focus) = clearMsg()
-                                  class="form-control input first  " name="freq">
+                                  class="form-control input first"
+                                  name="form"
+                                  style='border-right:0px'
+                                  >
                                       <option>IV</option>
                                       <option>IM</option>
                                       <option>IVF</option>
                                       <option>Tabs</option>
                                       <option>Cream</option>
                                       <option>Syrup</option>
-                                      <option>Suspension</option>
+                                      <option>Susp.</option>
                                  </select>
                                 </div>
                                 <div [ngStyle] = getInputStyle() class="form-group">
@@ -671,17 +658,20 @@ max-width:100%;">
                                     </div>
                                 </div>
                                 </div>
-                                <div class="group-wrap">
+                                <div class="group-wrap merged">
                                   <div class="form-group">
                                     <label  for="dos" class="labelss complain">DOSAGE</label>
                                     <input [(ngModel)]="session.medication.product.size"
-                                      type="number" step='0.5' name="dos"
-                                     class="form-control input first">
+                                      type="number" step='0.5'
+                                      name="dos"
+                                     class="form-control input first"
+                                     style='border-right:0px'
+                                     >
                                   </div>
-                                  <div class="form-group" >
-                                      <label   for="freq" class="labelss complain">UNIT</label>
+                                  <div class="form-group">
+                                      <label   for="unit" class="labelss complain">UNIT</label>
                                       <select [(ngModel)]= 'session.medication.product.unit' id=select (focus) = clearMsg()
-                                      class="form-control input mid  " name="freq">
+                                      class="form-control input mid" name="unit">
                                           <option>g</option>
                                           <option>mg</option>
                                           <option>l</option>
@@ -752,7 +742,7 @@ max-width:100%;">
                                     <tbody>
                                       <tr *ngFor="let med of session.medications; let i = index; let odd = odd;" style="border-bottom:2px solid white;" [class.even]=odd class="ro staff-row">
                                           <td style="padding-left:4px;" class="data prod-data">
-                                            <span style="color: lightgray;" class="predata">{{med.product.form}}</span>&nbsp;{{formatMedication(med)}}
+                                            <span style="color: lightgray;" class="predata"></span>&nbsp;{{formatMedication(med)}}
                                           </td>
                                           <td style="color: grey;" class="data close-td">{{med.priscription.freq+' '+formatDuration(med.priscription.piriod, med.priscription.duration)}}
                                             <span>
@@ -766,7 +756,7 @@ max-width:100%;">
                                   </table>
                                 </div>
                             </form>
-                            <form *ngIf="count===7"  style="top: 3%; width:60%;margin:auto;position: relative; border-bottom: 1px solid whitesmoke" class=" ">
+                            <form *ngIf="count===7"  class="note-form">
                                 <div class="form-group vitals-section formGroup newnote">
                                     <textarea [(ngModel)]="session.note.note" id='newnote' style="width:100%; min-height: 150px; font-size: 13px; padding: 5px; border: 0px; " name="note" placeholder="Additional note"></textarea>
                                 </div>
@@ -774,14 +764,14 @@ max-width:100%;">
                         </div>
                         <div style="left:8%; top:45%;position: absolute;
                         width: 7%;" class="btn-group disposition">
-                            <button [disabled]='count === 0' (click) = prev() style="width:32px;height: 32px;border-radius: 50%;left:35%"   class="btn btn-outline-primary  dispo shift-button" >
+                            <button *ngIf ='count != 0' (click) = prev() style="width:32px;height: 32px;border-radius: 50%;left:35%"   class="btn btn-outline-primary  dispo shift-button" >
                                 <i  style='position:absolute;right:36%;top:2px; font-size:large; cursor:pointer; display: inline-block;' title="Back" class="icon ion-android-arrow-back ">
                                 </i>
                             </button>
                         </div>
                         <div style="left: 82%; top:45%;position: absolute;
                         width: 7%;" class="btn-group disposition">
-                            <button [disabled] = 'count === 6' (click) = next()
+                            <button *ngIf = 'count != 7' (click) = next()
                             style="width:32px;height: 32px;border-radius: 50%;left:35%"
                             class="btn btn-outline-primary  dispo shift-button" >
                                 <i style='position:absolute;right:36%;top:2px; font-size:large; cursor:pointer; display: inline-block;' title="Next" class="icon ion-android-arrow-forward ">
@@ -831,11 +821,6 @@ max-width:100%;">
                               {{patient.info.personal.religion||'---'}}</span></p>
                             <p class="dept previnfo">Tribe:&nbsp;<span class="predata">
                               {{patient.info.personal.tribe||'---'}}</span></p>
-                            <!-- <p *ngIf="patient.record.cards.length" class="dept previnfo">Card Type:&nbsp;<span class="predata">
-                              {{patient.record.cards[0].category||'---'}}</span></p>
-                            <p *ngIf="patient.record.cards.length" class="dept previnfo">Card No:&nbsp;<span class="predata">
-                                {{patient.record.cards[0].pin||'---'}}</span>
-                            </p> -->
                         </div>
                         <div class="carditem">
                             <div class="timeline detailstimeline"><i class="icon ion-ios-location-outline deticon"></i></div>
@@ -892,33 +877,30 @@ max-width:100%;">
                         </div>
                     </div>
                 </div>
-                <div class="card card-secondary historycard leftcard deathinfo">
+                
+
+
+              <div style = 'min-height:300px' class="card card-secondary historycard leftcard deathinfo">
                     <div class="card-header grapheader">
-                        <h1 class="dept headtitle">ALLEGIES</h1>
+                        <h1 class="dept headtitle">CONDITIONS</h1>
                     </div>
-                    <!-- <div class="card-body rightcardbody">
-                        <h1 *ngIf='!patient.record.allegies.length' style='color:lightgrey; ' class="dept headtitle record-placeholder">NO RECORD</h1>
-                      <h1 *ngIf='!patient.record.allegies.length' style='color:lightgrey; width:100%; text-align:center;top:43%;position:absolute;' class="dept headtitle">NO RECORD</h1>
-                        <div class="carditem">
-                            <ul class="itemlist">
-                                <li *ngFor = 'let a of patient.record.allegies'>
-                                    {{a.allegy}}
-                                </li>
-                            </ul>
-                        </div>
-                    </div> -->
+                    <div class="card-body rightcardbody">
+                        <h1
+                        class="dept headtitle empty-record-state">NO RECORD</h1>
+                        <div class="carditem"></div>
+                    </div>
                 </div>
-                <div style = 'height:275px' class="card card-secondary historycard leftcard deathinfo">
+
+
+
+
+                <div style = 'min-height:300px' class="card card-secondary historycard leftcard deathinfo">
                     <div class="card-header grapheader">
                         <h1 class="dept headtitle">DEATH INFORMATION</h1>
                     </div>
                     <div class="card-body rightcardbody">
-                        <h1 style='color:lightgrey;
-                        width:100%;
-                        text-align:center;
-                        top:43%;
-                        position:absolute;'
-                        class="dept headtitle">NO RECORD</h1>
+                        <h1
+                        class="dept headtitle empty-record-state">NO RECORD</h1>
                         <div class="carditem"></div>
                     </div>
                 </div>
@@ -988,7 +970,7 @@ max-width:100%;">
                           <i  style="font-size: 12px;" *ngIf=!edit (click)= showEdit() title="Edit" class="material-icons ">edit</i>
                         </div>
                         <div style="width:150px;margin:auto;top:75%;left: 33%;position: absolute;">
-                          <button *ngIf="isConsult() && (patient.record.visits[0][0].status !=='out') " data-toggle="modal" data-target="#consModal"   style=" width:150px;top:8px;margin:auto;font-size:10px; height:27px;position:relative;left: 4px;" class="btn btn-sm btn-outline-primary  mainbtn">
+                          <button *ngIf="isClarkable()" data-toggle="modal" data-target="#consModal"   style=" width:150px;top:8px;margin:auto;font-size:10px; height:27px;position:relative;left: 4px;" class="btn btn-sm btn-outline-primary  mainbtn">
                               CLARK PATIENT
                           </button>
                       </div>
@@ -996,49 +978,76 @@ max-width:100%;">
                   </div>
                 </div>
                 <div style="margin-bottom: 3px" class="card card-secondary historycard midlecard graphcard">
-                    <div style='border-top-right-radius:20px;border-top-left-radius:20px;' class="card-header grapheader">
-                        <h1 class="dept headtitle">NOTES</h1>
+                  <div style='border-top-right-radius:20px;border-top-left-radius:20px;' class="card-header grapheader">
+                      <h1 class="dept headtitle">VITALS</h1>
+                      <h1 
+                      class="dept headtitle v-menu">{{showing}}<span>
+                        <i (click) ='toggleSortMenu()' class="icon ion-ios-arrow-down shevron"></i>
+                      </span>
+                    </h1>
+                  </div>
+                <p class="unit-label">{{unit}}</p>
+                  <div *ngIf=sortMenu
+                   class="menu vitals">
+                    <ul (mouseleave)='toggleSortMenu()'  class="actions primary">
+                        <li (click) = "switchVitals('BP','mmHg')" class="action">BP</li>
+                        <li (click) = "switchVitals('PR', 'bpm')" class="action">PR</li>
+                        <li (click) = "switchVitals('RR', 'cpm')" class="action">RR</li>
+                        <li (click) = "switchVitals('TEM','C')" class="action">TEM</li>
+                        <!-- <li (click) = "switchVitals('WGH','Kg')" class="action">WGH</li>
+                        <li (click) = "switchVitals('HGH','M')" class="action">HGH</li> -->
+                    </ul>
+                  </div>
+                  <div style='margin-left:0px' class="card-body notecardbody">
+                    <div *ngIf = "showing === 'BP'" style="display: block">
+                      <canvas baseChart
+                              [datasets]="bPChartData"
+                              [labels]="barChartLabels"
+                              [options]="barChartOptions"
+                              [legend]="barChartLegend"
+                              [chartType]="barChartType">
+                      </canvas>
                     </div>
-                    <div class="card-body notecardbody">
-                        <h1 *ngIf='!patient.record.notes.length' style='color:lightgrey; ' class="dept headtitle record-placeholder">NO NOTES</h1>
-                        <div *ngFor = "let note of patient.record.notes;let i=index" class="carditem noteitem writeup">
-                          <div style="position:absolute;left:-3%;" class="timeline lastdoc priscriber headerdp small-dp">
-                            <img [src] = getDp(note.stamp.addedBy.info.personal.avatar)/>
-                          </div>
-                            <h1 class="dept previnfo noterinfo">
-                                {{note.stamp.addedBy.info.personal.firstName+' '+note.stamp.addedBy.info.personal.lastName}}
-                              <span style='color: lightgray;font-weight: normal' >
-                                {{'|'+' '+ note.stamp.addedBy.info.official.department}}</span>
-                              <span class="predata notetime">
-                                {{note.stamp.dateAdded|date:'dd/MM/y hh:mma'|lowercase}}</span>
-                            </h1>
-                            <p class="note-item">{{note.note}}<br>
-                              <!-- <span *ngIf= "!compareNotes(i, note)" (click) = "readMore($event,i)" class="read-more"><a href="#">Read more</a></span> -->
-                          </p>
-                        </div>
+                    <div *ngIf = "showing === 'TEM'" style="display: block">
+                      <canvas baseChart
+                              [datasets]="tempChartData"
+                              [labels]="temChartLabels"
+                              [options]="tempChartOptions"
+                              [legend]="barChartLegend"
+                              [chartType]="barChartType">
+                      </canvas>
                     </div>
-                    <p class="card-link view-more">Show more<span><i class="icon ion-android-more-vertical thread-icon"></i></span>
-                    </p>
+                    <div *ngIf = "showing === 'PR'" style="display: block">
+                      <canvas baseChart
+                              [datasets]="pulseChartData"
+                              [labels]="barChartLabels"
+                              [options]="pulseChartOptions"
+                              [legend]="barChartLegend"
+                              [chartType]="pulseChartType">
+                      </canvas>
+                    </div>
+                  </div>
                 </div>
+
                 <div class="card-group">
                     <div style='border-radius:20px;margin-bottom: 4px;' class="card card-secondary maincard halfcard">
                         <div style='border-top-right-radius:20px;border-top-left-radius:20px'  class="card-header grapheader">
                             <h1 class="dept headtitle">TESTS</h1>
                         </div>
-                        <!-- <div style='height:100%;padding-left: 17px;' class="card-body midcardbody">
-                            <h1 *ngIf="!patient.record.tests" style='color:lightgrey; ' class="dept headtitle record-placeholder">NO RECORD</h1>
-                            <div  *ngFor="let tetst of patient.record.tests; let i = index"  class="carditem priscriptioncontainer order">
+                        <div style='height:100%;padding-left: 17px;' class="card-body midcardbody">
+                            <h1 *ngIf="!patient.record.investigations.tests"
+                            class="dept headtitle record-placeholder empty-record-state">NO RECORD</h1>
+                            <div  *ngFor="let tests of patient.record.investigations.tests; let i = index"  class="carditem priscriptioncontainer order">
                                 <div style='left:-7.2%' class="timeline condition drugtimeline">
-                                    <p class="timelinedate"> {{tetst[0]?.stamp.dateAdded|date:'dd'}}</p>
-                                    <p  class="timelinedate month"> {{tetst[0]?.stamp.dateAdded|date:'MMM'|uppercase}}</p>
+                                    <p class="timelinedate"> {{tests[0]?.stamp.dateAdded|date:'dd'}}</p>
+                                    <p  class="timelinedate month"> {{tests[0]?.stamp.dateAdded|date:'MMM'|uppercase}}</p>
                                 </div>
-                                <div *ngFor ="let t of tetst; let j = index" class="priscription drug">
+                                <div *ngFor ="let t of tests; let j = index" class="priscription drug">
                                     <p class="dept">{{t.name}}</p>
                                     <h6 *ngIf="t.report.attachments.length" class="dept previnfo" style="color:lightgrey">
-                                    <span><i (click) = "pullImages(i,j, 'test')"data-toggle="modal" data-target="#slideShow" title="View attachment"  style='font-size: 15px; cursor: pointer;' class="icon ion-android-attach"></i></span>&nbsp;{{t.report.attachments.length + ' '+'attachment'+getLength(t.report.attachments.length)}}
-                                    <span style="text-align:right;left:70%;display: inline-block;width:50px"  class="predata priceval">
-                                        <i title="Download" style='font-size: 20px;position:absolute;bottom:-17px;left: 75%;cursor: pointer;' class="icon ion-ios-download-outline paid-icon"></i>
-                                    </span>
+                                    <span>
+                                      <i (click) = "pullImages(i,j, 'test')"data-toggle="modal" data-target="#slideShow" title="View attachment"  style='font-size: 15px; cursor: pointer;' class="icon ion-android-attach"></i>
+                                    </span>&nbsp;{{t.report.attachments.length + ' '+'attachment'+ getLength(t.report.attachments.length)}}
                                     </h6>
                                     <h6 *ngIf="t.report.comment" class="dept previnfo" style="color:lightgrey">
                                     <span><i (click)="toggleComment(i,j,'open') "title="View Comment" style='font-size: 17px;cursor:pointer' class="icon ion-ios-chatbubble-outline"></i></span>
@@ -1069,15 +1078,16 @@ max-width:100%;">
                                     </div>
                                 </div>
                             </div>
-                        </div> -->
+                        </div>
                     </div>
-                    <div style='border-radius:12px;margin-bottom: 4px;' class="card card-secondary maincard halfcard halfcard-right">
+                    <div style='border-radius:20px;margin-bottom: 4px;' class="card card-secondary maincard halfcard halfcard-right">
                         <div style='border-top-right-radius:20px;border-top-left-radius:20px' class="card-header grapheader">
                             <h1 class="dept headtitle">SCANS</h1>
                         </div>
-                        <!-- <div style='height:100%;padding-left: 17px;' class="card-body midcardbody">
-                            <h1 *ngIf="!patient.record.scans.length" style='color:lightgrey; ' class="dept headtitle record-placeholder">NO RECORD</h1>
-                            <div  *ngFor="let scans of patient.record.scans; let i = index"  class="carditem priscriptioncontainer order">
+                        <div style='height:100%;padding-left: 17px;' class="card-body midcardbody">
+                            <h1 *ngIf="!patient.record.investigations.scans.length"
+                             class="dept headtitle record-placeholder empty-record-state">NO RECORD</h1>
+                            <div  *ngFor="let scans of patient.record.investigations.scans; let i = index"  class="carditem priscriptioncontainer order">
                                 <div style='left:-7.2%' class="timeline condition drugtimeline">
                                     <p class="timelinedate"> {{scans[0]?.stamp.dateAdded|date:'dd'}}</p>
                                     <p  class="timelinedate month">{{scans[0]?.stamp.dateAdded|date:'MMM'|uppercase}}</p>
@@ -1119,186 +1129,137 @@ max-width:100%;">
                                     </div>
                                 </div>
                             </div>
-                        </div> -->
+                        </div>
                     </div>
                 </div>
-                <div class="card card-secondary historycard midlecard topcard graphcard">
-                    <div class="card-header grapheader">
-                        <h1 class="dept headtitle">VITALS</h1>
-                        <h1 style="position: absolute; left: 88%;top: 6px;"
-                        class="dept headtitle">{{showing}}<span>
-                          <i style="top: -3px;  position: absolute;  color: lightgrey;
-                          margin-left: 5px;" (click) ='toggleSortMenu()' class="icon ion-ios-arrow-down shevron"></i>
-                        </span></h1>
-                    </div>
-                  <p class="unit-label">{{unit}}</p>
-                    <div *ngIf=sortMenu
-                    style='position: absolute; width: 100px;top: -1px;height: auto;left: 368px;' class="menu">
-                      <ul (mouseleave)='toggleSortMenu()'  class="actions primary">
-                          <li (click) = "switchVitals('BP','mmHg')" class="action">BP</li>
-                          <li (click) = "switchVitals('P', 'bpm')" class="action">P</li>
-                          <li (click) = "switchVitals('R', 'bpm')" class="action">R</li>
-                          <li (click) = "switchVitals('T','Celcius')" class="action">T</li>
-                          <li (click) = "switchVitals('W','Kilograms')" class="action">W</li>
-                          <li (click) = "switchVitals('H','Meters')" class="action">H</li>
-                      </ul>
+                <div style="margin-bottom: 3px" class="card card-secondary historycard midlecard graphcard">
+                  <div style='border-top-right-radius:20px;border-top-left-radius:20px;' class="card-header grapheader">
+                      <h1 class="dept headtitle">NOTES</h1>
                   </div>
-                    <div *ngIf = 'showTimeLine()' class="line"></div>
-                    <h1 *ngIf="!showTimeLine()" style='color:lightgrey; ' class="dept headtitle record-placeholder">NO RECORD</h1>
-                    <div  data-simplebar class="card-body topcardbody nopadding"
-                    style="height: 100%;  width: 470px; white-space: nowrap;" >
-                    <ul class="ranges">
-                      <li class="abnormal"><h6 class="label"><span class ='indicators'></span>ABNORMAL RANGE</h6></li>
-                    </ul>
-                    <div *ngIf="showing ==='BP'"  class="v-container bp">
-                      <div *ngFor="let bp of patient.record.vitals.bp" class="item bp">
-                        <p [ngStyle]="getFlags(bp,'bp')" class="itmval bp">{{bp.systolic+'/'+bp.diastolic}}
-                        <span style="top: -83%;right: 17px" class="date">{{bp.stamp.dateAdded|date:'dd'}}</span>
-                        <span style="top: -83%;right: 0px" class="date">{{bp.stamp.dateAdded|date:'MMM'|uppercase}}</span>
-                        <span  style="right: 13%; top:102%" class="time">{{bp.stamp.dateAdded|date:'hh:mma'|lowercase}}</span></p>
+                  <div *ngIf='patient.record.notes.length' class="card-body notecardbody">
+                      <h1 *ngIf='!patient.record.notes.length' style='color:lightgrey; ' class="dept headtitle record-placeholder">NO NOTES</h1>
+                      <div *ngFor = "let note of patient.record.notes;let i=index" class="carditem noteitem writeup">
+                        <div style="position:absolute;left:-3%;" class="timeline lastdoc priscriber headerdp small-dp">
+                          <img [src] = getDp(note.stamp.addedBy.info.personal.avatar)/>
+                        </div>
+                          <h1 class="dept previnfo noterinfo">
+                              {{note.stamp.addedBy.info.personal.firstName+' '+note.stamp.addedBy.info.personal.lastName}}
+                            <span style='color: lightgray;font-weight: normal' >
+                              {{'|'+' '+ note.stamp.addedBy.info.official.department}}</span>
+                            <span class="predata notetime">
+                              {{note.stamp.dateAdded|date:'dd/MM/y hh:mma'|lowercase}}</span>
+                          </h1>
+                          <p class="note-item">{{note.note}}<br>
+                            <!-- <span *ngIf= "!compareNotes(i, note)" (click) = "readMore($event,i)" class="read-more"><a href="#">Read more</a></span> -->
+                        </p>
                       </div>
-                    </div>
-                    <div *ngIf="showing ==='T'" class="v-container">
-                      <div *ngFor="let t of patient.record.vitals.tempreture" class="item"><p [ngStyle]="getFlags(t,'temp')" class="itmval">{{t.value}}
-                        <span style="right: -3px" class="date">{{t.stamp.dateAdded|date:'dd'}}</span>
-                        <span style="right: -20px" class="date">{{t.stamp.dateAdded|date:'MMM'|uppercase}}</span>
-                        <span class="time">{{t.stamp.dateAdded|date:'hh:mma'|lowercase}}</span></p>
-                      </div>
-                    </div>
-                    <div *ngIf="showing ==='W'" class="v-container">
-                      <div *ngFor="let w of patient.record.vitals.weight" class="item"><p [ngStyle]="getFlags(w,'w')" class="itmval">{{w.value}}
-                        <span style="right: -3px" class="date">{{w.stamp.dateAdded|date:'dd'}}</span>
-                        <span style="right: -20px" class="date">{{w.stamp.dateAdded|date:'MMM'|uppercase}}</span>
-                        <span class="time">{{w.stamp.dateAdded|date:'hh:mma'|lowercase}}</span></p>
-                      </div>
-                    </div>
-                    <div *ngIf="showing ==='H'" class="v-container">
-                      <div *ngFor="let h of patient.record.vitals.height" class="item"><p [ngStyle]="getFlags(h,'h')" class="itmval">{{h.value}}
-                        <span style="right: -3px" class="date">{{h.stamp.dateAdded|date:'dd'}}</span>
-                        <span style="right: -20px" class="date">{{h.stamp.dateAdded|date:'MMM'|uppercase}}</span>
-                        <span class="time">{{h.stamp.dateAdded|date:'hh:mma'|lowercase}}</span></p>
-                      </div>
-                    </div>
-                    <div *ngIf="showing ==='P'" class="v-container">
-                      <div *ngFor="let p of patient.record.vitals.pulse" class="item"><p [ngStyle]="getFlags(p,'p')"  class="itmval">{{p.value}}
-                        <span style="right: -3px" class="date">{{p.stamp.dateAdded|date:'dd'}}</span>
-                        <span style="right: -20px" class="date">{{p.stamp.dateAdded|date:'MMM'|uppercase}}</span>
-                        <span  class="time">{{p.stamp.dateAdded|date:'hh:mma'|lowercase}}</span></p>
-                      </div>
-                    </div>
-                    <div *ngIf="showing ==='R'" class="v-container">
-                      <div *ngFor="let r of patient.record.vitals.resp" class="item"><p [ngStyle]="getFlags(r,'r')"  class="itmval">{{r.value}}
-                        <span style="right: -3px" class="date">{{r.stamp.dateAdded|date:'dd'}}</span>
-                        <span style="right: -20px" class="date">{{r.stamp.dateAdded|date:'MMM'|uppercase}}</span>
-                        <span  class="time">{{r.stamp.dateAdded|date:'hh:mma'|lowercase}}</span></p>
-                      </div>
-                    </div>
                   </div>
-                </div>
+              </div>
                 <div class="card-group">
-                        <div style='border-radius:12px;margin-bottom: 4px;' class="card card-secondary maincard halfcard">
-                            <div style='border-top-right-radius:20px;border-top-left-radius:20px'  class="card-header grapheader">
-                                <h1 class="dept headtitle">PROCEDURES</h1>
-                            </div>
-                            <div style='height:100%;padding-left: 17px;' class="card-body midcardbody">
-                                <h1 *ngIf="!patient.record.surgeries.length" style='color:lightgrey; ' class="dept headtitle record-placeholder">NO RECORD</h1>
-                                <div  *ngFor="let surgeries of patient.record.surgeries; let i = index"  class="carditem priscriptioncontainer order">
-                                    <div style='left:-7.2%' class="timeline condition drugtimeline">
-                                        <p class="timelinedate"> {{surgeries[0]?.stamp.dateAdded|date:'dd'}}</p>
-                                        <p  class="timelinedate month">{{surgeries[0]?.stamp.dateAdded|date:'MMM'|uppercase}}</p>
-                                    </div>
-                                    <div *ngFor ="let s of surgeries; let j= index" class="priscription drug">
-                                        <p class="dept">{{s.name}} </p>
-                                        <h6 *ngIf="s.report.attachments.length" class="dept previnfo" style="color:lightgrey">
-                                            <span><i (click) = "pullImages(i,j, 'scan')" data-toggle="modal" data-target="#scanFiles" title="View attachment"  style='font-size: 15px; cursor: pointer;' class="icon ion-android-attach"></i></span>&nbsp;
-                                            {{s.report.attachments.length + ' '+' attachment'+getLength(s.report.attachments.length)}}
-                                            <span style="text-align:right;left:70%;display: inline-block;width:50px"  class="predata priceval">
-                                                <i title="Download" style='font-size: 20px;position:absolute;bottom:-17px;left: 75%;cursor: pointer;' class="icon ion-ios-download-outline paid-icon"></i>
-                                            </span>
-                                        </h6>
-                                        <h6 *ngIf="s.report.comment" class="dept previnfo" style="color:lightgrey">
-                                            <span><i (click)="toggleScanComment(i,j,'open') "title="View Comment" style='font-size: 17px;cursor:pointer' class="icon ion-ios-chatbubble-outline"></i></span>
-                                        &nbsp;Comment
-                                        </h6>
-                                        <div *ngIf="s.report.stamp.selected"   style="left:-46px;"  class="comment">
-                                            <div (click) = "toggleScanComment(i,j,'close')" class="close-comment">
-                                                <i title="close" class="icon ion-ios-close-empty"></i>
-                                            </div>
-                                            <div style="width: 100%; position: relative;height: 80%;" class="comment-note">
-                                                <p style="font-size: .75rem;color:gray;padding:0 10px;z-index: 100;">
-                                                   {{s.report.comment}}
-                                                </p>
-                                            </div>
-                                            <div class="commentator">
-                                                <div class="commentator-media">
-                                                    <div class=" timeline lastdoc priscriber headerdp small-dp commentor-dp">
-                                                            <img style='height:100%; width:100%; object-fit:cover; border-radius:50%;' [src] = getDp(patient.info.personal.avatar)/>
-                                                    </div>
-                                                    <p style="font-size: 11px;position: relative;display: inline-block;left:18px;width: 87%;" class="commentator-name">
-                                                        Mohammed Abdullahi <span style="color:lightgrey;float: right;">
-                                                            {{s.report.stamp.dateAdded|date:'dd/MM/y hh:mma'|lowercase}}
-                                                        </span>
-                                                    </p>
+                    <div style='border-radius:20px;margin-bottom: 4px;' class="card card-secondary maincard halfcard">
+                        <div style='border-top-right-radius:20px;border-top-left-radius:20px'  class="card-header grapheader">
+                            <h1 class="dept headtitle">PROCEDURES</h1>
+                        </div>
+                        <div style='height:100%;padding-left: 17px;' class="card-body midcardbody">
+                            <h1 *ngIf="!patient.record.surgeries.length" style='color:lightgrey; ' class="dept headtitle record-placeholder">NO RECORD</h1>
+                            <div  *ngFor="let surgeries of patient.record.surgeries; let i = index"  class="carditem priscriptioncontainer order">
+                                <div style='left:-7.2%' class="timeline condition drugtimeline">
+                                    <p class="timelinedate"> {{surgeries[0]?.stamp.dateAdded|date:'dd'}}</p>
+                                    <p  class="timelinedate month">{{surgeries[0]?.stamp.dateAdded|date:'MMM'|uppercase}}</p>
+                                </div>
+                                <div *ngFor ="let s of surgeries; let j= index" class="priscription drug">
+                                    <p class="dept">{{s.name}} </p>
+                                    <h6 *ngIf="s.report.attachments.length" class="dept previnfo" style="color:lightgrey">
+                                        <span><i (click) = "pullImages(i,j, 'scan')" data-toggle="modal" data-target="#scanFiles" title="View attachment"  style='font-size: 15px; cursor: pointer;' class="icon ion-android-attach"></i></span>&nbsp;
+                                        {{s.report.attachments.length + ' '+' attachment'+getLength(s.report.attachments.length)}}
+                                        <span style="text-align:right;left:70%;display: inline-block;width:50px"  class="predata priceval">
+                                            <i title="Download" style='font-size: 20px;position:absolute;bottom:-17px;left: 75%;cursor: pointer;' class="icon ion-ios-download-outline paid-icon"></i>
+                                        </span>
+                                    </h6>
+                                    <h6 *ngIf="s.report.comment" class="dept previnfo" style="color:lightgrey">
+                                        <span><i (click)="toggleScanComment(i,j,'open') "title="View Comment" style='font-size: 17px;cursor:pointer' class="icon ion-ios-chatbubble-outline"></i></span>
+                                    &nbsp;Comment
+                                    </h6>
+                                    <div *ngIf="s.report.stamp.selected"   style="left:-46px;"  class="comment">
+                                        <div (click) = "toggleScanComment(i,j,'close')" class="close-comment">
+                                            <i title="close" class="icon ion-ios-close-empty"></i>
+                                        </div>
+                                        <div style="width: 100%; position: relative;height: 80%;" class="comment-note">
+                                            <p style="font-size: .75rem;color:gray;padding:0 10px;z-index: 100;">
+                                                {{s.report.comment}}
+                                            </p>
+                                        </div>
+                                        <div class="commentator">
+                                            <div class="commentator-media">
+                                                <div class=" timeline lastdoc priscriber headerdp small-dp commentor-dp">
+                                                        <img style='height:100%; width:100%; object-fit:cover; border-radius:50%;' [src] = getDp(patient.info.personal.avatar)/>
                                                 </div>
+                                                <p style="font-size: 11px;position: relative;display: inline-block;left:18px;width: 87%;" class="commentator-name">
+                                                    Mohammed Abdullahi <span style="color:lightgrey;float: right;">
+                                                        {{s.report.stamp.dateAdded|date:'dd/MM/y hh:mma'|lowercase}}
+                                                    </span>
+                                                </p>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div style='border-radius:20px;margin-bottom: 4px;  overflow:hidden' class="card card-secondary maincard halfcard halfcard-right">
-                            <div style='border-top-right-radius:20px;border-top-left-radius:20px' class="card-header grapheader">
-                                <h1 style="padding-left: 15px;" class="dept headtitle">
-                                    <span *ngIf="clientMode ==='edit'"><i  (click)="switchClient('view')" style='position:absolute;right:97%;top:-3px; font-size:large;  cursor:pointer; display: inline-block;color:#1da1f2;' title="Back" class="icon ion-android-arrow-back "> </i>
-                                    </span> IMMUNIZATIONS <span *ngIf="clientMode !=='edit'" (click)="switchClient('edit')" style='position:absolute;left:93%;top:-2px; cursor:pointer;'>
-                                        <i class="material-icons">short_text</i>
-                                    </span>
-                                </h1>
-                            </div>
-                            <div [class.back]='clientMode==="edit"' [class.front]='clientMode==="view"' style='height:100%;padding-left: 17px;position:absolute;width:100%;' class="card-body midcardbody">
-                                <h1 *ngIf="!patient.record.immunization.vaccins.length" style='color:lightgrey; ' class="dept headtitle record-placeholder">NO RECORD</h1>
-                                <div  *ngFor="let vaccins of patient.record.immunization.vaccins; let i = index"  class="carditem priscriptioncontainer order">
-                                    <div style='left:-7.2%' class="timeline condition drugtimeline">
-                                        <p class="timelinedate"> {{vaccins[0]?.stamp.dateAdded|date:'dd'}}</p>
-                                        <p  class="timelinedate month"> {{vaccins[0]?.stamp.dateAdded|date:'MMM'|uppercase}}</p>
-                                    </div>
-                                    <div *ngFor ="let v of vaccins; let j = index" class="priscription drug">
-                                        <p class="dept">{{v.name}}</p>
-                                    </div>
+                    </div>
+                    <div style='border-radius:20px;margin-bottom: 4px;  overflow:hidden' class="card card-secondary maincard halfcard halfcard-right">
+                        <div style='border-top-right-radius:20px;border-top-left-radius:20px' class="card-header grapheader">
+                            <h1 style="padding-left: 15px;" class="dept headtitle">
+                                <span *ngIf="clientMode ==='edit'"><i  (click)="switchClient('view')" style='position:absolute;right:97%;top:-3px; font-size:large;  cursor:pointer; display: inline-block;color:#1da1f2;' title="Back" class="icon ion-android-arrow-back "> </i>
+                                </span> IMMUNIZATIONS <span *ngIf="clientMode !=='edit'" (click)="switchClient('edit')" style='position:absolute;left:93%;top:-2px; cursor:pointer;'>
+                                    <i class="material-icons">short_text</i>
+                                </span>
+                            </h1>
+                        </div>
+                        <div [class.back]='clientMode==="edit"' [class.front]='clientMode==="view"' style='height:100%;padding-left: 17px;position:absolute;width:100%;' class="card-body midcardbody">
+                            <h1 *ngIf="!patient.record.immunization.vaccins.length" style='color:lightgrey; ' class="dept headtitle record-placeholder">NO RECORD</h1>
+                            <div  *ngFor="let vaccins of patient.record.immunization.vaccins; let i = index"  class="carditem priscriptioncontainer order">
+                                <div style='left:-7.2%' class="timeline condition drugtimeline">
+                                    <p class="timelinedate"> {{vaccins[0]?.stamp.dateAdded|date:'dd'}}</p>
+                                    <p  class="timelinedate month"> {{vaccins[0]?.stamp.dateAdded|date:'MMM'|uppercase}}</p>
                                 </div>
-                            </div>
-                            <div [class.in]='clientMode==="edit"' [class.out]='clientMode==="view"'  style='height:100%; padding-left: 7px; padding-right: 7px;padding-top: 4%;position:absolute;' class="card-body standby midcardbody">
-                                <div *ngFor="let items of vaccins; let i = index" style="border-left: none; border-bottom: 1px solid whitesmoke;"   class="carditem priscriptioncontainer order">
-                                    <div *ngFor="let item of items; let j = index" class="priscription drug">
-                                        <p class="dept">{{item.name}}
-                                            <span  class="predata priceval">
-                                                <i (click)= "selectVaccin(i, j, 'uncheck')" *ngIf="item.selected" style='color:lightgrey; top:-19px'  class="icon ion-ios-checkmark-empty paid-icon" title="Deselect ">
-                                                </i>
-                                                <div (click)= "selectVaccin(i, j, 'check')" *ngIf="!item.selected" class="mycheckbox" ></div>
-                                            </span>
-                                        </p>
-                                    </div>
+                                <div *ngFor ="let v of vaccins; let j = index" class="priscription drug">
+                                    <p class="dept">{{v.name}}</p>
                                 </div>
-                                <button (click) = 'addImmunizations()' style="width: 105px;font-size: 10px; height:25px;left:28%; bottom:13%;" class="btn btn-sm btn-outline-primary mainbtn">
-                                    UPDATE
-                                    <span *ngIf="processing" style="position: absolute; bottom: -7%;left: 4%;">
-                                        <i class="fa fa-circle-o-notch fa-spin fa-10x slow-spin "
-                                        style="position:absolute;bottom:5px;left:5px;font-size:17px;color: #1da1f2;"> </i>
-                                    </span>
-                                </button>
                             </div>
                         </div>
+                        <div [class.in]='clientMode==="edit"' [class.out]='clientMode==="view"'  style='height:100%; padding-left: 7px; padding-right: 7px;padding-top: 4%;position:absolute;' class="card-body standby midcardbody">
+                            <div *ngFor="let items of vaccins; let i = index" style="border-left: none; border-bottom: 1px solid whitesmoke;"   class="carditem priscriptioncontainer order">
+                                <div *ngFor="let item of items; let j = index" class="priscription drug">
+                                    <p class="dept">{{item.name}}
+                                        <span  class="predata priceval">
+                                            <i (click)= "selectVaccin(i, j, 'uncheck')" *ngIf="item.selected" style='color:lightgrey; top:-19px'  class="icon ion-ios-checkmark-empty paid-icon" title="Deselect ">
+                                            </i>
+                                            <div (click)= "selectVaccin(i, j, 'check')" *ngIf="!item.selected" class="mycheckbox" ></div>
+                                        </span>
+                                    </p>
+                                </div>
+                            </div>
+                            <button (click) = 'addImmunizations()' style="width: 105px;font-size: 10px; height:25px;left:28%; bottom:13%;" class="btn btn-sm btn-outline-primary mainbtn">
+                                UPDATE
+                                <span *ngIf="processing" style="position: absolute; bottom: -7%;left: 4%;">
+                                    <i class="fa fa-circle-o-notch fa-spin fa-10x slow-spin "
+                                    style="position:absolute;bottom:5px;left:5px;font-size:17px;color: #1da1f2;"> </i>
+                                </span>
+                            </button>
+                        </div>
                     </div>
+                </div>
+
+                
             </div>
         </div>
         <div *ngIf='patient._id' class="col col-xs-3 col-sm-3 col-md-3 col-lg-3 col-xl-3">
             <div class="card-colums rightcolumn">
-
-                <div class="card card-secondary historycard rightcard medication">
+                <div style='height:280px;min-height: 280px;max-height:280px' class="card card-secondary historycard rightcard medication">
                         <div class="card-header grapheader">
                             <h1 class="dept headtitle">COMPLAINS</h1>
                         </div>
-                        <div style ="padding-left:17px;" class="card-body rightcardbody">
+                        <div *ngIf='patient.record.complains.length' style ="padding-left:17px;" class="card-body rightcardbody">
                           <div  *ngFor="let comp of patient.record.complains; let i = index"  class="carditem priscriptioncontainer order">
                             <div style='left:-7.2%' class="timeline condition drugtimeline">
                                 <p class="timelinedate"> {{comp[0]?.stamp.dateAdded|date:'dd'}}</p>
@@ -1306,7 +1267,15 @@ max-width:100%;">
                             </div>
                             <div *ngFor ="let c of comp; let j= index" class="priscription drug">
                                 <p class="dept">{{c.complain}}<span class="predata"></span>
-                                    <span style='color:lightgrey;font-size:smaller;left:102px;width:27%;position:absolute;text-align:right;'>{{c.duration}}d</span>
+                                    <span style='
+                                      color:lightgrey;
+                                      font-size:smaller;
+                                      left:102px;
+                                      width:27%;
+                                      position:absolute;
+                                      text-align:right;'
+                                      >{{formatDuration(c.piriod, c.duration)}}
+                                    </span>
                                 </p>
                              </div>
                           </div>
@@ -1316,64 +1285,71 @@ max-width:100%;">
                         <div class="card-header grapheader">
                             <h1 class="dept headtitle">HISTORY</h1>
                         </div>
-                        <!-- <div style ="padding-left:17px;" class="card-body rightcardbody">
-                            <h1 *ngIf='!patient.record.history.length'
-                            style='color:lightgrey; width:100%; text-align:center;top:43%;position:absolute;'
-                            class="dept headtitle">NO RECORD</h1>
-                            <div  *ngFor="let hist of patient.record.history; let i = index"  class="carditem priscriptioncontainer order">
+                        <div style ="padding-left:17px;" class="card-body rightcardbody">
+                            <h1 *ngIf='!patient.record.histories.length' class="dept headtitle empty-record-state">NO RECORD</h1>
+                            <div *ngIf= patient.record.histories.length >
+                            <div  *ngFor="let h of patient.record.histories; let i = index"  class="carditem priscriptioncontainer order">
                               <div style='left:-7.2%' class="timeline condition drugtimeline">
-                                  <p class="timelinedate"> {{hist[0]?.stamp.dateAdded|date:'dd'}}</p>
-                                  <p  class="timelinedate month"> {{hist[0]?.stamp.dateAdded|date:'MMM'|uppercase}}</p>
+                                  <p class="timelinedate"> {{h.stamp.dateAdded|date:'dd'}}</p>
+                                  <p  class="timelinedate month"> {{h.stamp.dateAdded|date:'MMM'|uppercase}}</p>
                               </div>
-                              <div *ngFor ="let h of hist; let j= index" class="priscription drug">
-                                  <p class="dept">{{h.condition}}<span class="predata"></span>
-                                      <span style='
-                                      color:lightgrey;
-                                      font-size:smaller;
-                                      left:102px;width:27%;
-                                      position:absolute;text-align:right;'>{{h.duration}}d</span>
-                                  </p>
-                                  <h6 class="dept previnfo" style="color:lightgrey">{{h.bearer}}</h6>
+                              <div  class="priscription drug">
+                                <div *ngIf= h.pc.length  class="list-wrap">
+                                  <h6 class="sub-header">HISTORY OF PRESENTING CO...</h6>
+                                  <p *ngFor ="let p of h.pc; let j= index" class="dept">{{p.name}}<span class="predata"></span></p>
+                                </div>
+                                <div *ngIf= h.pmh.medHist.length  class="list-wrap">
+                                  <h6 class="sub-header">PAST MEDICAL HISTORY</h6>
+                                  <p *ngFor ="let m of h.pmh.medHist; let j = index" class="dept dept-list">{{m.name}}<span class="predata"></span></p>
+                                </div>
+                                <div *ngIf= h.fsh.length  class="list-wrap">
+                                  <h6 class="sub-header">FAMILY-SOCIAL HISTORY</h6>
+                                  <p *ngFor ="let f of h.fsh; let j = index" class="dept dept-list">{{f.name}}<span class="predata"></span></p>
+                                </div>
+                                  <!-- <p class="dept previnfo" style="color:lightgrey">MED. HISTORY</p> -->
                                </div>
                             </div>
-                          </div> -->
+                          </div>
+                        </div>
                     </div>
-                    <div style='height:182px;max-height:182px;min-height:182px' class="card card-secondary historycard rightcard medication">
-                            <div class="card-header grapheader">
-                                <h1 class="dept headtitle">CONDITIONS</h1>
-                            </div>
-                            <div style ="padding-left:17px;" class="card-body rightcardbody">
-                                    <h1 *ngIf='!patient.record.conditions.length'
-                                    style='color:lightgrey; width:100%; text-align:center;top:43%;position:absolute;'
-                                    class="dept headtitle">NO RECORD</h1>
-                              <div  *ngFor="let cond of patient.record.conditions; let i = index"  class="carditem priscriptioncontainer order">
+                    <div style='height:370px'  class="card card-secondary historycard rightcard allegies">
+                        <div class="card-header grapheader">
+                            <h1 class="dept headtitle">EXAMINATIONS</h1>
+                        </div>
+                        <div style ="padding-left:17px;" class="card-body rightcardbody">
+                            <h1 *ngIf='!patient.record.examinations.length'
+
+                            class="dept headtitle empty-record-state">NO RECORD</h1>
+                              <div  *ngFor="let exam of patient.record.examinations; let i = index"  class="carditem priscriptioncontainer order">
                                 <div style='left:-7.2%' class="timeline condition drugtimeline">
-                                    <p class="timelinedate"> {{cond[0]?.stamp.dateAdded|date:'dd'}}</p>
+                                    <p class="timelinedate"> {{exam[0]?.stamp.dateAdded|date:'dd'}}</p>
                                     <p  class="timelinedate month">
-                                        {{cond[0]?.stamp.dateAdded|date:'MMM'|uppercase}}
+                                        {{exam[0]?.stamp.dateAdded|date:'MMM'|uppercase}}
                                     </p>
                                 </div>
-                                <div *ngFor ="let con of cond; let j= index" class="priscription drug">
-                                    <p class="dept">{{con.condition}}<span class="predata"></span>
-                                        <!-- <span style='color:lightgrey;font-size:smaller;left:105px;width:27%;position:absolute;text-align:right;'>{{medic[0].stamp.dateAdded|date:'hh:mma'|lowercase}}</span> -->
-                                    </p>
+                                <div *ngFor ="let e of exam; let j= index" class="priscription drug">
+                                  <div class="list-wrap">
+                                    <p class="dept">{{e.name}}<span class="predata"></span></p>
+                                  </div>
                                  </div>
                               </div>
-                        </div>
-                     </div>
+                          </div>
+                      </div>
+                      
                      <div class="card card-secondary historycard rightcard medication">
                         <div class="card-header grapheader">
                             <h1 class="dept headtitle">MEDICATIONS</h1>
                         </div>
                         <div style ="padding-left:17px;" class="card-body rightcardbody">
-                            <h1 *ngIf='!patient.record.medications.length' style='color:lightgrey; ' class="dept headtitle record-placeholder">NO RECORD</h1>
-                        <div *ngFor="let medic of patient.record.medications; let i = index"  class="carditem priscriptioncontainer order">
+                            <!-- <h1 *ngIf='!patient.record.medications.length'
+                             class="dept headtitle record-placeholder empty-record-state">NO RECORD</h1> -->
+                        <div *ngFor="let med of patient.record.medications; let i = index"  class="carditem priscriptioncontainer order">
                             <div style='left:-7.2%' class="timeline condition drugtimeline">
-                                <p class="timelinedate">{{medic[0]?.stamp.dateAdded|date:'dd'}}</p>
-                                <p  class="timelinedate month"> {{medic[0]?.stamp.dateAdded|date:'MMM'|uppercase}}</p>
+                                <p class="timelinedate">{{med[0]?.stamp.dateAdded|date:'dd'}}</p>
+                                <p  class="timelinedate month"> {{med[0]?.stamp.dateAdded|date:'MMM'|uppercase}}</p>
                             </div>
-                            <div *ngFor ="let m of medic; let j= index" class="priscription drug">
-                                <p class="dept">{{m.name}}<span class="predata"></span>
+                            <div *ngFor ="let m of med; let j= index" class="priscription drug">
+                                <p class="dept">{{m.product.name}}<span class="predata"></span>
                                     <span style='
                                         color:lightgrey;
                                         font-size:10px;

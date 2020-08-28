@@ -36,11 +36,39 @@
                                     <div class="form-group">
                                         <label  for="firstname" class="labelss"><span style='font-size:11px; color:red;'>*</span>FIRST NAME
                                         </label>
-                                        <input (focus) = clearError() [(ngModel)]="patient.info.personal.firstName" autocomplete="off"  name="firstname" class="form-control input">
+                                        <input #f
+                                        (focus)="showSuggestions(f.name)"
+                                        (keyup)= 'searchMatch(f.value, f.name)'
+                                        [(ngModel)]="patient.info.personal.firstName"
+                                        autocomplete="off"
+                                        name="firstname"
+                                        class="form-control input">
+                                        <div *ngIf="elem==='firstname' && matches.length"  class="prisOption slideIn">
+                                          <ul data-simplebar class="itemsList" >
+                                              <li *ngFor="let match of matches">
+                                                  <p (click)='pickMatch(match)' class="drugItem">{{match}}<span class="lastdept timetaken "></span>
+                                                  </p>
+                                              </li>
+                                          </ul>
+                                      </div>
                                     </div>
                                     <div class="form-group">
-                                        <label  for="lastname" class="labelss"><span style='font-size:11px; color:red;'>*</span>LAST NAME </label>
-                                        <input (focus) = clearError() [(ngModel)]=" patient.info.personal.lastName"  autocomplete="off"  name="lastname" class="form-control input"/>
+                                        <label for="lastname" class="labelss"><span style='font-size:11px; color:red;'>*</span>LAST NAME </label>
+                                        <input #l
+                                        (focus)="showSuggestions(l.name)"
+                                        (keyup) = 'searchMatch(l.value, l.name)'
+                                        [(ngModel)]="patient.info.personal.lastName"
+                                        autocomplete="off"
+                                        name="lastname"
+                                        class="form-control input">
+                                        <div *ngIf="elem==='lastname' && matches.length"  class="prisOption slideIn">
+                                          <ul data-simplebar class="itemsList" >
+                                              <li *ngFor="let match of matches">
+                                                  <p (click)='pickMatch(match)' class="drugItem">{{match}}<span class="lastdept timetaken "></span>
+                                                  </p>
+                                              </li>
+                                          </ul>
+                                      </div>
                                     </div>
                                 </div>
                                 <div class ='group-wrap'>
@@ -91,10 +119,10 @@
                                         </select>
                                     </div>
                                 </div>
-                                <div *ngIf=reg class="form-group">
+                                <!-- <div *ngIf=reg class="form-group">
                                   <label  for="address" class="labelss">DATE ENROLED</label>
-                                  <!-- <input [(ngModel)]='patient.info.stamp.dateAdded' type = 'date' (focus) = clearError() autocomplete="off" name="address" class="form-control input" /> -->
-                              </div>
+                                  <input [(ngModel)]='patient.info.stamp.dateAdded' type = 'date' (focus) = clearError() autocomplete="off" name="address" class="form-control input" />
+                              </div> -->
                               <!-- <div *ngIf=!reg class ='group-wrap'>
                                   <div   class="form-group ">
                                     <label  for="enroled" class="labelss"><span style='font-size:11px; color:red;'>*</span>DATE ENROLED</label>
@@ -150,6 +178,7 @@
                                         <input (focus) = clearError() name='kinmobile' [(ngModel)]=" patient.info.contact.me.kinMobile" autocomplete="off" class="form-control input"/>
                                     </div>
                                 </div>
+
                                 <div class ='group-wrap'>
                                     <div class="form-group">
                                         <label  for="ename" class="labelss">EMERGENCY CONTACT NAME</label>
@@ -180,7 +209,7 @@
                                     </div>
                                     <div class="form-group">
                                         <label  for="employer" class="labelss">EMPLOYER</label>
-                                        <input (focus) = clearError() [(ngModel)]=" patient.info.insurance.employer" name='employer' autocomplete="off" class="form-control input"/>
+                                        <input (focus) = clearError() [(ngModel)]="patient.info.insurance.employer" name='employer' autocomplete="off" class="form-control input"/>
                                     </div>
                                 </div>
                                 <div class="group-wrap">
@@ -205,7 +234,15 @@
                     <div style="left:12%; top:45%;position: absolute;
                     width: 7%;" class="btn-group disposition">
                         <button [disabled]='count === 0' (click) = prev() style="width:32px;height: 32px;border-radius: 50%;left:35%"   class="btn btn-outline-primary  dispo shift-button" >
-                            <i style='position:absolute;right:36%;top:2px; font-size:large; cursor:pointer; display: inline-block;' title="Back" class="icon ion-android-arrow-back ">
+                            <i style='
+                            position:absolute;
+                            right:36%;
+                            top:2px;
+                            font-size:large;
+                            cursor:pointer;
+                            display: inline-block;'
+                            title="Back"
+                            class="icon ion-android-arrow-back">
                             </i>
                         </button>
                     </div>
@@ -216,21 +253,23 @@
                             </i>
                         </button>
                     </div>
-                    <div *ngIf="count === 2 &&  reg" style="left:31%;top:286px;position:relative;width:53%" class="btn-group disposition">
-                        <button (click)=addRecord() [disabled] = "creating || isInvalidForm()"  style=" width: 170px;font-size: 10px; border-radius: 30px; height:27px;left:15%; bottom:10%;" class="btn btn-sm btn-outline-primary mainbtn">
-                            CREATE RECORD
-                            <span *ngIf='creating' style="position: absolute; bottom: -7%;left: 10%;">
-                                <i class="fa fa-circle-o-notch fa-spin fa-10x slow-spin " style="position:absolute;bottom:5px;left:5px;font-size:19px;color: #1da1f2;"> </i>
-                            </span>
-                        </button>
+                    <div *ngIf="count === 2 &&  reg" style="left:31%;top:72%;position:relative;width:53%" class="btn-group disposition">
+                      <button
+                      (click)=addRecord() [disabled] = "creating || isInvalidForm()"
+                      style=" width:170px;font-size: 10px; border-radius: 30px; height:27px;left:15%; bottom:10%;" class="btn btn-sm btn-outline-primary mainbtn">
+                          <div *ngIf="creating" class='spinner small'></div>
+                          <span *ngIf='!creating' >CREATE RECORD</span>
+                      </button>
                     </div>
-                    <div *ngIf="count === 2 && !reg" style="left:31%;top:286px;position:relative;width:53%" class="btn-group disposition">
-                        <button (click) = updateInfo() [disabled] = "updating || isInvalidForm()"  style=" width: 170px;font-size: 10px; border-radius: 30px; height:27px;left:15%; bottom:10%;" class="btn btn-sm btn-outline-primary  mainbtn">
-                            UPDATE INFORMATION
-                            <span *ngIf=' updating' style="position: absolute; bottom: -7%;left: 10%;">
-                                <i class="fa fa-circle-o-notch fa-spin fa-10x slow-spin " style="position:absolute;bottom:5px;left:5px;font-size:19px;color: #1da1f2;"></i>
-                            </span>
-                        </button>
+                    <div *ngIf="count === 2 && !reg"
+                    style="left:31%;top:72%;position:relative;width:53%"
+                    class="btn-group disposition">
+                      <button
+                      (click) = updateInfo() [disabled] = "updating || isInvalidForm()"
+                      style=" width:170px;font-size: 10px; border-radius: 30px; height:27px;left:15%; bottom:10%;" class="btn btn-sm btn-outline-primary mainbtn">
+                          <div *ngIf="processing" class='spinner small'></div>
+                          <span *ngIf=' !updating' >UPDATE RECORD</span>
+                      </button>
                     </div>
                     <h6 *ngIf=" successMsg" class="feedbackMsg">{{successMsg}}</h6>
                     <h6 *ngIf=" errorMsg"  style="color: red" class="feedbackMsg">{{errorMsg}}</h6>
@@ -347,9 +386,9 @@
         <li (click)=logOut()>
             Log out
         </li>
-    </ul>
+      </ul>
     </div>
-    <i (click) ='showLogOut()' class="icon ion-ios-arrow-down"></i>
+    <i (click) = 'showLogOut()' class="icon ion-ios-arrow-down"></i>
   </div>
 </header>
 
@@ -367,8 +406,7 @@
         <div *ngFor="let patient of patients; let i=index" class="col-xl-4 col-lg-4 col-md-4 col-sm-6 col-xs-12">
           <div style="left: 62%" (mouseleave)='hideMenu()' *ngIf="patient.card.menu" class="menu">
             <ul  class="actions primary">
-                 <li *ngIf="patient.record.cards[0] && patient.record.cards[0].pin" (click)="switchCardView(i,'enrole')" class="action">Enrole</li>
-                 <!-- <li (click)="switchCardView(i,'card')" class="action">Add Card</li> -->
+                 <li (click)="switchCardView(i,'enrole')" class="action">Enrole</li>
                  <li (click)="switchCardView(i,'return')" class="action">Return Folder</li>
                  <li (click)='viewDetails(i)' data-toggle="modal" data-target="#addModal" class="action">
                      Edit Info
@@ -376,36 +414,43 @@
              </ul>
           </div>
         <div (mouseenter) = showMoreIcon(i) (mouseleave) = hideMoreIcon(i) style="overflow: hidden;"  class="card card-secondary maincard">
-            <div *ngIf="patient.card.view==='front'"  class="card-header profileheader p-header">
+            <div *ngIf="patient.card.view==='front'"
+            class="card-header profileheader p-header">
               <div (click)='showMenu(i)' title="More" *ngIf="isInfo() && patient.card.more" class="more-wrap">
-                <i   class="icon ion-android-more-vertical"></i>
+                <i class="icon ion-android-more-vertical"></i>
               </div>
             </div>
             <div  *ngIf="patient.card.view!=='front'" class="card-header profileheader small-header s-header">
-                <i (click)="switchCardView(i,'front')" style='position:absolute;  left:3%;top:4px; cursor:pointer;
-                display: inline-block;
-                color:#1da1f2;' title="Back" class="icon ion-android-arrow-back">
+                <i (click)="switchCardView(i,'front')"
+                  style='position:absolute; left:3%;top:4px; cursor:pointer;
+                  display: inline-block;
+                  color:#1da1f2;'
+                  title="Back"
+                  class="icon ion-android-arrow-back">
                 </i>
                 <div style="left:23px;position: absolute;" class="timeline lastdoc priscriber headerdp small-dp">
                     <img [src]='getDp(patient.info.personal.avatar)'/>
                 </div>
                 <p style="top:6px;margin-bottom:0px;position: absolute;" class="patien-name small-name">
-                    {{patient.info.personal.firstName + ' '+ patient.info.personal.lastName}}<span class="small-headericon"></span>
+                    {{patient.info.personal.firstName +' '+ patient.info.personal.lastName}}<span class="small-headericon"></span>
                 </p>
             </div>
             <div [class.ap]='cardCount' [class.front]='patient.card.view === "front"' style="position: absolute; width:100%;height: 87%;top:13%" class="card-body mainbody">
                 <div  style="position: relative;margin-bottom: 0px;top:0px" class="timeline lastdoc priscriber headerdp">
-                <img  [src]='getDp(patient.info.personal.avatar)'/>
+                  <img [src]='getDp(patient.info.personal.avatar)'/>
                 </div>
-                <p *ngIf="isInfo() || isWard()"  style='margin-bottom:2px;position:relative;top:3px' class="patien-name display-name">
-                    {{patient.info.personal.firstName + ' '+patient.info.personal.lastName}}
+                <p (click)='viewDetails(i)' data-toggle="modal" data-target="#addModal" *ngIf="isInfo() || isWard()"
+                    style='margin-bottom:2px;position:relative;top:3px'
+                    class="patien-name display-name"> <span>{{patient.info.personal.firstName}} </span>
+                    {{patient.info.personal.lastName}}
                 </p>
                 <a style="position:relative;top:3px" *ngIf='isConsult()' href="#" title="View history" [routerLink]="['../history', patient._id]" routerLinkActive="router-link-active" class="patien-name">
-                    {{patient.info.personal.firstName + ' ' + patient.info.personal.lastName}}
-                    <span class="predata editicon"></span></a>
+                   <span>{{patient.info.personal.firstName}} </span>{{patient.info.personal.lastName}}
+                    </a>
                     <a style="position:relative;top:3px" *ngIf='isAdmin()' href="#" title="View history" [routerLink]="['./history', patient._id]" routerLinkActive="router-link-active" class="patien-name">
-                    {{patient.info.personal.firstName + ' ' + patient.info.personal.lastName}}
-                    <span class="predata editicon"></span></a>
+                    <span >{{patient.info.personal.firstName}} </span> 
+                        {{patient.info.personal.lastName}}
+                    </a>
                 <div>
                     <div style="position: relative;top:12px" class="carditem basic-item">
                         <h6 class="dept basic-info">Sex</h6>

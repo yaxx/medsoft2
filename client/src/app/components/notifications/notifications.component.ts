@@ -4,6 +4,7 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {SocketService} from '../../services/socket.service';
 import {DataService} from '../../services/data.service';
 import * as cloneDeep from 'lodash/cloneDeep';
+import { AuthService } from '../../services/auth.service';
 import {Stamp} from '../../models/inventory.model';
 import {CookieService } from 'ngx-cookie-service';
 @Component({
@@ -21,10 +22,13 @@ export class NotificationsComponent implements OnInit {
   feedback = null;
   succMessage = null;
   errLine = null;
-  constructor(private dataService: DataService,
-              private router: Router,
-              private cookies: CookieService,
-              private socket: SocketService) { }
+  constructor(
+    private dataService: DataService,
+    private router: Router,
+    private cookies: CookieService,
+    private socket: SocketService,
+    private authService: AuthService
+  ) { }
 
   ngOnInit() {
     this.getNotifications();

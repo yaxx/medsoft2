@@ -19,6 +19,7 @@ import {
   } from '../../models/record.model';
 
 import {Chart} from 'chart.js';
+import {ChartOptions} from '../../util/chartConfig';
 import {saveAs} from 'file-saver';
 import {host} from '../../util/url';
 import { CONTEXT_NAME } from '@angular/compiler/src/render3/view/util';
@@ -79,14 +80,87 @@ export class HistoryComponent implements OnInit {
   message = null;
   edit = false;
   bpChart = [];
-  chartData = [60, 20, 45, 65, 80, 30, 50];
+  suggestedPulseMax = 150;
+  barChartOptions = ChartOptions.bp;
+  pulseChartOptions = ChartOptions.pulse;
+  tempChartOptions = ChartOptions.temp;
+  barChartType = 'bar';
+  pulseChartType = 'line';
+  barChartLegend = false;
+  bPChartData = [
+    {
+      label: 'Systolic',
+      data: [60, 140, 110, 85, 105, 120, 90],
+      tension: 0.0,
+      borderColor: 'white',
+      backgroundColor: (context) => {
+        const index = context.dataIndex;
+        const value = context.dataset.data[index];
+        return value > 120 ? 'red' : 'ghostwhite';
+      },
+      pointBackgroundColor: ['white', 'white', 'whitesmoke', 'white', 'white', 'white', 'rgb(255,190,70)'],
+      pointRadius: 4,
+      borderWidth: 0
+  },
+  {
+      label: 'Diastolic',
+      data: [100, 70, 90, 195, 60, 80, 120],
+      tension: 0.0,
+      borderColor: 'white',
+      backgroundColor: (context) => {
+        const index = context.dataIndex;
+        const value = context.dataset.data[index];
+        return value > 80 ? 'red' : 'ghostwhite';
+      },
+      pointBackgroundColor: ['white', 'white', 'whitesmoke', 'white', 'white', 'white', 'rgb(255,190,70)'],
+      pointRadius: 4,
+      borderWidth: 0
+  }
+];
+  tempChartData = [
+    {
+      label: 'Tempreture',
+      data: [50, 35, 40, 25, 30, 38, 51, 30],
+      tension: 0.0,
+      borderColor: 'ghostwhite',
+      backgroundColor: (context) => {
+        const index = context.dataIndex;
+        const value = context.dataset.data[index];
+        return value > 38 ? 'red' : 'ghostwhite';
+      },
+      pointBackgroundColor: 'ghostwhite',
+      pointRadius: 4,
+      borderWidth: 0
+  }
+];
+  pulseChartData = [
+    {
+      label: 'Pulse Rate',
+      data: [10, 12, 13, 13, 7, 14, 5],
+      tension: 0.0,
+      bezierCurve : true,
+      lineTension: 0,
+      borderColor: 'lightgreen',
+      color: 'ghostwhite',
+      zeroLineColor: 'ghostwhite',
+      fill: false,
+      backgroundColor: 'ghostwhite',
+      pointBackgroundColor: (context) => {
+        const index = context.dataIndex;
+        const value = context.dataset.data[index];
+        return (value > 100 || value < 60 ) ? 'red' : 'ghostwhite';
+      },
+      pointRadius: 4,
+      borderWidth: 0
+  }
+
+];
+
+  barChartLabels = ['02.11.20', '01.05.20', '02.12.20', '15.06.20', '12.09.20', '07.01.20' , '08.12.19'];
+  temChartLabels = ['02:11am',  '02:10pm', '10.11am', '02:30pm', '08:05pm', '02:10pm', '05.06pm', '12:09am'];
   notes: Note[] = [];
   stamp = new Stamp();
-  chartLabels = new Array<string>(10);
-  // @ViewChild('bpChart',{static: false}) e: ElementRef;
-  // this.ctx = this.e.nativeElement.getContext('2d');
   constructor(
-     private e: ElementRef,
      private dataService: DataService,
      private router: Router,
      private cookies: CookieService,
@@ -95,68 +169,7 @@ export class HistoryComponent implements OnInit {
     ) { }
 
   ngOnInit() {
-    this.stamp = new Stamp(this.cookies.get('i'), this.cookies.get('h'));
-    // this.ctx = this.e.nativeElement.querySelector('bpChart').getContext('2d');
-    // this.bpChart = new Chart('bpChart', {
-    //   type: 'bar',
-    //     options: {
-    //         maintainAspectRatio: false,
-    //         layout: {
-    //             padding: {
-    //                 left: 5,
-    //                 right: 20,
-    //                 top: 0,
-    //                 bottom: 0
-    //             }
-    //         },
-    //       legend: {
-    //         display: false,
-    //       },
-    //       scales: {
-    //         xAxes: [{
-    //           gridLines: {
-    //             display: false,
-    //             color: 'white'
-    //           },
-    //           ticks: {
-    //             fontSize: 10,
-    //             fontColor: 'lightgrey'
-    //           }
-    //         }],
-    //         yAxes: [{
-    //           gridLines: {
-    //             drawBorder: false,
-    //             color: 'whitesmoke'
-    //           },
-    //           ticks: {
-    //             beginAtZero: false,
-    //             fontSize: 10,
-    //             fontColor: 'lightgrey',
-    //             maxTicksLimit: 20,
-    //             padding: 10,
-    //             suggestedMin: 60,
-    //             suggestedMax: 140
-    //           }
-    //         }]
-    //       },
-    //       tooltips: {
-    //         backgroundColor: '#bbf7f0'
-    //       }
-    //     },
-    //     data: {
-    //       labels: ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'],
-    //     datasets: [{
-    //       data: [60, 20, 45, 65, 80, 30, 50],
-    //       tension: 0.0,
-    //       borderColor: '#96f4f4',
-    //       backgroundColor: '#96f4f4',
-    //       pointBackgroundColor: ['white', 'white', 'whitesmoke', 'white', 'white', 'white', 'rgb(255,190,70)'],
-    //       pointRadius: 4,
-    //       borderWidth: 1
-    //     }]
-    //   }
-    // });
-
+    this.stamp = new Stamp(localStorage.getItem('i'), localStorage.getItem('h'));
     this.getClient();
     this.socket.io.on('record update', (update) => {
       if (update.patient._id === this.patient._id) {
@@ -170,7 +183,6 @@ export class HistoryComponent implements OnInit {
       }
     });
     const day = null;
-    const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
     this.loading = true;
     this.dataService.getHistory(this.route.snapshot.params.id).subscribe((res: any) => {
       this.loading = false;
@@ -189,14 +201,17 @@ export class HistoryComponent implements OnInit {
 
   }
 
-
+isClarkable() {
+  return (this.patient.record.visits[0][0].status === 'queued' || this.patient.record.visits[0][0].status === 'Admit') &&
+  this.isConsult()
+}
 
   getDp(avatar: string) {
-    return `${host}/api/dp/${avatar}`;
+    return `${host}/dp/${avatar}`;
   }
 
   getMyDp() {
-    return this.getDp(this.cookies.get('d'));
+    return localStorage.getItem('dp');
   }
   pullImages(i, j, item) {
     this.images = (item === 'test') ? this.patient.record.investigations.tests[i][j]
@@ -272,51 +287,8 @@ export class HistoryComponent implements OnInit {
     (this.unit === 'bpm' && this.patient.record.vitals.pulse.length) ||
     (this.unit === 'cpm' && this.patient.record.vitals.resp.length);
   }
-  removeVital(i, sign) {
-    this.vitals.splice(i, 1);
-    switch (sign.name) {
-      case 'Blood Presure':
-        this.session.vitals.bp = new Bp();
-        break;
-      case 'Tempreture':
-        this.session.vitals.tempreture = new Temp();
-        break;
-      case 'Pulse Rate':
-        this.session.vitals.pulse = new Pulse();
-        break;
-      case 'Respiratory Rate':
-        this.session.vitals.resp = new Resp();
-        break;
-      default:
-        break;
-    }
-  }
-  clearVital(name) {
-    switch (name) {
-      case 'Blood Presure':
-        if (!this.session.vitals.bp.systolic || !this.session.vitals.bp.diastolic) {
-          this.vitals = this.vitals.filter(v => v.name !== name);
-        }
-        break;
-      case 'Tempreture':
-          if (!this.session.vitals.tempreture.value) {
-            this.vitals = this.vitals.filter(t => t.name !== name);
-          }
-          break;
-      case 'Pulse Rate':
-          if (!this.session.vitals.pulse.value) {
-            this.vitals = this.vitals.filter(p => p.name !== name);
-          }
-          break;
-      case 'Respiratory Rate':
-          if (!this.session.vitals.resp.value) {
-            this.vitals = this.vitals.filter(r => r.name !== name);
-          }
-          break;
-      default:
-        break;
-    }
-  }
+
+
   switchClient(view: string) {
     this.clientMode =  view ;
   }
@@ -366,7 +338,7 @@ export class HistoryComponent implements OnInit {
     if (this.session.vitals.weight.value) {
           this.patient.record.vitals.weight.unshift({
             ...this.session.vitals.weight,
-            stamp: this.stamp
+            stamp:this.stamp
           });
         }
     if (this.session.vitals.bloodGl.value) {
@@ -405,7 +377,7 @@ export class HistoryComponent implements OnInit {
       }
     } else {}
 
-    if (this.session.vitals.bp.systolic && this.session.vitals.bp.diastolic) {
+    if (this.session.vitals.bp.systolic ) {
       if (this.patient.record.vitals.bp.length > 30) {
         this.patient.record.vitals.bp.unshift(this.session.vitals.bp);
         this.patient.record.vitals.bp.splice(this.patient.record.vitals.bp.length - 1 , 1);
@@ -476,7 +448,7 @@ switchHistory(i) {
   this.historyItem = i;
 }
 switchVital(i) {
-  this.vital = i
+  this.vital = i;
 }
 
 
@@ -593,33 +565,35 @@ checkItems(type: string) {
 }
 
 addInvoice(items, itemType) {
-  // if (itemType === 'medication') {
-  //   items.forEach(m => {
-  //     const p = this.inventory.find(stock => stock.signature === signStock(m.product));
-  //     this.session.invoices.unshift({
-  //       ...new Invoice(),
-  //       name: this.formatMedication(m),
-  //       price: (p) ? p.stockInfo.price : 0,
-  //       desc: `${m.priscription.piriod} ${this.formatDuration(m.priscription.piriod, m.priscription.duration)}`,
-  //       kind: itemType,
-  //       processed: false,
-  //       stamp: this.stamp
-  //     });
-  //   });
-  // } else {
-  //   items.forEach(m => {
-  //     const s = this.inventory.find(stock => stock.signature === signStock(m.product));
-  //     this.session.invoices.unshift({
-  //       ...new Invoice(),
-  //       name: m.stockItem.name,
-  //       price: (s) ? s.stockInfo.price : 0,
-  //       desc: itemType,
-  //       kind: 'Services',
-  //       processed: false,
-  //       stamp: this.stamp
-  //     });
-  //   });
-  // }
+  if (itemType === 'medication') {
+    items.forEach(m => {
+      console.log(m);
+      // const p = this.inventory.find(stock => stock.signature === signStock(m.product));
+      this.session.invoices.unshift({
+        ...new Invoice(),
+        name: this.formatMedication(m),
+        price : 0,
+        desc: `${m.priscription.freq} ${this.formatDuration(m.priscription.piriod, m.priscription.duration)}`,
+        kind: 'Medication',
+        processed: false,
+        stamp: new Stamp()
+      });
+    });
+  } else {
+    items.forEach(item => {
+      
+      // const s = this.inventory.find(stock => stock.signature === signStock(m.product));
+      this.session.invoices.unshift({
+        ...new Invoice(),
+        name: item.name,
+        price:  0,
+        desc: itemType,
+        kind: 'Services',
+        processed: false,
+        stamp: new Stamp()
+      });
+    });
+  }
 }
 clearSuggestions() {
   this.matches = [];
@@ -727,14 +701,14 @@ addRecord(name) {
     case 'complain':
        this.session.complains.unshift({
      ...this.session.complain,
-     stamp: this.stamp
+     stamp: new Stamp()
     });
        this.session.complain = new Complain();
        break;
      case 'condition':
        this.session.conditions.unshift({
      ...this.session.condition,
-     stamp: this.stamp
+     stamp: new Stamp()
     });
        this.session.condition = new RecordItem();
        break;
@@ -742,11 +716,11 @@ addRecord(name) {
       if (this.session.test.name) {
         this.session.tests.unshift({
           ...this.session.test,
-          stamp: this.stamp
+          stamp: new Stamp()
          });
         this.session.requests.unshift({
           ...this.session.test,
-          stamp: this.stamp
+          stamp: new Stamp()
         });
         this.session.test.name = null;
       } else {
@@ -754,7 +728,7 @@ addRecord(name) {
           ...this.session.scan,
           dept: this.session.test.dept,
           urgency: this.session.test.urgency,
-          stamp: this.stamp
+          stamp: new Stamp()
         });
         this.session.requests.unshift({
           ...this.session.scan,
@@ -768,27 +742,27 @@ addRecord(name) {
     case 'medication':
        this.session.medications.unshift({
         ...this.session.medication,
-        stamp: this.stamp
+        stamp: new Stamp()
       });
        this.session.medication = new Medication();
        break;
     case 'pmh':
       this.session.history.pmh.medHist.unshift({
       ...this.session.pmh,
-      stamp: this.stamp
+      stamp: new Stamp()
       });
       this.session.pmh = new RecordItem();
       break;
     case 'allegy':
       this.session.history.pmh.allegies.unshift({
       ...this.session.allegy,
-      stamp: this.stamp
+      stamp: new Stamp()
       });
       break;
     case 'fsh':
       this.session.history.fsh.unshift({
       ...this.session.fsh,
-      stamp: this.stamp
+      stamp: new Stamp()
       });
       this.session.fsh = new RecordItem();
       break;
@@ -797,7 +771,7 @@ addRecord(name) {
   }
 }
 formatMedication(med: Medication) {
-  return med.product.name + ' ' + med.product.size + med.product.unit;
+  return med.product.form +' '+ med.product.name + ' ' + med.product.size + med.product.unit;
 }
 formatDuration(p, d) {
   let m = null;
@@ -919,32 +893,6 @@ selectVaccin(i, j, action) {
 goTo(count: number) {
   this.count = count;
   this.clearSuggestions();
-}
-
-
-
-sendRecord() {
-  this.errLine = null;
-  this.processing = true;
-  this.dataService.updateHistory(this.patient, this.suggestions)
-  .subscribe((patient: Person) => {
-    this.patient.record  = patient.record;
-    this.socket.io.emit('record update', {
-      action: 'encounter',
-      bills: this.session.bills,
-      patient
-    });
-    this.session = new Session();
-    this.feedback = 'Record successfully updated';
-    this.processing = false;
-    this.suggestions = [];
-    setTimeout(() => {
-      this.feedback = null;
-    }, 5000);
-  }, (e) => {
-    this.errLine = 'Unable to update record';
-    this.processing = false;
-  });
 }
 
 
@@ -1104,23 +1052,24 @@ nextImg() {
     }
   }
   composeSurgeries() {
-    if (this.session.surgeries.length) {
-      this.session.bills.push('cashier');
-      if (this.patient.record.surgeries.length) {
-      if (new Date(this.patient.record.surgeries[0][0].stamp.dateAdded)
-      .toLocaleDateString() === new Date().toLocaleDateString()) {
-        for (const t of this.session.surgeries) {
-          this.patient.record.surgeries[0].unshift(t);
-        }
-       } else {
-          this.patient.record.surgeries.unshift(this.session.surgeries);
-       }
-      } else {
-        this.patient.record.surgeries = [this.session.surgeries];
-      }
-    }
+    // if (this.session.surgeries.length) {
+    //   this.session.bills.push('cashier');
+    //   if (this.patient.record.surgeries.length) {
+    //   if (new Date(this.patient.record.surgeries[0][0].stamp.dateAdded)
+    //   .toLocaleDateString() === new Date().toLocaleDateString()) {
+    //     for (const t of this.session.surgeries) {
+    //       this.patient.record.surgeries[0].unshift(t);
+    //     }
+    //    } else {
+    //       this.patient.record.surgeries.unshift(this.session.surgeries);
+    //    }
+    //   } else {
+    //     this.patient.record.surgeries = [this.session.surgeries];
+    //   }
+    // }
   }
   composeComplains() {
+    console.log(this.patient.record.complains);
     if (this.session.complains.length) {
     if (this.patient.record.complains.length) {
       if (new Date(this.patient.record.complains[0][0].stamp.dateAdded)
@@ -1141,6 +1090,10 @@ nextImg() {
     if (this.patient.record.histories.length) {
       if (new Date(this.patient.record.histories[0].stamp.dateAdded)
       .toLocaleDateString() === new Date().toLocaleDateString()) {
+        this.patient.record.histories[0].pc = [
+          ...this.session.history.pc,
+          ...this.patient.record.histories[0].pc
+        ];
         this.patient.record.histories[0].fsh = [
           ...this.session.history.fsh,
           ...this.patient.record.histories[0].fsh
@@ -1155,7 +1108,6 @@ nextImg() {
         ];
       }
       this.patient.record.histories.unshift(this.session.history);
-
     } else {
        this.patient.record.histories.unshift(this.session.history);
     }
@@ -1199,15 +1151,48 @@ nextImg() {
       if (this.patient.record.examinations.length) {
       if (new Date(this.patient.record.examinations[0][0].stamp.dateAdded)
       .toLocaleDateString() === new Date().toLocaleDateString()) {
-        this.patient.record.examinations[0] = [{...this.session.examination, stamp: this.stamp}, ...this.patient.record.examinations[0]];
+        this.patient.record.examinations[0] = [{
+          ...this.session.examination, stamp: this.stamp
+        },
+        ...this.patient.record.examinations[0]];
        } else {
-          this.patient.record.examinations.unshift([{...this.session.examination, stamp: this.stamp}]);
+          this.patient.record.examinations.unshift([{
+            ...this.session.examination,
+            stamp: this.stamp
+          }]);
        }
       } else {
-        this.patient.record.examinations = [[{...this.session.examination, stamp: this.stamp}]];
+        this.patient.record.examinations = [[{
+          ...this.session.examination,
+          stamp: this.stamp
+        }]];
       }
       this.addSuggestions([this.session.examination], 'exam');
     }
+  }
+
+  sendRecord() {
+    this.errLine = null;
+    this.processing = true;
+    this.dataService.updateHistory(this.patient, this.newSuggestions)
+    .subscribe((patient: Person) => {
+      this.patient.record  = patient.record;
+      this.socket.io.emit('record update', {
+        action: 'encounter',
+        bills: this.session.bills,
+        patient
+      });
+      this.session = new Session();
+      this.feedback = 'Record successfully updated';
+      this.processing = false;
+      this.suggestions = [];
+      setTimeout(() => {
+        this.feedback = null;
+      }, 5000);
+    }, (e) => {
+      this.errLine = 'Unable to update record';
+      this.processing = false;
+    });
   }
 
   updateRecord() {
@@ -1222,9 +1207,7 @@ nextImg() {
     this.composeInvoices();
     this.composeScalars();
     this.composeExams();
-    console.log(this.patient);
-    console.log(this.newSuggestions);
-    // this.sendRecord();
+    this.sendRecord();
   }
 }
 

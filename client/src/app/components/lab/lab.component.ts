@@ -8,6 +8,7 @@ import {sorter, searchPatients} from '../../util/functions';
 import {CookieService} from 'ngx-cookie-service';
 import {Stamp} from '../../models/inventory.model';
 import {Report} from '../../models/record.model';
+import { AuthService } from '../../services/auth.service';
 import * as cloneDeep from 'lodash/cloneDeep';
 import { timeout } from 'q';
 import {host, appName} from '../../util/url';
@@ -53,6 +54,7 @@ export class LabComponent implements OnInit {
   nowSorting = 'Date';
   view = 'default';
   count = 0;
+  stamp: Stamp = new Stamp();
   page = 0;
   id = '';
   selected = null;
@@ -64,10 +66,12 @@ export class LabComponent implements OnInit {
     private dataService: DataService,
     private cookies: CookieService,
     private router: Router,
+    private authService: AuthService,
     private socket: SocketService
     ) { }
 
   ngOnInit() {
+    this.stamp = new Stamp(localStorage.getItem('i'), localStorage.getItem('h'));
     this.getPatients();
     this.socket.io.on('record update', (update) => {
       const i = this.patients.findIndex(p => p._id === update.patient._id);
@@ -160,7 +164,7 @@ export class LabComponent implements OnInit {
     }
    }
    logOut() {
-    this.dataService.logOut();
+    this.authService.logOut();
   }
   showLogOut() {
     this.logout = true;
@@ -169,10 +173,10 @@ export class LabComponent implements OnInit {
     this.logout = false;
   }
   getDp(avatar: string) {
-    return `${host}/api/dp/${avatar}`;
+    return `${host}/dp/${avatar}`;
   }
   getMyDp() {
-    return this.getDp(this.cookies.get('d'));
+    return this.getDp(JSON.parse(localStorage.getItem('user')).info.personal.avatar);
   }
   selectItem(i: number, j: number) {
     this.testIndex = {
@@ -198,8 +202,9 @@ export class LabComponent implements OnInit {
      this.curIndex = i;
      this.patient = cloneDeep(this.patients[i]);
      this.requests = [
-       ...this.patient.record.tests.filter(test => test.dept !== this.cookies.get('dept')),
-       ...this.patient.record.scans.filter(scan => scan.dept !== this.cookies.get('dept'))
+       ...this.patient.record.investigations.tests
+       .filter(test => test.dept !== this.cookies.get('dept')),
+       ...this.patient.record.investigations.scans.filter(scan => scan.dept !== this.cookies.get('dept'))
       ];
      this.switchViews('orders');
    }
@@ -275,14 +280,18 @@ export class LabComponent implements OnInit {
     for (const file of res) {
       this.report.attachments.push(file.filename);
     }
-    this.report.stamp = new Stamp(this.cookies.get('i'));
-    this.patient.record.tests = this.patient.record.tests.map(tests => tests.map(t =>
+    this.report.stamp = this.stamp;
+    this.patient.record.investigations.tests = this.patient.record.investigations.tests.map(tests => tests.map(t =>
        (t._id === this.requests[this.testIndex.i][this.testIndex.j]._id) ? ({
-         ...t, report: this.report, treated: true}) : t
+         ...t, report: this.report,
+         treated: true
+        }) : t
        ));
-    this.patient.record.scans = this.patient.record.scans.map(scans => scans.map(s =>
+    this.patient.record.investigations.scans = this.patient.record.investigations.scans.map(scans => scans.map(s =>
        (s._id === this.requests[this.testIndex.i][this.testIndex.j]._id) ? ({
-         ...s, report: this.report, treated: true}) : s
+         ...s, report: this.report,
+         treated: true
+        }) : s
        ));
 
     this.dataService.updateRecord(this.patient).subscribe((patient: Person) => {
