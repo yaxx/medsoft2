@@ -629,12 +629,12 @@ updateStocks: async (req, res) => {
         req.body.stocks.forEach(newStock => {
           inventory = inventory
           .map(oldStock => (oldStock._id.equals(newStock._id)) ? newStock : oldStock);
-        })
+      })
       break;
       case 'delete':
         req.body.stocks.forEach(newStock => {
           inventory = inventory.filter(oldStock => !oldStock._id.equals(newStock._id))
-        })
+      })
       break;
       default:
       break
