@@ -5,21 +5,21 @@ import {Vaccins} from '../../data/immunization';
 import {DataService} from '../../services/data.service';
 import * as cloneDeep from 'lodash/cloneDeep';
 import {SocketService} from '../../services/socket.service';
-import {sortInventory, signStock} from '../../util/functions';
+import {sortInventory, signStock, updateVitals, stamp} from '../../util/functions';
 import 'simplebar';
+import {DatePipe} from '@angular/common'
 import 'simplebar/dist/simplebar.css';
 import {CookieService } from 'ngx-cookie-service';
 import {ActivatedRoute, Router} from '@angular/router';
 import {Inventory, Suggestion, StockInfo, Stock, Card, Invoice, Stamp} from '../../models/inventory.model';
-
 import {
     Record, Medication, Height, Weight, Bg, Condition,
     Note, Visit, Session, Test, Surgery, Scan, History, Complain,
-    Bp, Resp, Pulse, Temp, Vitals, Vaccin, RecordItem
+    Bp, Resp, Pulse, Temp, Vitals, Vaccin, RecordItem,  VitalStocks
   } from '../../models/record.model';
 
 import {Chart} from 'chart.js';
-import {ChartOptions} from '../../util/chartConfig';
+import {ChartOptions, pulseDataConfig,tempDataConfig} from '../../util/chartConfig';
 import {saveAs} from 'file-saver';
 import {host} from '../../util/url';
 import { CONTEXT_NAME } from '@angular/compiler/src/render3/view/util';
@@ -30,7 +30,8 @@ import { CONTEXT_NAME } from '@angular/compiler/src/render3/view/util';
 @Component({
   selector: 'app-history',
   templateUrl: './history.component.html',
-  styleUrls: ['./history.component.css']
+  styleUrls: ['./history.component.css'],
+  providers:[DatePipe]
 })
 export class HistoryComponent implements OnInit {
   stocks: Stock[] = [];
@@ -58,7 +59,7 @@ export class HistoryComponent implements OnInit {
   imgCount = 0;
   step = null;
   btn = null;
-  showing = 'BP';
+  showing = 'PR';
   unit = 'mmHg';
   vit = null;
   duration = new Array<number>(30);
@@ -70,6 +71,8 @@ export class HistoryComponent implements OnInit {
   form = '';
   vitals = [];
   matches = [];
+
+  dat = [15, 78, 20, 105, 61];
   invst = 'Test';
   historyItem = 1;
   patient: Person = new Person();
@@ -83,9 +86,9 @@ export class HistoryComponent implements OnInit {
   suggestedPulseMax = 150;
   barChartOptions = ChartOptions.bp;
   pulseChartOptions = ChartOptions.pulse;
-  tempChartOptions = ChartOptions.temp;
+  tempChartOptions = ChartOptions.pulse;
   barChartType = 'bar';
-  pulseChartType = 'line';
+  lineChartType = 'line';
   barChartLegend = false;
   bPChartData = [
     {
@@ -117,73 +120,25 @@ export class HistoryComponent implements OnInit {
       borderWidth: 0
   }
 ];
-  tempChartData = [
-    {
-      label: 'Tempreture',
-      data: [50, 35, 40, 25, 30, 38, 51, 30],
-      tension: 0.0,
-      borderColor: 'ghostwhite',
-      backgroundColor: (context) => {
-        const index = context.dataIndex;
-        const value = context.dataset.data[index];
-        return value > 38 ? 'red' : 'ghostwhite';
-      },
-      pointBackgroundColor: 'ghostwhite',
-      pointRadius: 4,
-      borderWidth: 0
-  }
-];
-  pulseChartData = [
-    {
-      label: 'Pulse Rate',
-      data: [10, 12, 13, 13, 7, 14, 5],
-      tension: 0.0,
-      bezierCurve : true,
-      lineTension: 0,
-      borderColor: 'lightgreen',
-      color: 'ghostwhite',
-      zeroLineColor: 'ghostwhite',
-      fill: false,
-      backgroundColor: 'ghostwhite',
-      pointBackgroundColor: (context) => {
-        const index = context.dataIndex;
-        const value = context.dataset.data[index];
-        return (value > 100 || value < 60 ) ? 'red' : 'ghostwhite';
-      },
-      pointRadius: 4,
-      borderWidth: 0
-  }
-
-];
-
-  barChartLabels = ['02.11.20', '01.05.20', '02.12.20', '15.06.20', '12.09.20', '07.01.20' , '08.12.19'];
-  temChartLabels = ['02:11am',  '02:10pm', '10.11am', '02:30pm', '08:05pm', '02:10pm', '05.06pm', '12:09am'];
+  data = [0,0,0,0,0];
+  tempChartData = tempDataConfig(this.data);
+  pulseChartData = pulseDataConfig(this.data);
+  barChartLabels = ['', '', '', '',''];
   notes: Note[] = [];
   stamp = new Stamp();
   constructor(
+     private dp: DatePipe,
      private dataService: DataService,
      private router: Router,
      private cookies: CookieService,
      private socket: SocketService,
      private route: ActivatedRoute
-    ) { }
+  ) { }
 
   ngOnInit() {
-    this.stamp = new Stamp(localStorage.getItem('i'), localStorage.getItem('h'));
-    this.getClient();
-    this.socket.io.on('record update', (update) => {
-      if (update.patient._id === this.patient._id) {
-        this.patient = {
-          ...update.patient,
-          record: {
-          ...update.patient.record,
-          notes: this.patient.record.notes
-        }
-      };
-      }
-    });
     const day = null;
     this.loading = true;
+    this.getClient();
     this.dataService.getHistory(this.route.snapshot.params.id).subscribe((res: any) => {
       this.loading = false;
       this.suggestions = res.s;
@@ -194,22 +149,64 @@ export class HistoryComponent implements OnInit {
         ...note,
         note: note.note.length > 150 ? note.note.substr(0, 150) : note.note
       }));
+      this.populateChart();
     }, (e) => {
       this.message = '...Network Error';
       this.loading = false;
     });
 
+    this.socket.io.on('record update', (update) => {
+      if (update.patient._id === this.patient._id) {
+        this.patient = {
+          ...update.patient,
+          record: {
+          ...update.patient.record,
+          notes: this.patient.record.notes
+          }
+        };
+      }
+    });
   }
-
-isClarkable() {
-  return (this.patient.record.visits[0][0].status === 'queued' || this.patient.record.visits[0][0].status === 'Admit') &&
-  this.isConsult()
+populateChart() {
+  switch (this.showing) {
+    case 'PR':
+      this.setChartVals(this.patient.record.vitals.pulse);
+      break;
+    case 'RR':
+      this.setChartVals(this.patient.record.vitals.resp);
+      break;
+    case 'TEM':
+      this.setChartVals(this.patient.record.vitals.tempreture);
+      break;
+    default:
+      break;
+  }
 }
+setChartVals(vals) {
+  if(this.data.length > vals.length) {
+    this.data.splice(vals.length, (this.data.length - vals.length));
+    this.barChartLabels = this.barChartLabels.fill('', vals.length);
+  } else {}
+  vals.slice(0, 5).reverse().forEach((p, i) => {
+    this.data[i] = p.value;
+    this.barChartLabels[i] = this.dp.transform(p.stamp.dateAdded, 'dd-MM hh:mma').toLowerCase()
+  });
+}
+switchVitals(label: string, unit) {
+  this.unit = unit;
+  this.showing  = label;
+  this.toggleSortMenu();
+  // this.data = [0,0,0,0,0];
+  this.populateChart();
+}
+  isClarkable() {
+    return (this.patient.record.visits[0][0].status === 'queued' || this.patient.record.visits[0][0].status === 'Admit') &&
+    this.isConsult();
+  }
 
   getDp(avatar: string) {
     return `${host}/dp/${avatar}`;
   }
-
   getMyDp() {
     return localStorage.getItem('dp');
   }
@@ -233,11 +230,7 @@ isClarkable() {
       res =>  saveAs(res, file)
     );
   }
-  switchVitals(label: string, unit) {
-    this.unit = unit;
-    this.showing  = label;
-    this.toggleSortMenu();
-  }
+
   readMore(e: Event, i: number) {
     e.preventDefault();
     this.patient.record.notes[i].note = this.notes[i].note;
@@ -247,38 +240,7 @@ isClarkable() {
   }
 
 
-  getFlags(vital, name) {
-    switch (name) {
-      case 'bp':
-        return {
-          color: vital.systolic >= 140 || vital.diastolic >= 90 ? 'red' : ''
-        };
-        break;
-      case 'temp':
-        return {
-          color: vital.value >= 38 ? 'red' : ''
-        };
-        break;
-      case 'p':
-        return {
-          color: vital.value < 60 || vital.value > 100 ? 'red' : ''
-        };
-        break;
-      case 'r':
-        return {
-          color: vital.value < 12 || vital.value > 25 ? 'red' : ''
-        };
-        break;
-      case 'w':
-        return {
-          color: vital.value > 50 ? 'red' : ''
-        };
-        break;
-      default:
-        break;
-    }
 
-  }
   showTimeLine() {
     return (this.unit === 'Meters' && this.patient.record.vitals.height.length) ||
     (this.unit === 'mmHg' && this.patient.record.vitals.bp.length) ||
@@ -299,7 +261,7 @@ isClarkable() {
        if (vcn.selected) {
         s.push({
           name: vcn.name,
-           stamp: this.stamp
+           stamp: stamp()
           });
         vcn.selected = false;
        }
@@ -332,19 +294,19 @@ isClarkable() {
     if (this.session.vitals.height.value) {
         this.patient.record.vitals.height.unshift({
           ...this.session.vitals.height,
-          stamp: this.stamp
+          stamp: stamp()
         });
     }
     if (this.session.vitals.weight.value) {
           this.patient.record.vitals.weight.unshift({
             ...this.session.vitals.weight,
-            stamp:this.stamp
+            stamp: stamp()
           });
         }
     if (this.session.vitals.bloodGl.value) {
           this.patient.record.vitals.bloodGl[0] = {
             ...this.session.vitals.bloodGl,
-            stamp: this.stamp
+            stamp: stamp()
           };
       }
   }
@@ -368,40 +330,7 @@ isClarkable() {
   }
 
   composeVitals() {
-    if (this.session.vitals.tempreture.value) {
-      if (this.patient.record.vitals.tempreture.length > 30) {
-        this.patient.record.vitals.tempreture.unshift(this.session.vitals.tempreture);
-        this.patient.record.vitals.tempreture.splice(this.patient.record.vitals.tempreture.length - 1 , 1);
-      } else {
-        this.patient.record.vitals.tempreture.unshift(this.session.vitals.tempreture);
-      }
-    } else {}
-
-    if (this.session.vitals.bp.systolic ) {
-      if (this.patient.record.vitals.bp.length > 30) {
-        this.patient.record.vitals.bp.unshift(this.session.vitals.bp);
-        this.patient.record.vitals.bp.splice(this.patient.record.vitals.bp.length - 1 , 1);
-      } else {
-        this.patient.record.vitals.bp.unshift(this.session.vitals.bp);
-      }
-    } else {}
-    if (this.session.vitals.pulse.value) {
-      if (this.patient.record.vitals.pulse.length > 30) {
-        this.patient.record.vitals.pulse.unshift(this.session.vitals.pulse);
-        this.patient.record.vitals.pulse.splice(this.patient.record.vitals.pulse.length - 1 , 1);
-      } else {
-        this.patient.record.vitals.pulse.unshift(this.session.vitals.pulse);
-      }
-    } else {}
-    if (this.session.vitals.resp.value) {
-      if (this.patient.record.vitals.resp.length > 30) {
-        this.patient.record.vitals.resp.unshift(this.session.vitals.pulse);
-        this.patient.record.vitals.resp.splice(this.patient.record.vitals.resp.length - 1 , 1);
-      } else {
-        this.patient.record.vitals.resp.unshift(this.session.vitals.resp);
-      }
-    } else {}
-
+    this.patient.record.vitals = updateVitals(this.session.vitals, this.patient.record.vitals);
   }
   isAdmin() {
     return this.router.url.includes('admin');
@@ -450,9 +379,6 @@ switchHistory(i) {
 switchVital(i) {
   this.vital = i;
 }
-
-
-
 pickMatch(match) {
   switch (this.elem) {
     case 'test':
@@ -491,12 +417,57 @@ pickMatch(match) {
 
 
 isEmptySession() {
-  return !this.session.invoices.length &&
-  !this.session.complains.length &&
-  !this.session.conditions.length &&
-  !this.session.note.note &&
-  !this.session.medications.length &&
-  !this.vitals.length;
+  return this.isEmpty('requests') &&
+  this.isEmpty('complains') &&
+  this.isEmpty('conditions') &&
+  this.isEmpty('note') &&
+  this.isEmpty('medications') &&
+  this.isEmpty('complains') &&
+  this.isEmpty('examinations') &&
+  this.isEmpty('vitals') &&
+  this.isEmpty('medHist') &&
+  this.isEmpty('fsh') &&
+  this.isEmpty('allegies');
+}
+isEmpty(record) {
+  switch (record) {
+    case 'vitals' :
+      return (!this.session.vitals.bp.systolic &&
+        !this.session.vitals.tempreture.value &&
+        !this.session.vitals.resp.value &&
+        !this.session.vitals.pulse.value
+        );
+      break;
+    case 'examinations' :
+      return !this.session.examination.name;
+      break;
+    case 'complains' :
+      return !this.session.complains.length;
+      break;
+    case 'medications' :
+      return !this.session.medications.length;
+      break;
+    case 'allegies':
+      return !this.session.history.pmh.allegies.length;
+      break;
+    case 'medHist':
+      return !this.session.history.pmh.medHist.length;
+      break;
+    case 'fsh' :
+      return !this.session.history.fsh.length;
+      break;
+    case 'note':
+      return !this.session.note.note;
+      break;
+    case 'conditions':
+      return !this.session.conditions.length;
+      break;
+    case 'requests':
+      return !this.session.requests.length;
+      break;
+    default :
+    break;
+  }
 }
 
 fetchDept() {
@@ -581,7 +552,7 @@ addInvoice(items, itemType) {
     });
   } else {
     items.forEach(item => {
-      
+
       // const s = this.inventory.find(stock => stock.signature === signStock(m.product));
       this.session.invoices.unshift({
         ...new Invoice(),
@@ -1087,30 +1058,36 @@ nextImg() {
     }
   }
   composeHistory() {
-    if (this.patient.record.histories.length) {
-      if (new Date(this.patient.record.histories[0].stamp.dateAdded)
-      .toLocaleDateString() === new Date().toLocaleDateString()) {
-        this.patient.record.histories[0].pc = [
-          ...this.session.history.pc,
-          ...this.patient.record.histories[0].pc
-        ];
-        this.patient.record.histories[0].fsh = [
-          ...this.session.history.fsh,
-          ...this.patient.record.histories[0].fsh
-        ];
-        this.patient.record.histories[0].pmh.allegies = [
-          ...this.session.history.pmh.allegies,
-          ...this.patient.record.histories[0].pmh.allegies
-        ];
-        this.patient.record.histories[0].pmh.medHist = [
-          ...this.session.history.pmh.medHist,
-           ...this.patient.record.histories[0].pmh.medHist
-        ];
+    // tslint:disable-next-line:max-line-length
+    if (this.session.history.pc.length ||
+        this.session.history.fsh.length ||
+        this.session.history.pmh.allegies.length ||
+        this.session.history.pmh.medHist.length
+        ) {
+      if (this.patient.record.histories.length) {
+        if (new Date(this.patient.record.histories[0].stamp.dateAdded)
+        .toLocaleDateString() === new Date().toLocaleDateString()) {
+          this.patient.record.histories[0].pc = [
+            ...this.session.history.pc,
+            ...this.patient.record.histories[0].pc
+          ];
+          this.patient.record.histories[0].fsh = [
+            ...this.session.history.fsh,
+            ...this.patient.record.histories[0].fsh
+          ];
+          this.patient.record.histories[0].pmh.allegies = [
+            ...this.session.history.pmh.allegies,
+            ...this.patient.record.histories[0].pmh.allegies
+          ];
+          this.patient.record.histories[0].pmh.medHist = [
+            ...this.session.history.pmh.medHist,
+             ...this.patient.record.histories[0].pmh.medHist
+          ];
+        }
+        this.patient.record.histories.unshift(this.session.history);
       }
-      this.patient.record.histories.unshift(this.session.history);
-    } else {
-       this.patient.record.histories.unshift(this.session.history);
-    }
+      this.patient.record.histories.push(this.session.history);
+    } else {}
     this.addSuggestions(this.session.history.fsh, 'fsh');
     this.addSuggestions(this.session.history.pmh.allegies, 'allegy');
     this.addSuggestions(this.session.history.pmh.medHist, 'pmh');
@@ -1135,13 +1112,13 @@ nextImg() {
     if (this.session.note.note) {
       this.patient.record.notes.unshift({
         ...this.session.note,
-        stamp: this.stamp
+        stamp: stamp()
       });
     } else {}
     if (this.session.pc.name) {
        this.session.history.pc.push({
          ...this.session.pc,
-         stamp: this.stamp
+         stamp: stamp()
       });
        this.addSuggestions([this.session.pc], 'pc');
     }
@@ -1152,19 +1129,20 @@ nextImg() {
       if (new Date(this.patient.record.examinations[0][0].stamp.dateAdded)
       .toLocaleDateString() === new Date().toLocaleDateString()) {
         this.patient.record.examinations[0] = [{
-          ...this.session.examination, stamp: this.stamp
+          ...this.session.examination,
+          stamp: stamp()
         },
         ...this.patient.record.examinations[0]];
        } else {
           this.patient.record.examinations.unshift([{
             ...this.session.examination,
-            stamp: this.stamp
+            stamp: stamp()
           }]);
        }
       } else {
         this.patient.record.examinations = [[{
           ...this.session.examination,
-          stamp: this.stamp
+          stamp: stamp()
         }]];
       }
       this.addSuggestions([this.session.examination], 'exam');
@@ -1182,10 +1160,11 @@ nextImg() {
         bills: this.session.bills,
         patient
       });
+      this.populateChart();
       this.session = new Session();
       this.feedback = 'Record successfully updated';
       this.processing = false;
-      this.suggestions = [];
+      // this.suggestions = [];
       setTimeout(() => {
         this.feedback = null;
       }, 5000);

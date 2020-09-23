@@ -388,9 +388,7 @@
   border-radius: 50%;
   background-color: red;
   margin-right: 3px;
-
 }
-
 .unit-label {
   position: absolute;
   font-size: 9px;
@@ -868,7 +866,7 @@ option {
   border-bottom: 1px solid whitesmoke;
 }
 .menu.vitals {
-  position: absolute; 
+  position: absolute;
   width: 100px;
   top: -1px;
   height: auto;
@@ -877,7 +875,7 @@ option {
 .v-menu {
   text-align: right;
   padding-right: 31px;
-  position: absolute; 
+  position: absolute;
   top: 6px;
   right:2px;
 }

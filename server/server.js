@@ -41,7 +41,9 @@ io.sockets.on('connection', (socket) => {
   connections.push(socket)
   socket.on('login', (data) => {
     data.si = socket.id;
-    logins.push({ui: data.ui, si: socket.id})
+    logins.push({
+      ui: data.ui, si: socket.id
+    })
     socket.broadcast.emit('online', data.ui)
 })
   socket.on('new message', (data) => {

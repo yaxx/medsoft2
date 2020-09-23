@@ -2,7 +2,7 @@ import {CookieService } from 'ngx-cookie-service';
 export class Stamp {
   constructor(
     public addedBy: any =  null,
-  public facility: any =  null,
+    public facility: any =  null,
     public selected: boolean = false,
     public dateAdded: Date = new Date()
   ) {}

@@ -79,13 +79,13 @@
 }
 
 .card-colums.leftcolumn {
-    width: 230px;
+    width: 240px;
     position: relative;
     /*left:-44px;*/
 }
 
 .card-colums.rightcolumn {
-    width: 230px;
+    width: 240px;
     position: relative;
     /*right:-84px;*/
 }
@@ -118,7 +118,7 @@
 }
 
 .card.card-secondary.historycard.leftcard.visits {
-    max-height: 400px;
+    height: 515px;
 }
 
 .card.card-secondary.historycard.leftcard.deathinfo {

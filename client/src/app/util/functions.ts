@@ -1,5 +1,6 @@
   import {Person} from '../models/person.model';
-  import {Inventory} from '../models/inventory.model';
+  import {Inventory, Stamp} from '../models/inventory.model';
+  const stampItem = () => new Stamp(localStorage.getItem('i'), localStorage.getItem('h'));
   export const sorter  = (patients: Person[], order: string) =>  {
     switch (order) {
       case 'A-Z':
@@ -85,10 +86,29 @@
    return p;
 };
   export const signStock = (stockItem) => {
-  // tslint:disable-next-line:max-line-length
   const sign = (!stockItem.form) ? stockItem.name : `${stockItem.form}${stockItem.name}${stockItem.size}${stockItem.unit}`;
   return sign.toLowerCase();
 };
-
+  export const updateVitals = (newVitals, curentVital) => {
+    if (newVitals.tempreture.value) {
+      curentVital.tempreture.unshift(newVitals.tempreture);
+    }
+    if (newVitals.bp.systolic) {
+      newVitals.bp.systolic = newVitals.bp.systolic.split('/')[0];
+      newVitals.bp.diastolic = newVitals.bp.systolic.split('/')[1];
+      curentVital.bp.stamp = stampItem();
+      curentVital.bp.unshift(newVitals.bp);
+    }
+    if (newVitals.pulse.value) {
+      newVitals.pulse.stamp = stampItem();
+      curentVital.pulse.unshift(newVitals.pulse);
+    }
+    if (newVitals.resp.value) {
+      newVitals.resp.stamp = stampItem();
+      curentVital.resp.unshift(newVitals.resp);
+    } else {}
+    return curentVital;
+};
+  export const  stamp = () => new Stamp(localStorage.getItem('i'), localStorage.getItem('h'));
 
 

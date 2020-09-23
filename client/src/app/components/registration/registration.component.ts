@@ -150,7 +150,7 @@ export class RegistrationComponent implements OnInit {
     this.sortMenu = !this.sortMenu;
   }
   getRefDept() {
-    // return this.client.departments.filter(dept => dept.hasWard);
+    return this.client.departments.filter(dept => dept.hasWard);
   }
   getMyDp() {
     return localStorage.getItem('dp');
@@ -280,65 +280,75 @@ export class RegistrationComponent implements OnInit {
       p.card.menu =  false;
     });
   }
+  clearError() {
+    this.errorMsg = null;
+  }
   isInvalidForm() {
     return !(this.isValidInfo());
   }
-  enrolePatient(i: number)  {
-    if (this.patient.record.visits[0][0].status === 'ap') {
-      this.patient.record.visits[0][0].status === 'queued';
-    } else {
-      this.patient.record.invoices.unshift([{
-        ...new Invoice(),
-        name: 'Consultation',
-        price: null,
-        desc: 'Consultation',
-        processed: true,
-        stamp: this.stamp
-    }]);
-      this.patient.record.visits.unshift([{
-      ...this.visit,
-      status: 'queued'
+  addInvoice() {
+    this.patient.record.invoices.unshift([{
+      ...new Invoice(),
+      name: 'Consultation',
+      price: null,
+      desc: 'Consultation',
+      processed: true,
+      stamp: this.stamp
     }]);
   }
+ 
+  addDefaults() {
+    this.patient.stamp = this.stamp;
+    this.patient.record.visits = [[new Visit()]];
+  }
+  updateStatus() {
+    switch(this.patient.record.visits[0][0].status){
+      case 'out':
+        this.addInvoice();
+        this.patient.record.visits.unshift([{
+          ...this.visit,
+          status: 'queued'
+        }]);
+        break;
+      case null:
+        this.addInvoice();
+        this.patient.record.visits[0][0].status = 'queued';
+        console.log(this.patient.record.visits[0][0].status);
+        break;
+      default:
+        this.patient.record.visits[0][0].status = 'queued';
+      break;
+    }
+  }
+  flipCard(i) {
+    setTimeout(() => {
+      this.successMsg = null;
+      this.switchCardView(i, 'front');
+    }, 3000);
+    setTimeout(() => {
+      this.patients.splice(i, 1);
+    }, 6000);
+  }
+  enrolePatient(i: number) {
+    this.updateStatus();
     this.dataService.updateRecord(this.patient).subscribe((patient) => {
     this.successMsg = 'Patient Successfully Enroled';
     this.processing = false;
     this.socket.io.emit('record update', {action: 'enroled', patient});
-    setTimeout(() => {
-        this.successMsg = null;
-      }, 3000);
-    setTimeout(() => {
-        this.switchCardView(i, 'front');
-      }, 6000);
-    if (this.patient.record.visits[0][0].status === 'ap') {
-        this.patients.splice(i, 1);
-      }
-
+    this.flipCard(i);
     }, (e) => {
      this.processing = false;
      this.errorMsg = 'Unable to Enroled Patient';
    });
-  }
-clearError() {
-    this.errorMsg = null;
-  }
-addDefaults() {
-    this.patient.stamp = this.stamp;
-    this.patient.record.visits = [[new Visit()]];
-  }
+}
+
 returnFolder(i) {
     this.patient.record.visits[0][0].status = 'queued';
     this.dataService.updateRecord(this.patient).subscribe((patient) => {
       this.successMsg = 'Folder successfully returned';
       this.processing = false;
       this.socket.io.emit('record update', {action: 'return', patient});
-      setTimeout(() => {
-        this.successMsg = null;
-        this.switchCardView(i, 'front');
-      }, 3000);
-      setTimeout(() => {
-        this.patients.splice(i, 1);
-      }, 6000);
+      this.flipCard(i);
     }, (e) => {
      this.processing = false;
      this.errorMsg = 'Unable to return folder';
@@ -400,7 +410,7 @@ searchPatient(name: string) {
       this.patients = this.temp;
       this.temp = [];
    }
-  }
+}
 selectResult(person) {
     const i = this.patients.findIndex(p => p._id === person._id);
     if (i !== -1) {
@@ -444,7 +454,6 @@ sortPatients(order: string) {
     this.nowSorting = order;
     this.patients = sorter(this.patients, order);
   }
-
 
 next() {
     this.count = this.count + 1;

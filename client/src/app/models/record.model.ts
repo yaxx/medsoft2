@@ -38,7 +38,7 @@ export class Medication {
      public lastTaken: Date = null,
      public stamp: Stamp = new Stamp(),
      public _id?: string
-     ) {}
+  ) {}
 }
 export class Complain {
   constructor(
@@ -77,11 +77,10 @@ export class Note {
     public stamp: Stamp = new Stamp()
      ) {}
   }
-
 export class Bp {
   constructor(
-    public systolic: number = null,
-    public diastolic: number = null,
+    public systolic: any = null,
+    public diastolic: any = null,
     public stamp: Stamp = new Stamp()
     ) {}
 }
@@ -136,7 +135,7 @@ export class Immunization {
 
 export class VitalStocks {
   constructor(
-    public bp: Bp= new Bp(),
+    public bp: Bp = new Bp(),
     public resp: Resp = new Resp(),
     public pulse: Pulse = new Pulse(),
     public bloodGl: Bg = new Bg(),

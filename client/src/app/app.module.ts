@@ -16,7 +16,7 @@ import { ChartsModule } from 'ng2-charts';
 import {WebcamModule} from 'ngx-webcam';
 import { FormsModule } from '@angular/forms';
 import { AuthGuard } from './util/auth.guard';
-
+import {DatePipe} from '@angular/common'
 import { DobPipe } from './pipes/dob.pipe';
 import { AppointmentsComponent } from './components/appointments/appointments.component';
 import { CashierComponent } from './components/cashier/cashier.component';
@@ -73,7 +73,7 @@ import { WardComponent } from './components/ward/ward.component';
     FormsModule,
     ChartsModule
   ],
-  providers: [DataService, AuthGuard, CookieService, SocketService, PersonUtil],
+  providers: [DataService, DatePipe, AuthGuard, CookieService, SocketService, PersonUtil],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

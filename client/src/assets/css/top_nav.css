@@ -30,7 +30,7 @@ header {
   display: flex;
   height: 30px;
   width: 30px;
-  border: 1px solid dodgerblue;
+  /* border: 1px solid dodgerblue; */
   border-radius: 50%;
   justify-content: center;
   align-items: center;

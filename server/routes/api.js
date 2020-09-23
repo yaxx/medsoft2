@@ -349,7 +349,6 @@ runTransaction: async (req, res) => {
   catch(e) {
     throw e
   }      
- 
 },
 verify: (req, res, next) => {
   const bearerHeader =  req.headers['authorization'];
@@ -655,7 +654,7 @@ updateStocks: async (req, res) => {
  catch (e) {
    throw e
   }
-},
+}
 
 
 }
