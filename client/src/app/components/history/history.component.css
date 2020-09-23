@@ -851,10 +851,13 @@ option {
   line-height: .5rem;
   border-bottom: none;
   padding-bottom: 0px;
+  color: lightgray;
 }
+
 .list-wrap .dept.dept-list:last-child {
   border-bottom: 1px solid ghostwhite;
   padding-bottom: 4px;
+  /* color: lightgray; */
 }
 
 

@@ -1079,8 +1079,8 @@ max-width:100%;">
                                 <p class="timelinedate"> {{scans[0]?.stamp.dateAdded|date:'dd'}}</p>
                                 <p  class="timelinedate month">{{scans[0]?.stamp.dateAdded|date:'MMM'|uppercase}}</p>
                             </div>
-                            <div *ngFor ="let s of scans; let j= index" class="priscription drug">
-                                <p class="dept">{{s.name}} </p>
+                            <div *ngFor ="let s of scans; let j = index" class="priscription drug">
+                                <p class="dept">{{s.name}}</p>
                                 <h6 *ngIf="s.report.attachments.length" class="dept previnfo" style="color:lightgrey">
                                 <span><i (click) = "pullImages(i,j, 'scan')" data-toggle="modal" data-target="#scanFiles" title="View attachment"  style='font-size: 15px; cursor: pointer;' class="icon ion-android-attach"></i></span>&nbsp;
                                 {{s.report.attachments.length + ' '+' attachment'+getLength(s.report.attachments.length)}}
@@ -1123,15 +1123,15 @@ max-width:100%;">
               <div style='border-top-right-radius:20px;border-top-left-radius:20px;' class="card-header grapheader">
                   <h1 class="dept headtitle">NOTES</h1>
               </div>
-              <div *ngIf='patient.record.notes.length' class="card-body notecardbody">
-                  <h1 *ngIf='!patient.record.notes.length' style='color:lightgrey; ' class="dept headtitle record-placeholder">NO NOTES</h1>
-                  <div *ngFor = "let note of patient.record.notes;let i=index" class="carditem noteitem writeup">
+              <div  class="card-body notecardbody">
+                  <h1 *ngIf='!patient.record.notes.length' style='color:lightgrey; ' class="dept headtitle record-placeholder">NO RECORD</h1>
+                  <div *ngFor = "let note of patient.record.notes; let i=index" class="carditem noteitem writeup">
                     <div style="position:absolute;left:-3%;" class="timeline lastdoc priscriber headerdp small-dp">
                       <img [src] = getDp(note.stamp.addedBy.info.personal.avatar)/>
                     </div>
                       <h1 class="dept previnfo noterinfo">
                           {{note.stamp.addedBy.info.personal.firstName+' '+note.stamp.addedBy.info.personal.lastName}}
-                        <span style='color: lightgray;font-weight: normal' >
+                        <span style = 'color: lightgray;font-weight: normal' >
                           {{'|'+' '+ note.stamp.addedBy.info.official.department}}</span>
                         <span class="predata notetime">
                           {{note.stamp.dateAdded|date:'dd/MM/y hh:mma'|lowercase}}</span>

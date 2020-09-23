@@ -144,11 +144,11 @@ export class HistoryComponent implements OnInit {
       this.suggestions = res.s;
       this.notes = res.patient.record.notes;
       this.patient = res.patient;
-      this.patient.record.notes = res.patient.record.notes
-      .map(note => ({
-        ...note,
-        note: note.note.length > 150 ? note.note.substr(0, 150) : note.note
-      }));
+      // this.patient.record.notes = res.patient.record.notes
+      // .map(note => ({
+      //   ...note,
+      //   note: note.note.length > 150 ? note.note.substr(0, 150) : note.note
+      // }));
       this.populateChart();
     }, (e) => {
       this.message = '...Network Error';

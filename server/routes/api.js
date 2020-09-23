@@ -474,18 +474,18 @@ getHistory: async (req, res) => {
     const s = await Suggestion.find({category: {$ne:'name'}})
     const patient = await Person.findById(req.params.id)
     .populate({
-      path:'record.notes.meta.addedBy', 
+      path:'record.notes.stamp.addedBy',
       select:'info'
     })
     .populate({
-      path:'record.conditions.meta.addedBy', 
+      path:'record.conditions.stamp.addedBy', 
       select:'info'
     })
     .populate({
       path:'record.tests',
-      populate: {path: 'report.meta.addedBy',
-       select: 'info'
-       }
+      populate: {path: 'report.stamp.addedBy',
+      select: 'info'
+      }
     })
     .exec()
     res.send({patient, s}) 
@@ -498,14 +498,27 @@ getHistory: async (req, res) => {
 updateHistory: async(req, res) => {
   try {
    const c = await Suggestion.insertMany(req.body.suggestions);
-    const person = await Person.findByIdAndUpdate(
+    let person = await Person.findByIdAndUpdate(
       req.body.patient._id, {
         record: req.body.patient.record
       }, {new: true}
     )
-     const patient = await Person.findById(req.body.patient._id)
-      .populate({path: 'record.notes.meta.addedBy', select: 'info'})
-      .exec()
+    patient = await Person.findById(req.body.patient._id)
+    .populate({
+      path:'record.notes.stamp.addedBy',
+      select:'info'
+    })
+    .populate({
+      path:'record.conditions.stamp.addedBy', 
+      select:'info'
+    })
+    .populate({
+      path:'record.tests',
+      populate: {path: 'report.stamp.addedBy',
+      select: 'info'
+      }
+    })
+    .exec()
       res.send(patient);
   }
   catch(e) {
