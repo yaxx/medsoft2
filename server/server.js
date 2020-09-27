@@ -19,14 +19,14 @@ app.use('/graphql', graphQlHttp({
   graphiql: true
 }))
 
+// app.use(cors({
+//   origin:"http://localhost:4200", 
+//   credentials: false
+// }))
 app.use(cors({
-  origin:"http://localhost:4200", 
+  origin:"*",
   credentials: true
 }))
-// app.use(cors({
-//   origin:"*",
-//   credentials: true
-// }))
 app.use(express.static(path.join(__dirname,'dist','client')))
 // app.use(history());
 app.use(require('morgan')('dev'))

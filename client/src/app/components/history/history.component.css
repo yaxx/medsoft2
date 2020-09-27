@@ -600,6 +600,7 @@ option {
 }
 .info.vital .info-lbl p {
   font-size: 12px;
+  font-weight: bolder;
   /* color: rgb(150, 149, 149); */
 }
 .info.vital .info-lbl .lbl {
@@ -804,7 +805,7 @@ option {
  color: lightgray;
 }
 .check__box:hover {
-  color: dodgerblue;
+  color: #1e90ff;
   /* color: white; */
 }
 

@@ -7,7 +7,7 @@ import * as cloneDeep from 'lodash/cloneDeep';
 import {SocketService} from '../../services/socket.service';
 import {sortInventory, signStock, updateVitals, stamp} from '../../util/functions';
 import 'simplebar';
-import {DatePipe} from '@angular/common'
+import {DatePipe} from '@angular/common';
 import 'simplebar/dist/simplebar.css';
 import {CookieService } from 'ngx-cookie-service';
 import {ActivatedRoute, Router} from '@angular/router';
@@ -19,7 +19,7 @@ import {
   } from '../../models/record.model';
 
 import {Chart} from 'chart.js';
-import {ChartOptions, pulseDataConfig,tempDataConfig} from '../../util/chartConfig';
+import {ChartOptions, pulseDataConfig, tempDataConfig} from '../../util/chartConfig';
 import {saveAs} from 'file-saver';
 import {host} from '../../util/url';
 import { CONTEXT_NAME } from '@angular/compiler/src/render3/view/util';
@@ -125,7 +125,7 @@ export class HistoryComponent implements OnInit {
   pulseChartData = pulseDataConfig(this.data);
   barChartLabels = ['', '', '', '',''];
   notes: Note[] = [];
-  stamp = new Stamp();
+  stamp = stamp();
   constructor(
      private dp: DatePipe,
      private dataService: DataService,
@@ -348,72 +348,66 @@ switchVitals(label: string, unit) {
 
 
 
-removeMedication(i: number) {
-  this.session.medications.splice(i, 1);
-  this.session.invoices.splice(i, 1);
-}
-removeComplain(complain: string, i: number) {
-  this.session.complains.splice(i, 1);
-  this.suggestions.splice(this.suggestions.findIndex(c => c.name ===  complain), 1);
-}
-removeHistory(complain: string, i: number) {
-  // this.session.histories.splice(i, 1);
-  // this.newSuggestions.splice(this.suggestions.findIndex(c => c.name ===  complain), 1);
-}
-removeCondition(condition: string, i: number) {
-  this.session.conditions.splice(i, 1);
-  this.suggestions.splice(this.suggestions.findIndex(c => c.name ===  condition), 1);
-}
-removePriscription(i: number) {
-  this.session.medications.splice(i, 1);
-  this.session.medInvoices.splice(i, 1);
-}
-removeTest(i) {
-//  this.tests.splice(i, 1);
-//  this.session.invoices.splice(i, 1);
-}
-
-switchHistory(i) {
-  this.historyItem = i;
-}
-switchVital(i) {
-  this.vital = i;
-}
-pickMatch(match) {
-  switch (this.elem) {
-    case 'test':
-      this.session.test.name = match;
-      break;
-    case 'scan':
-      this.session.scan.name = match;
-      break;
-    case 'surgery':
-      this.session.test.name = match;
-      break;
-    case 'condition':
-      this.session.condition.name = match;
-      break;
-    case 'complain':
-      this.session.complain.complain = match;
-      break;
-    case 'medication':
-      this.session.medication.product.name = match;
-      break;
-    case 'allegy':
-      this.session.allegy.name = match;
-      break;
-    case 'pmh':
-      this.session.pmh.name = match;
-      break;
-    case 'fsh':
-      this.session.fsh.name = match;
-      break;
-    default:
-      break;
+  removeMedication(i: number) {
+    this.session.medications.splice(i, 1);
+    this.session.invoices.splice(i, 1);
   }
-  this.matches = [];
-  this.elem = null;
-}
+  removeComplain(complain: string, i: number) {
+    this.session.complains.splice(i, 1);
+    this.suggestions.splice(this.suggestions.findIndex(c => c.name ===  complain), 1);
+  }
+
+  removeCondition(condition: string, i: number) {
+    this.session.conditions.splice(i, 1);
+    this.suggestions.splice(this.suggestions.findIndex(c => c.name ===  condition), 1);
+  }
+  removePriscription(i: number) {
+    this.session.medications.splice(i, 1);
+    this.session.medInvoices.splice(i, 1);
+  }
+
+
+  switchHistory(i) {
+    this.historyItem = i;
+  }
+  switchVital(i) {
+    this.vital = i;
+  }
+  pickMatch(match) {
+    switch (this.elem) {
+      case 'test':
+        this.session.test.name = match;
+        break;
+      case 'scan':
+        this.session.scan.name = match;
+        break;
+      case 'surgery':
+        this.session.test.name = match;
+        break;
+      case 'condition':
+        this.session.condition.name = match;
+        break;
+      case 'complain':
+        this.session.complain.complain = match;
+        break;
+      case 'medication':
+        this.session.medication.product.name = match;
+        break;
+      case 'allegy':
+        this.session.allegy.name = match;
+        break;
+      case 'pmh':
+        this.session.pmh.name = match;
+        break;
+      case 'fsh':
+        this.session.fsh.name = match;
+        break;
+      default:
+        break;
+    }
+    this.matches = [];
+    this.elem = null;
+  }
 
 
 isEmptySession() {
@@ -426,6 +420,7 @@ isEmptySession() {
   this.isEmpty('examinations') &&
   this.isEmpty('vitals') &&
   this.isEmpty('medHist') &&
+  this.isEmpty('pc') &&
   this.isEmpty('fsh') &&
   this.isEmpty('allegies');
 }
@@ -453,8 +448,11 @@ isEmpty(record) {
     case 'medHist':
       return !this.session.history.pmh.medHist.length;
       break;
-    case 'fsh' :
+    case 'fsh':
       return !this.session.history.fsh.length;
+      break;
+    case 'pc':
+      return !this.session.pc.name;
       break;
     case 'note':
       return !this.session.note.note;
@@ -547,7 +545,7 @@ addInvoice(items, itemType) {
         desc: `${m.priscription.freq} ${this.formatDuration(m.priscription.piriod, m.priscription.duration)}`,
         kind: 'Medication',
         processed: false,
-        stamp: new Stamp()
+        stamp: stamp()
       });
     });
   } else {
@@ -561,7 +559,7 @@ addInvoice(items, itemType) {
         desc: itemType,
         kind: 'Services',
         processed: false,
-        stamp: new Stamp()
+        stamp: stamp()
       });
     });
   }
@@ -603,28 +601,40 @@ addSuggestions(items, cat) {
       case 'complain':
         items.forEach(i => {
           if (!this.suggestions.some(s => s.name === i.complain)) {
-            this.newSuggestions.unshift({name: i.complain, category: cat});
+            this.newSuggestions.unshift({
+              name: i.complain,
+               category: cat
+              });
           }
         });
         break;
       case 'condition':
         items.forEach(i => {
           if (!this.suggestions.some(s => s.name === i.name)) {
-            this.newSuggestions.unshift({name: i.name, category: cat});
+            this.newSuggestions.unshift({
+              name: i.name,
+              category: cat
+            });
           }
         });
         break;
       case 'test':
         items.forEach(i => {
           if (!this.suggestions.some(s => s.name === i.name)) {
-            this.newSuggestions.unshift({name: i.name, category: cat});
+            this.newSuggestions.unshift({
+              name: i.name,
+              category: cat
+            });
           }
         });
         break;
       case 'scan':
         items.forEach(i => {
           if (!this.suggestions.some(s => s.name === i.name)) {
-            this.newSuggestions.unshift({name: i.name, category: cat});
+            this.newSuggestions.unshift({
+              name: i.name,
+              category: cat
+            });
           }
         });
         break;
@@ -638,28 +648,40 @@ addSuggestions(items, cat) {
       case 'pmh':
         items.forEach(i => {
           if (!this.suggestions.some(s => s.name === i.name)) {
-            this.newSuggestions.unshift({name: i.name, category: cat});
+            this.newSuggestions.unshift({
+              name: i.name,
+              category: cat
+            });
           }
         });
         break;
       case 'pc':
         items.forEach(i => {
           if (!this.suggestions.some(s => s.name === i.name)) {
-            this.newSuggestions.unshift({name: i.name, category: cat});
+            this.newSuggestions.unshift({
+              name: i.name,
+              category: cat
+            });
           }
         });
         break;
       case 'allegy':
         items.forEach(i => {
           if (!this.suggestions.some(s => s.name === i.name)) {
-            this.newSuggestions.unshift({name: i.name, category: cat});
+            this.newSuggestions.unshift({
+              name: i.name,
+              category: cat
+            });
           }
         });
         break;
       case 'fsh':
         items.forEach(i => {
           if (!this.suggestions.some(s => s.name === i.name)) {
-            this.newSuggestions.unshift({name: i.name, category: cat});
+            this.newSuggestions.unshift({
+              name: i.name,
+              category: cat
+            });
           }
         });
         break;
@@ -672,14 +694,14 @@ addRecord(name) {
     case 'complain':
        this.session.complains.unshift({
      ...this.session.complain,
-     stamp: new Stamp()
+     stamp: stamp()
     });
        this.session.complain = new Complain();
        break;
      case 'condition':
        this.session.conditions.unshift({
      ...this.session.condition,
-     stamp: new Stamp()
+     stamp: stamp()
     });
        this.session.condition = new RecordItem();
        break;
@@ -687,11 +709,11 @@ addRecord(name) {
       if (this.session.test.name) {
         this.session.tests.unshift({
           ...this.session.test,
-          stamp: new Stamp()
+          stamp: stamp()
          });
         this.session.requests.unshift({
           ...this.session.test,
-          stamp: new Stamp()
+          stamp: stamp()
         });
         this.session.test.name = null;
       } else {
@@ -699,7 +721,7 @@ addRecord(name) {
           ...this.session.scan,
           dept: this.session.test.dept,
           urgency: this.session.test.urgency,
-          stamp: new Stamp()
+          stamp: stamp()
         });
         this.session.requests.unshift({
           ...this.session.scan,
@@ -713,27 +735,27 @@ addRecord(name) {
     case 'medication':
        this.session.medications.unshift({
         ...this.session.medication,
-        stamp: new Stamp()
+        stamp: stamp()
       });
        this.session.medication = new Medication();
        break;
     case 'pmh':
       this.session.history.pmh.medHist.unshift({
       ...this.session.pmh,
-      stamp: new Stamp()
+      stamp: stamp()
       });
       this.session.pmh = new RecordItem();
       break;
     case 'allegy':
       this.session.history.pmh.allegies.unshift({
       ...this.session.allegy,
-      stamp: new Stamp()
+      stamp: stamp()
       });
       break;
     case 'fsh':
       this.session.history.fsh.unshift({
       ...this.session.fsh,
-      stamp: new Stamp()
+      stamp: stamp()
       });
       this.session.fsh = new RecordItem();
       break;
@@ -1059,11 +1081,10 @@ nextImg() {
   }
   composeHistory() {
     // tslint:disable-next-line:max-line-length
-    if (this.session.history.pc.length ||
+    if (this.session.pc.name ||
         this.session.history.fsh.length ||
         this.session.history.pmh.allegies.length ||
-        this.session.history.pmh.medHist.length
-        ) {
+        this.session.history.pmh.medHist.length) {
       if (this.patient.record.histories.length) {
         if (new Date(this.patient.record.histories[0].stamp.dateAdded)
         .toLocaleDateString() === new Date().toLocaleDateString()) {
@@ -1083,30 +1104,32 @@ nextImg() {
             ...this.session.history.pmh.medHist,
              ...this.patient.record.histories[0].pmh.medHist
           ];
+        } else {
+          this.patient.record.histories.unshift(this.session.history);
         }
-        this.patient.record.histories.unshift(this.session.history);
+      } else {
+         this.patient.record.histories.push(this.session.history);
       }
-      this.patient.record.histories.push(this.session.history);
+      this.addSuggestions(this.session.history.fsh, 'fsh');
+      this.addSuggestions(this.session.history.pmh.allegies, 'allegy');
+      this.addSuggestions(this.session.history.pmh.medHist, 'pmh');
     } else {}
-    this.addSuggestions(this.session.history.fsh, 'fsh');
-    this.addSuggestions(this.session.history.pmh.allegies, 'allegy');
-    this.addSuggestions(this.session.history.pmh.medHist, 'pmh');
   }
   composeConditions() {
     if (this.session.conditions.length) {
-    if (this.patient.record.conditions.length) {
-      if (new Date(this.patient.record.conditions[0][0].stamp.dateAdded)
-      .toLocaleDateString() === new Date().toLocaleDateString()) {
-        for (const c of this.session.conditions) {
-          this.patient.record.conditions[0].unshift(c);
+      if (this.patient.record.conditions.length) {
+        if (new Date(this.patient.record.conditions[0][0].stamp.dateAdded)
+        .toLocaleDateString() === new Date().toLocaleDateString()) {
+          for (const c of this.session.conditions) {
+            this.patient.record.conditions[0].unshift(c);
+          }
+        } else {
+          this.patient.record.conditions.unshift(this.session.conditions);
         }
-       } else {
-        this.patient.record.conditions.unshift(this.session.conditions);
-       }
-      } else {
-        this.patient.record.conditions = [this.session.conditions];
+        } else {
+          this.patient.record.conditions = [this.session.conditions];
+        }
       }
-    }
   }
   composeScalars() {
     if (this.session.note.note) {

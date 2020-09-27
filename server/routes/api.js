@@ -79,15 +79,15 @@ const createPerson = async data => {
 
 
 module.exports = {
-uploadFile: (req, res) => {
-  upload(req, res, (err) => {
-    if(err) {
-     return res.status(501).jason({error: err})
-    } else {
-     res.send(req.file.filename)
-    }
-  })
-},
+  uploadFile: (req, res) => {
+    upload(req, res, (err) => {
+      if(err) {
+      return res.status(501).jason({error: err})
+      } else {
+      res.send(req.file.filename)
+      }
+    })
+  },
 uploadScans: (req, res) => {
   uploads(req, res, (err) => {
     if(err) {
@@ -398,7 +398,6 @@ login: async (req, res) => {
 } catch(e) {
     throw e
   }
-  
 },
 
 getClient: async (req, res) => {

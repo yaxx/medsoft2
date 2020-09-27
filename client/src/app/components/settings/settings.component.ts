@@ -124,7 +124,7 @@ export class SettingsComponent implements OnInit {
   showMenu(menu: string) {
     this.menu =  menu;
   }
-  hideMenu(menu: string) {
+  hideMenu() {
     this.menu = null;
   }
   getRoomNumbs() {
@@ -279,6 +279,6 @@ export class SettingsComponent implements OnInit {
     }
     );
   }
- 
+
 }
 

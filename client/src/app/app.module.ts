@@ -16,7 +16,7 @@ import { ChartsModule } from 'ng2-charts';
 import {WebcamModule} from 'ngx-webcam';
 import { FormsModule } from '@angular/forms';
 import { AuthGuard } from './util/auth.guard';
-import {DatePipe} from '@angular/common'
+import {DatePipe} from '@angular/common';
 import { DobPipe } from './pipes/dob.pipe';
 import { AppointmentsComponent } from './components/appointments/appointments.component';
 import { CashierComponent } from './components/cashier/cashier.component';
@@ -36,6 +36,7 @@ import { RegistrationComponent } from './components/registration/registration.co
 import { SettingsComponent } from './components/settings/settings.component';
 import { SingupComponent } from './components/singup/singup.component';
 import { WardComponent } from './components/ward/ward.component';
+import { MessangerComponent } from './components/messanger/messanger.component';
 
 @NgModule({
   declarations: [
@@ -59,7 +60,8 @@ import { WardComponent } from './components/ward/ward.component';
     CashierComponent,
     NotificationsComponent,
     LabComponent,
-    DashboardComponent
+    DashboardComponent,
+    MessangerComponent
   ],
   imports: [
     BrowserModule,

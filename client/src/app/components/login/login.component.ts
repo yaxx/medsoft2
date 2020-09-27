@@ -34,7 +34,9 @@ cred = {
   constructor(
     private accountService: DataService,
     private socket: SocketService,
-    private router: Router
+    private router: Router,
+    private cookies: CookieService
+    
     ) { }
 
   ngOnInit() {
@@ -53,7 +55,7 @@ cred = {
   }
   storeUser(res) {
     localStorage.setItem('isLoggedIn', 'true');
-    console.log(res.token)
+    // console.log(res.token)
     localStorage.setItem('token', res.token);
     localStorage.setItem('i', res.person._id);
     localStorage.setItem('h', res.person.info.official.hospital);

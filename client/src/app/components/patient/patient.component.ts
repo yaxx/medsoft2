@@ -490,12 +490,16 @@ viewOrders(i: number) {
   }
 
   toggleSortMenu() {
-    // this.sortMenu = !this.sortMenu;
+    this.sortMenu = !this.sortMenu;
   }
 
    showMenu(i: number) {
     this.hideMenu();
-    this.patients[i].card = { ...this.patients[i].card, menu: true, indicate: false};
+    this.patients[i].card = { 
+      ...this.patients[i].card, 
+      menu: true, 
+      indicate: false
+    };
   }
   hideMenu() {
     this.patients.forEach(p => {

@@ -125,7 +125,7 @@ max-width:100%;">
                                 <span >
                                     <h6 class="step-lebel">HISTORY</h6>
                                 </span>
-                                <span *ngIf="!isEmpty('fsh') || !isEmpty('allegies')|| !isEmpty('medHist')">
+                                <span *ngIf="!isEmpty('pc') || !isEmpty('fsh') || !isEmpty('allegies')|| !isEmpty('medHist')">
                                     <i  class="icon ion-ios-checkmark-empty paid-icon"></i>
                                 </span>
                             </div>
@@ -136,7 +136,7 @@ max-width:100%;">
                               <span *ngIf="!isEmpty('examinations')">
                                   <i  class="icon ion-ios-checkmark-empty paid-icon"></i>
                               </span>
-                          </div>
+                            </div>
                             <div style="cursor: pointer;"  title="Go to" (click)=goTo(3)  [class.curent-step]='count === 3' class="step-item">
                                 <span >
                                     <h6 class="step-lebel">VITALS</h6>
@@ -153,7 +153,7 @@ max-width:100%;">
                                   <i  class="icon ion-ios-checkmark-empty paid-icon"></i>
                               </span>
                             </div>
-                            <div style="cursor: pointer;"  title="Go to" (click)=goTo(5) [class.curent-step]='count===5' class="step-item">
+                            <div style="cursor: pointer;"  title="Go to" (click) = goTo(5) [class.curent-step]='count===5' class="step-item">
                               <span >
                               <h6 class="step-lebel">INVST.</h6>
                               </span>
@@ -178,7 +178,7 @@ max-width:100%;">
                                 </span>
                             </div>
                         </div>
-                      <form *ngIf="count === 0"  style="width:60%" class="staffsform">
+                        <form *ngIf="count === 0"  style="width:60%" class="staffsform">
                             <div class="group-wrap">
                               <div class="form-group" style='width: 220%;'>
                                 <label for="piriod" class="labelss">CHIEF COMPLAIN</label>
@@ -399,7 +399,7 @@ max-width:100%;">
                                   </ul>
                               </div>
                           </div>
-                          <div *ngIf="!isEmpty('fsh')" class="form-group small-table-wrap">
+                          <div *ngIf="!isEmpty('fsh') && historyItem === 3" class="form-group small-table-wrap">
                             <table  cellspacing="0" class="data-table drugs-table" style="width:100%;left:0%;" summary="List of all items in store. ">
                               <thead class='productHead'>
                                   <tr class="staff-th">
@@ -421,7 +421,7 @@ max-width:100%;">
                             </table>
                           </div>
                       </form>
-                      <form *ngIf="count===2"  style="top: 3%; width:60%;margin:auto;position: relative; border-bottom: 1px solid whitesmoke" class=" ">
+                      <form *ngIf="count === 2"  style="top: 3%; width:60%;margin:auto;position: relative; border-bottom: 1px solid whitesmoke" class=" ">
                         <div class="form-group newnote">
                             <textarea [(ngModel)]=session.examination.name  id='newnote' style="width:100%; min-height: 150px; font-size: 13px; padding: 5px; border: 0px; " name="note"
                             placeholder="Type in any examinations">
@@ -514,7 +514,7 @@ max-width:100%;">
                             </table>
                           </div>
                       </form>
-                      <form *ngIf="count===5" style="width:60%;" class="staffsform">
+                      <form *ngIf="count === 5" style="width:60%;" class="staffsform">
                         <div class="group-wrap">
                           <div class="form-group">
                             <label   for="request" class="labelss">INVESTIGATION</label>
@@ -547,7 +547,7 @@ max-width:100%;">
                             <input #scan autocomplete="off"
                             [(ngModel)]="session.scan.name"
                             (focus) = "showSuggestions(scan.name)"
-                            (keyup) = "searchScans(scan.value, scan.name)"
+                            (keyup) = "searchScans()"
                             name="scan"
                             class="form-control input"
                             placeholder="e.g Chest X-ray">
@@ -706,7 +706,7 @@ max-width:100%;">
                             </div>
                             <div class="form-group submit-group">
                                 <label for="piriod" class="labelss complain">DURA...</label>
-                                <select style="border-left:1px solid ghoshwhite" id=select (focus) = clearMsg()
+                                <select style="border-left:1px solid ghoshwhite" id = select (focus) = clearMsg()
                                 [(ngModel)]="session.medication.priscription.duration"
                                 class="form-control input mid  " name="freq">
                                     <option>h</option>
@@ -717,7 +717,7 @@ max-width:100%;">
                                 </select>
                                 <button
                                       (click)= "addMoreItem(prod.name)"
-                                      [disabled] = "!session.medication.product.form || !session.medication.product.name || !session.medication.priscription.intake || !session.medication.priscription.freq || !session.medication.priscription.piriod"
+                                      [disabled] = "!session.medication.product.form || !session.medication.product.name || !session.medication.priscription.piriod || !session.medication.priscription.freq || !session.medication.priscription.duration"
                                       class="btn btn-outline-primary">
                                       <i title="Add Medication" class="icon ion-ios-plus-empty arrow"></i>
                                 </button>
@@ -1364,7 +1364,8 @@ max-width:100%;">
                                 <p  class="timelinedate month"> {{med[0]?.stamp.dateAdded|date:'MMM'|uppercase}}</p>
                             </div>
                             <div *ngFor ="let m of med; let j= index" class="priscription drug">
-                                <p class="dept">{{m.product.name}}</p>
+                                <p class="dept">{{m.product.name}}&nbsp;<span style="color:lightgrey">{{m.product.form +' '+m.product.size+ ' ' +m.product.unit }}</span>
+                                </p>
                                     <!-- <span style='
                                         color:lightgrey;
                                         font-size:10px;
