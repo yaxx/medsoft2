@@ -272,12 +272,19 @@ getMyAccount: async (req, res) => {
 
 updateMessages: async (req, res) => {
   try {
+    console.log(req.body.to.chats)
     const reciever = await Person.findById(req.body.rid)
     const i = reciever.messages.findIndex(m => m.contactId === req.body.sid)
     if (i === -1) {
-      reciever.messages.push(req.body.to)
+      reciever.messages.push({
+        ...req.body.to, 
+        contactId: req.body.sid
+      })
     } else {
-      reciever.messages[i] = req.body.to
+      reciever.messages[i] =  {
+        ...req.body.to, 
+        contactId: req.body.sid
+      }
     }
     let sender = await Person.findById(req.body.sid)
     const j = sender.messages.findIndex(m => m.contactId === req.body.rid)

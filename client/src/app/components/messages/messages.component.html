@@ -18,9 +18,7 @@
                                   <img [src] = getDp(person.info.personal.avatar)/>
                               <!-- <div *ngIf = 'person.info.online' class="indicator indicator-online"></div> -->
                           </div>
-                          <p class="dept personname staffName">
-                            {{person.info.personal.firstName+' '+person.info.personal.lastName}}&nbsp;
-                          </p>
+                          <p class="dept personname staffName">  {{person.info.personal.firstName+' '+person.info.personal.lastName}}&nbsp;</p>
                           <p style='left:68%;width:73px;font-size: 11px;top:10px' class="timetaken chattime">{{getLastChatTime(person)|date:'MMM d, y'}}</p>
                           <p class="dept latestmsg lastMsg">{{getLastMessage(person)}}</p>
                       </div>
@@ -44,19 +42,19 @@
                         <h1 class="patien-name small-name h-title">CHATS</h1>
                   </div>
                   </div>
-                  <div #chatBody data-simplebar (scrolled) = indicate($event) id="chat-body" 
-                  style=' margin-left: 0px; border-left: 0px;height: 100%;' 
+                  <div #chatBody data-simplebar (scrolled) = indicate($event) id="chat-body"
+                  style=' margin-left: 0px; border-left: 0px;height: 100%;'
                   class="card-body notecardbody chat-body">
                     <div *ngIf= curPerson._id class="conversation-container">
-                        <div *ngFor="let chats of getCurrentChats(); let i = index" 
-                        class="message" 
+                        <div *ngFor="let chats of getCurrentChats(); let i = index"
+                        class="message"
                         [ngClass]="getMsgClass(i)">
                             <div *ngFor="let msg of chats; let first = first; let last = last" class="message-container">
                                 <div [ngClass]="{'off':isSender(i)}" class="message-avatar">
                                     <a href="#" class="profile-link"></a>
                                     <div class="msg-avatar">
                                         <span class="avatar-container">
-                                          <img [src] = getMsgDp(msg.sender) 
+                                          <img [src] = getMsgDp(msg.sender)
                                           [ngClass]="{'invisible':!last}" class=" msg-image"/>
                                         </span>
                                     </div>
@@ -82,13 +80,13 @@
                   <div title="Attach" class="attachment">
                     <i style="left:11px;position:relative"  class="icon ion-ios-plus-empty fa-2x fa-fw"></i>
                   </div>
-                  <textarea  
-                  [(ngModel)] ="message"  
-                  (keypress)="check($event)" 
-                  placeholder ='Start a new message' 
-                  id="msgLine"   
-                  name="chat"  
-                  class="patientdata dystolic inputs dataInfo" >
+                  <textarea
+                    [(ngModel)] ="message"
+                    (keypress)="check($event)"
+                    placeholder ='Start a new message'
+                    id="msgLine"
+                    name="chat"
+                    class="patientdata dystolic inputs dataInfo">
                   </textarea>
                   <div class="attachment send">
                     <i title="Send" style="left:9px;position:relative;font-size: 21px;" class="icon ion-android-send fa-2x fa-fw"></i>
@@ -141,7 +139,7 @@
               <div style="height: 39%;margin-top:1px;width:235px;left: 25px;" class="card card-secondary historycard rightcard allegies profile-card">
                  <h6 style="top: 75px;" class="bio">NO ATTACHMENTS</h6>
                   <div class="card-body rightcardbody">
-                
+
                   </div>
               </div>
            </div>

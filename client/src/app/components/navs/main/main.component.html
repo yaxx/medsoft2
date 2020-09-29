@@ -126,17 +126,17 @@ title="Notifications">
     </span>
 </a>
 
-<a href="#"
+<!-- <a href="#"
   [routerLink]="['./messages']"
   routerLinkActive="router-link-active"
   class="home" title="Messages">
   <span class="homespan">
     <i style='font-size: 26px;' class="icon ion-ios-chatbubble-outline fa-2x fa-fw"></i>
   </span>
-</a>
+</a> -->
 
 <a  href="#"
-  [routerLink]="['./notifications']"
+  [routerLink] = "['./notifications']"
   routerLinkActive="router-link-active"
   class="home reviewmenu"
   title="Notifications">
@@ -152,4 +152,93 @@ title="Notifications">
   <!-- <span [ngClass]="{'no-display':!menuOpened}" class="mlabel">Settings</span> -->
 </a>
 
+</div>
+<div draggable="true" [class.chatOpened] = chatsOpened class="messanger-card fixed-bottom">
+  <div class='msg-header'>
+    <i *ngIf=!peopleView (click)=toggelePeopleView()  title = "Back" class="icon ion-android-arrow-back back-icon" ></i>
+    <div *ngIf=!peopleView class="mgs-media">
+      <div class="media-dp">
+        <img src='../../../../assets/img/cl.jpg'/>
+      </div>
+      <div class="media-subinfo">
+        <p class="media-name">{{curPerson.info.personal.firstName+' '+curPerson.info.personal.lastName}}</p>
+        <p style='font-weight:normal;font-size:15px; color:grey' class="media-name dept-name">{{curPerson.info.official.department}}</p>
+      </div>
+    </div>
+    <div *ngIf=peopleView class="mgs-media">
+      <h4>Messages</h4>
+    </div>
+    <div class='icons-wrap'>
+      <div (click)=toggelePeopleView()  class="chats-icon">
+        <i class="icon ion-ios-email-outline m-auto text-primary"></i>
+      </div>
+      <div (click) = toggleChats() [class.arrowup] = chatsOpened class="arrow-icon">
+        <i  class="icon ion-ios-arrow-down"></i>
+      </div>
+    </div>
+  </div>
+
+  <div class='chat-people'>
+    <div style="padding: 20px 30px;" *ngIf=!peopleView >
+      <div *ngFor="let chats of getCurrentChats(); let i = index"class="message"[ngClass]="getMsgClass(i)">
+        <div *ngFor="let msg of chats; let first = first; let last = last" class="message-container">
+            <div [ngClass]="{'off':isSender(i)}" class="message-avatar">
+                <a href="#" class="profile-link"></a>
+                <div class="msg-avatar">
+                    <span class="avatar-container">
+                      <img [src] = getMsgDp(msg.sender)
+                      [ngClass]="{'invisible':!last}" class=" msg-image"/>
+                    </span>
+                </div>
+            </div>
+            <div class="message-msg" >
+                <div class="msg-contentContainer">
+                    <div class="msg-text">
+                        <div class="msg-container">
+                            <p class="msg-msg msg-size">{{msg.message}}</p>
+                        </div>
+                    </div>
+                </div>
+                <div [class.off]= !last [ngStyle] = timeStyler(i)  class="bottom-line">
+                  <p style='padding-left: 20px;'>{{msg.sendOn|date:'MMM d, y hh:mma'}}</p>
+                  <p><i [ngClass]="{'off':!isSender(i)}" class="icon ion-ios-checkmark-empty fa-2x fa-fw"></i></p>
+                </div>
+            </div>
+          </div>
+      </div>
+    </div>
+
+
+    <div *ngIf=peopleView  class='chat-people-wrap'>
+        <div (click) = selectPerson(person) *ngFor="let person of getContacts()" class="mgs-media chats-media">
+          <div class='media-box'>
+            <div class="media-dp">
+              <img [src] = getDp(person.info.personal.avatar)/>
+            </div>
+            <div class="media-subinfo">
+              <p class="media-name">{{person.info.personal.firstName+' '+person.info.personal.lastName}} <span class='date-time'><p style='font-weight:normal;font-size: 12px;' class="media-name dept-name">{{getLastChatTime(person)|date:'MMM d, y'}}</p></span></p>
+              <p class="media-name dept-name">{{getLastMessage(person)}}</p>
+            </div>
+          </div>
+        </div>
+    </div>
+
+    <div class='msg-footer'>
+      <div class='textContainer'>
+        <div title="Attach" class="attachment">
+          <i style="left:11px;position:relative"  class="icon ion-ios-plus-empty fa-2x fa-fw"></i>
+        </div>
+        <textarea rows=1
+          [(ngModel)] ="message"
+          (keypress)="check($event)"
+          placeholder ='Start a new message'
+          id="msgLine"
+          name="chat"
+          class="patientdata dystolic inputs dataInfo">
+        </textarea>
+        <div class="attachment send">
+          <i title="Send" style="left:9px;position:relative;font-size: 21px;" class="icon ion-android-send fa-2x fa-fw"></i>
+        </div>
+      </div>
+    </div>
 </div>

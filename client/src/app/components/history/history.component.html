@@ -880,7 +880,7 @@ max-width:100%;">
                 </div>
                 <div class="card-body rightcardbody">
                     <h1
-                    class="dept headtitle empty-record-state">NO RECORD</h1>
+                    class="dept headtitle empty-record-state">NO RECORD SO FAR</h1>
                     <div class="carditem"></div>
                 </div>
             </div>
@@ -1025,7 +1025,7 @@ max-width:100%;">
                     </div>
                     <div style='height:100%;padding-left: 17px;' class="card-body midcardbody">
                         <h1 *ngIf="!patient.record.investigations.tests.length"
-                        class="dept headtitle record-placeholder empty-record-state">NO RECORD</h1>
+                        class="dept headtitle record-placeholder empty-record-state">NO RECORD SO FAR</h1>
                         <div  *ngFor="let tests of patient.record.investigations.tests; let i = index"  class="carditem priscriptioncontainer order">
                             <div style='left:-7.2%' class="timeline condition drugtimeline">
                                 <p class="timelinedate"> {{tests[0]?.stamp.dateAdded|date:'dd'}}</p>
@@ -1073,7 +1073,7 @@ max-width:100%;">
                     </div>
                     <div style='height:100%;padding-left: 17px;' class="card-body midcardbody">
                         <h1 *ngIf="!patient.record.investigations.scans.length"
-                          class="dept headtitle record-placeholder empty-record-state">NO RECORD</h1>
+                          class="dept headtitle record-placeholder empty-record-state">NO RECORD SO FAR</h1>
                         <div  *ngFor="let scans of patient.record.investigations.scans; let i = index"  class="carditem priscriptioncontainer order">
                             <div style='left:-7.2%' class="timeline condition drugtimeline">
                                 <p class="timelinedate"> {{scans[0]?.stamp.dateAdded|date:'dd'}}</p>
@@ -1124,7 +1124,7 @@ max-width:100%;">
                   <h1 class="dept headtitle">NOTES</h1>
               </div>
               <div  class="card-body notecardbody">
-                  <h1 *ngIf='!patient.record.notes.length' style='color:lightgrey; ' class="dept headtitle record-placeholder">NO RECORD</h1>
+                  <h1 *ngIf='!patient.record.notes.length' style='color:lightgrey; ' class="dept headtitle record-placeholder">NO RECORD SO FAR</h1>
                   <div *ngFor = "let note of patient.record.notes; let i=index" class="carditem noteitem writeup">
                     <div style="position:absolute;left:-3%;" class="timeline lastdoc priscriber headerdp small-dp">
                       <img [src] = getDp(note.stamp.addedBy.info.personal.avatar)/>
@@ -1148,7 +1148,7 @@ max-width:100%;">
                         <h1 class="dept headtitle">PROCEDURES</h1>
                     </div>
                     <div style='height:100%;padding-left: 17px;' class="card-body midcardbody">
-                        <h1 *ngIf="!patient.record.surgeries.length" style='color:lightgrey; ' class="dept headtitle record-placeholder">NO RECORD</h1>
+                        <h1 *ngIf="!patient.record.surgeries.length" style='color:lightgrey; ' class="dept headtitle record-placeholder">NO RECORD SO FAR</h1>
                         <div  *ngFor="let surgeries of patient.record.surgeries; let i = index"  class="carditem priscriptioncontainer order">
                             <div style='left:-7.2%' class="timeline condition drugtimeline">
                                 <p class="timelinedate"> {{surgeries[0]?.stamp.dateAdded|date:'dd'}}</p>
@@ -1203,7 +1203,7 @@ max-width:100%;">
                         </h1>
                     </div>
                     <div [class.back]='clientMode==="edit"' [class.front]='clientMode==="view"' style='height:100%;padding-left: 17px;position:absolute;width:100%;' class="card-body midcardbody">
-                        <h1 *ngIf="!patient.record.immunization.vaccins.length" style='color:lightgrey; ' class="dept headtitle record-placeholder">NO RECORD</h1>
+                        <h1 *ngIf="!patient.record.immunization.vaccins.length" style='color:lightgrey; ' class="dept headtitle record-placeholder">NO RECORD SO FAR</h1>
                         <div  *ngFor="let vaccins of patient.record.immunization.vaccins; let i = index"  class="carditem priscriptioncontainer order">
                             <div style='left:-7.2%' class="timeline condition drugtimeline">
                                 <p class="timelinedate"> {{vaccins[0]?.stamp.dateAdded|date:'dd'}}</p>
@@ -1284,7 +1284,7 @@ max-width:100%;">
                         <h1 class="dept headtitle">HISTORY</h1>
                     </div>
                     <div style ="padding-left:17px;" class="card-body rightcardbody">
-                        <h1 *ngIf='!patient.record.histories.length' class="dept headtitle empty-record-state">NO RECORD</h1>
+                        <h1 *ngIf='!patient.record.histories.length' class="dept headtitle empty-record-state">NO RECORD SO FAR</h1>
                         <div *ngIf= patient.record.histories.length >
                         <div  *ngFor="let h of patient.record.histories; let i = index"  class="carditem priscriptioncontainer order">
                           <div style='left:-7.2%' class="timeline condition drugtimeline">
@@ -1320,7 +1320,7 @@ max-width:100%;">
                         <h1 class="dept headtitle">EXAMINATIONS</h1>
                     </div>
                     <div style ="padding-left:17px;" class="card-body rightcardbody">
-                        <h1 *ngIf='!patient.record.examinations.length' class="dept headtitle empty-record-state">NO RECORD</h1>
+                        <h1 *ngIf='!patient.record.examinations.length' class="dept headtitle empty-record-state">NO RECORD SO FAR</h1>
                           <div  *ngFor="let exam of patient.record.examinations; let i = index"  class="carditem priscriptioncontainer order">
                             <div style='left:-7.2%' class="timeline condition drugtimeline">
                                 <p class="timelinedate"> {{exam[0]?.stamp.dateAdded|date:'dd'}}</p>
@@ -1338,7 +1338,7 @@ max-width:100%;">
                         <h1 class="dept headtitle">CONDITIONS</h1>
                     </div>
                     <div class="card-body rightcardbody" style ="padding-left:17px;">
-                        <h1 *ngIf= !patient.record.conditions.length class="dept headtitle empty-record-state">NO RECORD</h1>
+                        <h1 *ngIf= !patient.record.conditions.length class="dept headtitle empty-record-state">NO RECORD SO FAR</h1>
                         <div *ngFor="let conditions of patient.record.conditions; let i = index"  class="carditem priscriptioncontainer order">
                           <div style='left:-7.2%' class="timeline condition drugtimeline">
                               <p class="timelinedate">{{conditions[0]?.stamp.dateAdded|date:'dd'}}</p>
@@ -1357,7 +1357,7 @@ max-width:100%;">
                     </div>
                     <div  style ="padding-left:17px;" class="card-body rightcardbody">
                         <!-- <h1 *ngIf='!patient.record.medications.length'
-                          class="dept headtitle record-placeholder empty-record-state">NO RECORD</h1> -->
+                          class="dept headtitle record-placeholder empty-record-state">NO RECORD SO FAR</h1> -->
                         <div *ngFor="let med of patient.record.medications; let i = index"  class="carditem priscriptioncontainer order">
                             <div style='left:-7.2%' class="timeline condition drugtimeline">
                                 <p class="timelinedate">{{med[0]?.stamp.dateAdded|date:'dd'}}</p>
